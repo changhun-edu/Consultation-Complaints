@@ -57,6 +57,21 @@
     .decisionList{display:grid;gap:9px}.decisionItem{border:1px solid var(--line);border-radius:16px;padding:13px;background:#fff}.decisionItem strong{display:block;margin-bottom:4px}.decisionItem p{margin:0;color:#667085;line-height:1.45;font-size:14px}.decisionItem.good{border-color:#bbf7d0;background:#f0fdf4}.decisionItem.warn{border-color:#fed7aa;background:#fff7ed}.decisionItem.danger{border-color:#fecaca;background:#fef2f2}
     @media(max-width:860px){.workbenchHeader,.workbenchGrid{grid-template-columns:1fr}.processDiagram{display:grid;grid-template-columns:1fr}.processStep:not(:last-child)::after{content:"↓";right:50%;top:auto;bottom:-21px;transform:translateX(50%)}}
 
+
+    /* v10: 의사결정 연습 퀴즈 UI 개선 */
+    #quiz .card{position:relative;overflow:hidden}
+    #quiz .card::before{content:"";position:absolute;right:-90px;top:-90px;width:220px;height:220px;background:radial-gradient(circle,#ccfbf1,transparent 70%);opacity:.75}
+    .quizStepHeader{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px}
+    .quizStepHeader b{font-size:16px;color:#0f172a}.quizProgress{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:12px 0 18px}.quizProgress span{display:block;height:100%;background:linear-gradient(90deg,#0f766e,#2563eb);border-radius:999px;transition:.25s ease}
+    .quizQuestion{border:1px solid var(--line);background:linear-gradient(180deg,#fff,#f8fafc);border-radius:24px;padding:20px;margin-top:16px}.quizQuestion h3{margin:0 0 8px;font-size:22px;letter-spacing:-.4px}.quizQuestion .sub{margin:0 0 14px}
+    .multiChoices{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:14px}
+    .multiChoices button{appearance:none;border:2px solid #dbe3ef;background:#fff;border-radius:18px;padding:16px 16px 15px;text-align:left;cursor:pointer;font-weight:950;font-size:15px;line-height:1.35;min-height:92px;box-shadow:0 6px 16px rgba(15,23,42,.04);transition:.18s ease;position:relative;overflow:hidden}
+    .multiChoices button::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:#e5e7eb;transition:.18s ease}.multiChoices button:hover{border-color:#14b8a6;background:#f0fdfa;transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,23,42,.10)}.multiChoices button:hover::before{background:#14b8a6}.multiChoices button.selected{border-color:#0f766e;background:#ccfbf1;box-shadow:0 10px 26px rgba(15,118,110,.18)}.multiChoices button.selected::before{background:#0f766e}
+    .multiChoices button small{display:block;margin-top:8px;color:#667085;font-weight:800;font-size:12px;line-height:1.45}.multiChoices button.selected small{color:#0f766e}
+    #quiz .quizBtns{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);align-items:center}.quizBtns .btn{min-width:112px}.quizBtns .btn.light{background:#f8fafc;border:1px solid var(--line);color:#334155}.quizBtns .btn.secondary{background:#eef2ff;color:#3730a3;box-shadow:none;border:1px solid #c7d2fe}.quizBtns .btn.secondary:hover{background:#e0e7ff}.btn:hover{filter:brightness(.98);transform:translateY(-1px)}
+    .quizFeedbackPanel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;margin-top:16px;box-shadow:0 8px 24px rgba(15,23,42,.06);line-height:1.65}.quizFeedbackPanel b{font-size:18px}.quizBadgeBig{font-size:34px;margin-bottom:8px}.quizExplain{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    @media(max-width:860px){.multiChoices{grid-template-columns:1fr}.multiChoices button{min-height:auto}.quizExplain{grid-template-columns:1fr}}
+
   </style>
 </head>
 <body>
@@ -360,6 +375,17 @@ function expectedQuiz(c,key){
     return '즉시 개입';
   }
 }
+
+function optionDesc(key,o){
+  const map={
+    classify:{'상담':'학생 지원 중심의 대화','경계':'민원 전환 가능성이 있는 상황','민원':'조치·시정·공식 답변 요구','특이민원':'반복·폭언·부당요구 등 위험 신호'},
+    reason:{'학생 지원 목적':'아이의 성장·생활 지원이 중심','특정 조치 요구':'학교에 행동·변경을 요구','학교 책임 주장':'책임 소재를 따지는 표현','반복·압박 신호':'동일 요구 반복 또는 압박'},
+    teacherAction:{'상담 진행':'교사가 상담을 계속 진행','상담 진행 + 기록':'경계 상황이므로 기록 병행','공식 창구 안내 + 민원대응팀 공유':'민원 전환 가능성에 대비','개인 대응 중단 + 즉시 보고':'특이민원 위험 시 즉시 중단'},
+    teamAction:{'Level1 담임 자율':'담임이 자율 상담·안내','Level2 부장 공유':'사실 확인 및 내용 공유','Level3 민원대응팀 검토':'팀 단위 검토와 대응 방향 결정','Level4 학교장 총괄':'반복·부당 요구 등 기관 대응'}
+  };
+  return (map[key]&&map[key][o])?map[key][o]:'선택 후 해설을 확인합니다';
+}
+
 function showQuizIntro(){
   quizBox.innerHTML=`<div class="quizFeedbackPanel"><div class="quizBadgeBig">🎯</div><b>퀴즈 방식</b><br>한 사례마다 4개 질문을 풉니다. ① 상담/경계/민원 판정 ② 판단 신호 ③ 교사 행동 ④ 민원대응팀 개입 수준을 차례로 고릅니다.<div class="quizExplain"><div class="teacher"><b>교사 연습</b><br>혼자 상담을 계속할지, 기록할지, 공유할지 판단합니다.</div><div class="team teamOnly"><b>민원대응팀 연습</b><br>개입 수준·처리 주체·종결 가능성까지 함께 확인합니다.</div></div></div>`
 }
@@ -374,7 +400,7 @@ function showQuiz(){
   }
   let c=quiz[qi], st=quizSteps[quizStep];
   let progress=((qi*quizSteps.length+quizStep)/(quiz.length*quizSteps.length))*100;
-  quizBox.innerHTML=`<div class="quizStepHeader"><b>${qi+1}/${quiz.length}번 사례 · ${quizStep+1}/4</b><span class="tag ${tagClass(c.ans,c.temp)}">${c.ans}</span></div><div class="quizProgress"><span style="width:${progress}%"></span></div><div class="scenario">${c.text}</div><div class="quizQuestion"><h3>${st.title}</h3><p class="sub">${st.desc}</p><div class="multiChoices">${st.options.map(o=>`<button onclick="quizAns('${o.replace(/'/g,"\'")}',this)">${o}</button>`).join('')}</div></div>`
+  quizBox.innerHTML=`<div class="quizStepHeader"><b>${qi+1}/${quiz.length}번 사례 · ${quizStep+1}/4</b><span class="tag ${tagClass(c.ans,c.temp)}">${c.ans}</span></div><div class="quizProgress"><span style="width:${progress}%"></span></div><div class="scenario">${c.text}</div><div class="quizQuestion"><h3>${st.title}</h3><p class="sub">${st.desc}</p><div class="multiChoices">${st.options.map(o=>`<button class="quiz-option" onclick="quizAns('${o.replace(/'/g,"\'")}',this)"><span>${o}</span><small>${optionDesc(st.key,o)}</small></button>`).join('')}</div></div>`
 }
 function quizAns(a,btn){
   let c=quiz[qi], st=quizSteps[quizStep], expected=expectedQuiz(c,st.key);
