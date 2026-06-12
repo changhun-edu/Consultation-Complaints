@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>상담일까? 민원일까?</title>
+  <style>
+    :root{
+      --green:#0f766e; --green2:#14b8a6; --yellow:#f59e0b; --orange:#f97316; --red:#ef4444;
+      --blue:#2563eb; --ink:#111827; --muted:#667085; --bg:#f7fafc; --card:#fff; --line:#e6eaf0;
+      --shadow:0 18px 50px rgba(15,23,42,.10);
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:"Pretendard","Noto Sans KR",Arial,sans-serif;background:radial-gradient(circle at top left,#e6fffb 0,#f7fafc 34%,#f8fafc 100%);color:var(--ink)}
+    .wrap{max-width:1120px;margin:0 auto}
+    header{background:transparent;color:var(--ink);padding:22px 20px 34px}
+    .top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}
+    .logo{font-weight:950;font-size:22px;letter-spacing:-.5px;display:flex;align-items:center;gap:8px}.logo:before{content:"💬"}
+    .mode{display:flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
+    .mode button{border:0;border-radius:999px;padding:9px 14px;color:#475467;background:transparent;font-weight:900;cursor:pointer}.mode button.active{background:var(--green);color:#fff;box-shadow:0 8px 18px rgba(15,118,110,.22)}
+    .hero{display:grid;grid-template-columns:.86fr 1.14fr;gap:28px;align-items:center;margin-top:10px}
+    .hero h1{font-size:54px;line-height:1.04;margin:0 0 16px;letter-spacing:-2px}.hero p{font-size:18px;color:#475467;line-height:1.65;margin:0 0 20px}.pill{display:inline-flex;gap:8px;align-items:center;background:#ecfeff;color:#0f766e;border:1px solid #99f6e4;padding:8px 12px;border-radius:999px;margin-bottom:14px;font-weight:900;font-size:14px}
+    .quickStats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}.quickStats div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 8px 22px rgba(15,23,42,.05)}.quickStats b{display:block;font-size:22px;color:var(--green)}.quickStats span{font-size:13px;color:var(--muted);font-weight:700}
+    .heroCard{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:32px;padding:28px;box-shadow:var(--shadow);position:relative;overflow:hidden}.heroCard:before{content:"오늘의 사례";position:absolute;right:20px;top:18px;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;border-radius:999px;padding:7px 11px;font-weight:950;font-size:13px}.heroCard h2{font-size:24px;margin:0 0 4px;color:var(--ink)}.heroCard .subMini{color:var(--muted);margin:0 0 14px;font-weight:700}
+    nav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.84);backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.5);border-bottom:1px solid var(--line)}nav .wrap{display:flex;gap:8px;overflow:auto;padding:10px 20px}nav a{text-decoration:none;color:#475467;font-weight:900;padding:9px 13px;border-radius:999px;white-space:nowrap}nav a:hover{background:#ecfeff;color:var(--green)}
+    section{padding:30px 20px}.card{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:26px;padding:24px;box-shadow:0 10px 30px rgba(15,23,42,.06);margin-bottom:20px}.sectionTitle{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:14px}h2{margin:0;color:var(--green);font-size:26px;letter-spacing:-.7px}.sub{color:var(--muted);line-height:1.55}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.mini{border:1px solid var(--line);border-radius:20px;padding:18px;background:#fff}.mini h3{margin:0 0 8px}.tag{display:inline-block;border-radius:999px;padding:6px 10px;font-weight:950;font-size:13px}.t-green{background:#dcfce7;color:#166534}.t-yellow{background:#fef3c7;color:#92400e}.t-orange{background:#ffedd5;color:#9a3412}.t-red{background:#fee2e2;color:#991b1b}.t-blue{background:#dbeafe;color:#1d4ed8}
+    .scenario{font-size:25px;line-height:1.65;background:linear-gradient(180deg,#f8fafc,#fff);border:1px solid var(--line);border-left:8px solid var(--green2);border-radius:22px;padding:24px;margin:16px 0 18px;font-weight:850;letter-spacing:-.7px}.card .scenario{font-size:20px;font-weight:700}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.choice{border:2px solid var(--line);background:#fff;border-radius:20px;padding:18px;cursor:pointer;text-align:left;font-weight:950;font-size:18px;transition:.18s ease}.choice:hover{transform:translateY(-3px);box-shadow:0 14px 28px rgba(15,23,42,.10);border-color:#99f6e4}.choice small{display:block;font-weight:700;color:var(--muted);margin-top:5px;font-size:13px}.result{display:none;margin-top:16px;border-radius:20px;padding:18px;background:#ecfdf5;border:1px solid #99f6e4;line-height:1.65}.result.show{display:block}.teacher,.team{border-radius:18px;padding:16px;margin-top:12px}.teacher{background:#eff6ff}.team{background:#fff7ed}.teamOnly{display:none}.team-mode .teamOnly{display:block}.temp{height:18px;border-radius:999px;background:linear-gradient(90deg,#22c55e,#facc15,#f97316,#ef4444);position:relative;margin:16px 0}.needle{position:absolute;top:-7px;width:4px;height:32px;background:#111827;border-radius:999px}.tempLabels{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.caseCard{border:1px solid var(--line);border-radius:20px;padding:18px;background:#fff;cursor:pointer;transition:.18s ease}.caseCard:hover{border-color:#14b8a6;transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,23,42,.08)}.timeline{display:grid;gap:12px}.stage{display:grid;grid-template-columns:110px 1fr 140px;gap:12px;align-items:center;border:1px solid var(--line);border-radius:18px;padding:15px;background:#fff}.quizBtns{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:16px;background:var(--green);color:white;padding:14px 19px;font-weight:950;cursor:pointer;box-shadow:0 10px 24px rgba(15,118,110,.18)}.btn.secondary{background:#2563eb}.btn.light{background:#f3f4f6;color:#111827;box-shadow:none}.scoreBox{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.score{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;text-align:center}.score strong{font-size:28px;color:#0f766e}.footer{padding:32px 20px;color:#667085;text-align:center}.note{font-size:13px;color:#667085;line-height:1.5}.hidden{display:none!important}
+
+    .boundaryMap{display:grid;grid-template-columns:1fr;gap:14px;margin-top:18px}.branchNode{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.05)}.branchNode.main{border-left:8px solid var(--green2)}.branchTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}.branchQuote{font-size:20px;line-height:1.55;font-weight:850;letter-spacing:-.4px;margin:10px 0 12px}.why{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:16px;padding:12px;margin:10px 0;color:#344054}.actionGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.actionBox{border-radius:16px;padding:14px;line-height:1.55}.actionBox.teacherBox{background:#eff6ff}.actionBox.teamBox{background:#fff7ed}.branchChoice{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}.pathBtn{border:1px solid var(--line);background:#fff;border-radius:16px;padding:13px;text-align:left;cursor:pointer;font-weight:900}.pathBtn:hover{border-color:#14b8a6;box-shadow:0 8px 20px rgba(15,23,42,.08)}.pathBtn.active{border-color:#0f766e;background:#f0fdfa}.branchLine{width:2px;height:18px;background:#cbd5e1;margin:0 auto}.branchResult{display:none}.branchResult.show{display:block}.scenarioNav{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.scenarioNav button{border:0;border-radius:999px;padding:9px 12px;background:#f3f4f6;color:#344054;font-weight:900;cursor:pointer}.scenarioNav button.active{background:#0f766e;color:#fff}.fork{display:grid;grid-template-columns:1fr 1fr;gap:14px}.fork .branchNode{height:100%}
+
+    .caseTools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.filterBtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 12px;font-weight:900;cursor:pointer;color:#344054}.filterBtn.active{background:#0f766e;color:#fff;border-color:#0f766e}.caseCard .caseMeta{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.miniTag{font-size:12px;border-radius:999px;background:#f3f4f6;color:#475467;padding:5px 8px;font-weight:900}.caseDetailGrid{display:grid;grid-template-columns:1.05fr .95fr;gap:16px}.judgePanel{border:1px solid var(--line);border-radius:20px;background:#fff;padding:18px}.judgeBtns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.judgeBtns button{border:2px solid var(--line);background:#fff;border-radius:16px;padding:14px;font-weight:950;cursor:pointer}.judgeBtns button:hover{border-color:#14b8a6;transform:translateY(-2px)}.judgeBtns button.selected{background:#f0fdfa;border-color:#0f766e}.caseFeedback{display:none;margin-top:14px}.caseFeedback.show{display:block}.whyChips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.whyChips span{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:999px;padding:7px 10px;font-weight:850;color:#344054}.nextQuestion{background:#fffbeb;border:1px solid #fde68a;border-radius:18px;padding:14px;margin-top:12px}.caseFooterBtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.difficulty{font-size:13px;font-weight:950;color:#667085}.difficulty b{color:#111827}
+
+    @media(max-width:860px){header{padding:18px 16px 26px}.top{align-items:flex-start}.mode button{padding:8px 10px;font-size:13px}.hero,.grid,.cards,.scoreBox,.actionGrid,.branchChoice,.fork,.caseDetailGrid,.judgeBtns{grid-template-columns:1fr}.hero h1{font-size:39px}.quickStats{grid-template-columns:1fr}.choices{grid-template-columns:1fr}.stage{grid-template-columns:1fr}.scenario{font-size:21px}.heroCard:before{position:static;display:inline-block;margin-bottom:8px}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="logo">상담일까? 민원일까?</div>
+      <div class="mode"><button id="teacherMode" class="active" onclick="setMode('teacher')">교사 모드</button><button id="teamMode" onclick="setMode('team')">민원대응팀 모드</button></div>
+    </div>
+    <div class="hero">
+      <div>
+        <div class="pill">📘 학교 민원 처리 매뉴얼 기반 · 운영비 0원</div>
+        <h1>이 상황,<br>상담일까요<br>민원일까요?</h1>
+        <p>일반 교사는 <b>계속 상담할지</b>, <b>학교 체계로 공유할지</b>를 빠르게 판단합니다. 민원대응팀 모드에서는 같은 사례를 더 깊게 검토합니다.</p>
+        <div class="quickStats">
+          <div><b>3단계</b><span>상담 · 경계 · 민원</span></div>
+          <div><b>10초</b><span>빠른 판별 훈련</span></div>
+          <div><b>0원</b><span>서버·API 없음</span></div>
+        </div>
+      </div>
+      <div class="heroCard">
+        <h2>바로 판단해 보세요</h2>
+        <p class="subMini">첫 화면에서 곧바로 연습을 시작합니다.</p>
+        <div class="scenario" id="mainScenario">“우리 아이가 친구와 갈등이 있어 상담을 받고 싶습니다.”</div>
+        <div class="choices"><button class="choice" onclick="answerMain('상담')">🟢 상담<small>학생 지원 중심</small></button><button class="choice" onclick="answerMain('경계')">🟡 경계<small>민원 전환 가능</small></button><button class="choice" onclick="answerMain('민원')">🔴 민원<small>조치·시정 요구</small></button></div><div id="mainResult" class="result"></div></div>
+    </div>
+  </div>
+</header>
+<nav><div class="wrap"><a href="#diagnosis">10초 판별</a><a href="#boundary">상담→민원</a><a href="#cases">사례 카드</a><a href="#team">민원대응팀 활용</a><a href="#quiz">연습 퀴즈</a></div></nav>
+<main class="wrap" id="app">
+<section id="diagnosis"><div class="card"><div class="sectionTitle"><div><h2>10초 판별</h2><p class="sub">숫자 퍼센트 대신 <b>5단계 신호등</b>으로 판단합니다. 핵심은 “교사가 계속 상담할지, 학교 체계로 공유할지”입니다.</p></div></div><div class="grid"><div class="mini"><span class="tag t-green">1단계</span><h3>상담</h3><p>학생 지원 목적이 분명합니다. 교사가 상담을 진행합니다.</p></div><div class="mini"><span class="tag t-blue">2단계</span><h3>상담 + 기록</h3><p>불만·사실 확인이 포함됩니다. 상담은 하되 기록을 남깁니다.</p></div><div class="mini"><span class="tag t-yellow">3단계</span><h3>경계</h3><p>책임 추궁이나 결과 변경 요구로 전환될 수 있습니다. 공유를 검토합니다.</p></div><div class="mini"><span class="tag t-orange">4단계</span><h3>민원</h3><p>학교에 특정한 행위, 조치, 시정, 변경을 요구합니다.</p></div><div class="mini"><span class="tag t-red">5단계</span><h3>특이민원 위험</h3><p>반복 연락, 폭언, 협박, 부당요구가 있으면 개인 대응을 중단합니다.</p></div></div></div>
+<div class="card"><h2>자가진단 체크</h2><p class="sub">해당되는 항목을 체크하세요. AI 없이 브라우저 안에서만 판정합니다.</p><div class="grid"><label class="mini"><input type="checkbox" class="check" data-type="support" value="-3"> 학생의 성장·지원이 중심이다</label><label class="mini"><input type="checkbox" class="check" data-type="fact" value="1"> 사실 확인이나 설명을 요구한다</label><label class="mini"><input type="checkbox" class="check" data-type="action" value="3"> 학교에 무언가를 해달라고 요구한다</label><label class="mini"><input type="checkbox" class="check" data-type="change" value="3"> 결과·처분·평가·기록 변경을 요구한다</label><label class="mini"><input type="checkbox" class="check" data-type="blame" value="2"> 학교나 교사의 책임을 주장한다</label><label class="mini"><input type="checkbox" class="check" data-type="teacher" value="2"> 특정 교사를 대상으로 요구한다</label><label class="mini"><input type="checkbox" class="check" data-type="repeat" value="4"> 반복 연락, 장시간 통화, 계속 요구가 있다</label><label class="mini"><input type="checkbox" class="check" data-type="abuse" value="5"> 폭언·협박·모욕·압박 표현이 있다</label></div><br><button class="btn" onclick="diagnose()">판별하기</button><button class="btn light" onclick="resetDiagnosis()">체크 초기화</button><div id="diagnosisResult" class="result"></div></div></section>
+<section id="boundary"><div class="card"><div class="sectionTitle"><div><h2>상담 → 민원 발전 지도</h2><p class="sub">상담이 항상 민원으로 가는 것은 아닙니다. 같은 출발점에서도 <b>상담 종결</b>, <b>상담 복귀</b>, <b>민원 전환</b>, <b>특이민원 위험</b>으로 갈라질 수 있습니다.</p></div></div><div class="scenarioNav"><button class="active" onclick="setBoundaryScenario(0,this)">친구 관계</button><button onclick="setBoundaryScenario(1,this)">평가 불만</button><button onclick="setBoundaryScenario(2,this)">생활지도 불만</button></div><div id="boundaryMap" class="boundaryMap"></div></div></section>
+<section id="cases"><div class="card"><div class="sectionTitle"><div><h2>사례 카드 연습</h2><p class="sub">정답이 뻔한 카드보다 <b>애매한 경계 사례</b>를 많이 넣었습니다. 먼저 판정하고, 왜 그렇게 판단했는지와 다음 행동을 확인합니다.</p></div><div class="caseTools"><button class="btn light" onclick="newCase()">랜덤 사례</button></div></div><div class="caseTools" style="margin-bottom:14px"><button class="filterBtn active" onclick="filterCases('전체',this)">전체</button><button class="filterBtn" onclick="filterCases('상담',this)">상담</button><button class="filterBtn" onclick="filterCases('경계',this)">경계</button><button class="filterBtn" onclick="filterCases('민원',this)">민원</button><button class="filterBtn" onclick="filterCases('특이민원 가능',this)">특이민원</button></div><div class="cards" id="caseList"></div></div></section>
+<section id="team"><div class="card"><div class="sectionTitle"><div><h2>민원대응팀 워크벤치</h2><p class="sub">메인은 교사 중심으로 유지하되, 민원대응팀 모드에서는 같은 사례를 <b>개입 수준·담당 주체·종결 가능성·교육활동 침해 가능성</b>까지 검토합니다.</p></div></div><div class="grid"><div class="mini"><span class="tag t-blue">교사 질문</span><h3>내가 계속 상담할까?</h3><p>상담·경계·민원 판정과 1차 행동을 확인합니다.</p></div><div class="mini"><span class="tag t-orange">대응팀 질문</span><h3>우리가 개입해야 하나?</h3><p>민원 유형, 처리 주체, 공식 창구, 종결 가능성을 판단합니다.</p></div><div class="mini"><span class="tag t-red">전환 기준</span><h3>개인 대응 → 기관 대응</h3><p>특정 조치 요구, 반복 요구, 폭언·압박이 생기면 학교 체계로 전환합니다.</p></div></div><div class="teamOnly"><hr><h3>개입 레벨 기준</h3><div class="teamMatrix"><div class="levelCard level1"><b>Level 1</b>교사 자율 상담<br><span class="note">학생 지원 중심</span></div><div class="levelCard level2"><b>Level 2</b>부장 공유 검토<br><span class="note">불만·사실확인</span></div><div class="levelCard level3"><b>Level 3</b>교감 검토<br><span class="note">책임 주장·조치 요구</span></div><div class="levelCard level4"><b>Level 4</b>민원대응팀 개입<br><span class="note">반복·부당 요구</span></div><div class="levelCard level5"><b>Level 5</b>학교장+지원청 검토<br><span class="note">특이민원·침해 가능</span></div></div><h3 style="margin-top:18px">처리 흐름</h3><div class="processFlow"><div>접수</div><div>검토</div><div>분류</div><div>배정</div><div>답변</div><div>종결/이첩</div></div><h3 style="margin-top:18px">민원대응팀 체크리스트</h3><div class="grid"><div class="mini">① 공식 접수 창구로 들어왔는가?</div><div class="mini">② 민원 유형은 무엇인가?</div><div class="mini">③ 처리 주체는 누구인가?</div><div class="mini">④ 종결 또는 거부 검토가 가능한가?</div><div class="mini">⑤ 교육활동 침해 가능성이 있는가?</div><div class="mini">⑥ 교육지원청 지원 요청이 필요한가?</div></div></div></div></section>
+<section id="quiz"><div class="card"><h2>의사결정 연습 퀴즈</h2><p class="sub">단순히 상담/민원을 맞히는 문제에서 끝내지 않고, <b>판정 → 근거 → 교사 행동 → 민원대응팀 개입</b>까지 한 사례를 4단계로 연습합니다.</p><div id="quizBox"></div><div class="quizBtns"><button class="btn" onclick="startQuiz()">퀴즈 시작</button><button class="btn light" onclick="showQuizIntro()">방식 보기</button><button class="btn secondary" onclick="resetProgress()">점수 초기화</button></div></div><div class="scoreBox"><div class="score"><strong id="bestScore">0</strong><br>최고점</div><div class="score"><strong id="tryCount">0</strong><br>도전 횟수</div><div class="score"><strong id="badge">-</strong><br>현재 배지</div><div class="score"><strong>0원</strong><br>운영비</div></div></section>
+</main><div class="footer">학교 민원 처리 매뉴얼 기반 예시 · HTML/CSS/JavaScript 단일 파일 · 서버/로그인/API 없음</div>
+<script>
+const cases=[
+{t:'수행평가 기준 문의',text:'“우리 아이가 수행평가 점수 때문에 많이 속상해합니다. 평가 기준을 설명해 주실 수 있을까요?”',ans:'경계',temp:48,difficulty:'상',why:['학생 정서 지원이 섞여 있음','평가 기준 설명 요구','아직 점수 변경 요구는 없음'],teacher:'평가 기준을 설명하고 상담 내용을 기록합니다. 점수 변경 요구로 이어지는지 살핍니다.',team:'즉시 개입보다는 모니터링입니다. 결과 변경 요구가 나오면 공식 절차 안내가 필요합니다.',next:'“설명을 들어도 납득이 안 됩니다. 점수를 다시 봐 주세요.”가 추가되면 민원으로 전환됩니다.',intervention:'공유 권장'},
+{t:'공개 지도 불만',text:'“저희 아이 말만 들어보면 공개적으로 지적받아 억울한 부분이 있는 것 같습니다. 선생님 말씀도 들어보고 싶습니다.”',ans:'경계',temp:52,difficulty:'상',why:['상담 요청 형식','불만·억울함 표현','사실 확인 필요'],teacher:'방어적으로 답하지 말고 상담 일정을 잡습니다. 사실관계 확인 후 기록을 남깁니다.',team:'현재 즉시 개입까지는 아니나, 사과·조치 요구가 나오면 공유받아야 합니다.',next:'“그 지도 방식은 문제가 있으니 공식적으로 사과해 주세요.”가 추가되면 민원입니다.',intervention:'공유 권장'},
+{t:'친구 관계 지원 요청',text:'“우리 아이가 친구들과 잘 어울리지 못하는 것 같습니다. 학교생활을 어떻게 도와주면 좋을까요?”',ans:'상담',temp:18,difficulty:'하',why:['학생 지원 목적','조치·시정 요구 없음','협력적 대화'],teacher:'상담을 진행하고 학생 관찰 및 지원 방안을 함께 세웁니다.',team:'개입 불필요입니다. 책임 추궁이나 특정 조치 요구가 추가되는지만 살핍니다.',next:'“상대 학생을 반드시 처벌해 주세요.”가 나오면 민원으로 바뀝니다.',intervention:'개입 불필요'},
+{t:'생활기록부 표현 문의',text:'“생활기록부 문구가 아이에게 불리하게 보일까 걱정됩니다. 어떤 기준으로 작성되는지 알고 싶습니다.”',ans:'경계',temp:50,difficulty:'상',why:['기록 관련 민감 사안','기준 설명 요구','아직 정정 요구는 아님'],teacher:'작성 기준과 절차를 안내하고, 정정 요구가 아닌 설명 요청인지 확인합니다.',team:'정정 요구나 이의 제기가 나오면 공식 절차 안내가 필요합니다.',next:'“그 문구를 삭제하거나 바꿔 주세요.”가 추가되면 민원입니다.',intervention:'공유 검토'},
+{t:'체험학습 절차 문의',text:'“가족 일정 때문에 체험학습을 신청하려고 합니다. 신청 절차가 어떻게 되나요?”',ans:'상담',temp:22,difficulty:'하',why:['절차 안내 요청','갈등·불만 없음','단순 설명 가능'],teacher:'학교 안내자료 또는 신청 절차를 안내합니다.',team:'민원대응팀 개입은 필요하지 않습니다. 단순 질의로 처리 가능합니다.',next:'“규정과 상관없이 반드시 승인해 주세요.”가 나오면 민원입니다.',intervention:'개입 불필요'},
+{t:'급식 불편 제기',text:'“아이가 급식이 입에 맞지 않아 거의 먹지 못한다고 합니다. 개선이 가능한지 궁금합니다.”',ans:'경계',temp:46,difficulty:'중',why:['불편 사항 제기','개선 가능성 문의','아직 강한 시정 요구는 아님'],teacher:'학생 상태를 확인하고 급식 관련 공식 안내 또는 담당 부서 연결을 안내합니다.',team:'반복 불만이나 개선 요구가 공식화되면 기타민원으로 접수·처리합니다.',next:'“급식 운영을 개선해 달라고 공식 요청합니다.”가 나오면 민원입니다.',intervention:'공유 검토'},
+{t:'점수 수정 요구',text:'“수행평가 채점이 부당합니다. 점수를 수정해 주세요.”',ans:'민원',temp:76,difficulty:'중',why:['결과 변경 요구','학교의 특정 행위 요구','공식 절차 필요'],teacher:'평가 기준 설명은 가능하지만, 변경 요구는 학교 절차로 공유합니다.',team:'평가 관련 사실 확인, 담당자 협조, 공식 답변 경로를 정합니다.',next:'“수정할 때까지 계속 전화하겠습니다.”가 나오면 특이민원 위험입니다.',intervention:'공유 필요'},
+{t:'담임 교체 요구',text:'“담임 선생님을 바꿔 주세요. 그대로 두면 교육청에 민원 넣겠습니다.”',ans:'민원',temp:86,difficulty:'중',why:['특정 교사 대상 요구','학교 조치 요구','압박성 표현 포함'],teacher:'교사 개인이 단독 대응하지 말고 관리자에게 공유합니다.',team:'관리자 총괄로 검토하고, 부당요구·교육활동 침해 가능성을 확인합니다.',next:'“교체 안 하면 가만두지 않겠습니다.”는 특이민원 위험입니다.',intervention:'즉시 공유'},
+{t:'반복 전화 예고',text:'“답이 마음에 들 때까지 매일 전화하겠습니다.”',ans:'특이민원 가능',temp:95,difficulty:'하',why:['반복 연락 예고','시간지연형 위험','개인 대응 한계'],teacher:'즉시 관리자 또는 민원대응팀에 알리고 개인 대응을 중단합니다.',team:'반복·시간지연형 특이민원 가능성. 종결 안내와 기록, 필요시 제한 조치를 검토합니다.',next:'폭언·협박이 동반되면 즉시 보호 조치와 관리자 개입이 필요합니다.',intervention:'즉시 개입'},
+{t:'사과 요구 직전 상황',text:'“아이에게 상처가 된 것 같습니다. 선생님이 어떤 의도로 말씀하셨는지 듣고 싶습니다.”',ans:'경계',temp:44,difficulty:'상',why:['상담 형식','감정적 손상 호소','사과 요구로 전환 가능'],teacher:'공감하되 사실관계를 확인하고, 대화 내용을 기록합니다.',team:'현재 개입보다는 공유 검토 단계입니다. 공식 사과 요구가 나오면 민원으로 전환됩니다.',next:'“공식적으로 사과해 주세요.”가 나오면 민원입니다.',intervention:'공유 검토'},
+{t:'학교폭력 결과 이의',text:'“학교폭력 사안 처리 결과에 동의할 수 없습니다. 다시 처리해 주세요.”',ans:'민원',temp:82,difficulty:'중',why:['처리 결과 이의','재처리 요구','공식 절차 필요'],teacher:'담임 단독 상담으로 해결하려 하지 말고 공식 절차를 안내합니다.',team:'관련 절차, 담당 부서, 기록, 답변 방식을 확인합니다.',next:'반복·위협 표현이 추가되면 특이민원 위험으로 전환됩니다.',intervention:'즉시 공유'},
+{t:'개인 연락 요구',text:'“학교 전화 말고 선생님 개인 휴대폰 번호로 바로 연락하면 안 될까요?”',ans:'경계',temp:58,difficulty:'중',why:['개인 연락 경로 요구','공식 창구 이탈 가능성','아직 민원 내용은 불명확'],teacher:'학교에서 정한 소통 창구를 안내하고 개인 연락처 사용은 피합니다.',team:'공식 창구 안내가 필요합니다. 반복되면 민원대응팀 공유가 적절합니다.',next:'개인 SNS·휴대전화로 반복 연락하면 거부 또는 종결 검토 대상입니다.',intervention:'공유 검토'}
+];
+function enrichCases(){
+  const map={
+    '수행평가 기준 문의':{level:'Level 2',type:'질의민원 가능',owner:'담임/평가 담당 협조',official:'아직 불필요',close:'낮음',infringe:'낮음',support:'불필요'},
+    '공개 지도 불만':{level:'Level 2',type:'상담+사실확인',owner:'담임, 필요 시 부장',official:'불만 지속 시 안내',close:'낮음',infringe:'낮음',support:'불필요'},
+    '친구 관계 지원 요청':{level:'Level 1',type:'상담',owner:'담임',official:'불필요',close:'상담 종결 가능',infringe:'없음',support:'불필요'},
+    '생활기록부 표현 문의':{level:'Level 2',type:'질의민원 가능',owner:'담임/학적 담당 협조',official:'정정 요구 시 필요',close:'낮음',infringe:'낮음',support:'불필요'},
+    '체험학습 절차 문의':{level:'Level 1',type:'질의·단순 안내',owner:'담임/교무',official:'불필요',close:'즉시 처리 가능',infringe:'없음',support:'불필요'},
+    '급식 불편 제기':{level:'Level 2',type:'기타민원 가능',owner:'담임 접수 후 급식 담당 협조',official:'개선 요구 시 필요',close:'낮음',infringe:'없음',support:'불필요'},
+    '점수 수정 요구':{level:'Level 3',type:'민원/결과 변경 요구',owner:'교감 검토+평가 담당 협조',official:'필요',close:'낮음',infringe:'반복 시 가능',support:'사안 복잡 시 검토'},
+    '담임 교체 요구':{level:'Level 4',type:'민원/특정 교사 대상 요구',owner:'관리자 총괄+민원대응팀',official:'필요',close:'부당요구면 검토',infringe:'가능',support:'필요 시 검토'},
+    '반복 전화 예고':{level:'Level 5',type:'특이민원 위험',owner:'학교장 총괄+민원대응팀',official:'공식창구 제한 검토',close:'종결·제한 검토',infringe:'높음',support:'검토 필요'},
+    '사과 요구 직전 상황':{level:'Level 2',type:'상담+경계',owner:'담임, 필요 시 부장',official:'공식 사과 요구 시 필요',close:'낮음',infringe:'낮음',support:'불필요'},
+    '학교폭력 결과 이의':{level:'Level 4',type:'민원/처리 결과 이의',owner:'관리자 총괄+담당 부서',official:'필요',close:'절차 진행 중이면 검토',infringe:'반복·압박 시 가능',support:'필요 시 검토'},
+    '개인 연락 요구':{level:'Level 3',type:'공식 창구 이탈 위험',owner:'담임 안내+관리자 공유',official:'반복 시 필요',close:'반복 시 거부 가능',infringe:'스토킹성 반복 시 가능',support:'불필요'}
+  };
+  cases.forEach(c=>Object.assign(c,map[c.t]||{level:'Level 2',type:'검토 필요',owner:'민원대응팀 검토',official:'상황별 판단',close:'상황별 판단',infringe:'상황별 판단',support:'상황별 판단'}));
+}
+enrichCases();
+let current=0;let quiz=[];let qi=0;let score=0;
+function setMode(m){document.body.classList.toggle('team-mode',m==='team');teacherMode.classList.toggle('active',m==='teacher');teamMode.classList.toggle('active',m==='team')}
+function answerMain(a){const ok=a==='상담';mainResult.className='result show';mainResult.innerHTML= ok?'<b>정답: 상담</b><br>학생의 교우관계 지원을 위한 요청입니다.<div class="teacher"><b>교사 행동</b><br>상담 예약, 학생 상황 확인, 상담 기록</div><div class="team teamOnly"><b>민원대응팀 참고</b><br>조치 요구·책임 추궁·반복 요구가 추가되면 민원으로 전환될 수 있습니다.</div>':'<b>다시 생각해 보세요.</b><br>아직 특정 조치나 시정 요구가 없으므로 상담에 가깝습니다.'}
+function diagnose(){
+  let s=0; const checked=[...document.querySelectorAll('.check:checked')];
+  checked.forEach(c=>s+=Number(c.value));
+  const has=(type)=>checked.some(c=>c.dataset.type===type);
+  let level, label, temp, teacherAction, teamAction, reason=[];
+  if(has('support')) reason.push('학생 지원 목적');
+  if(has('fact')) reason.push('사실 확인·설명 요구');
+  if(has('action')) reason.push('학교에 특정 행위 요구');
+  if(has('change')) reason.push('결과·처분·기록 변경 요구');
+  if(has('blame')) reason.push('학교·교사 책임 주장');
+  if(has('teacher')) reason.push('특정 교사 대상 요구');
+  if(has('repeat')) reason.push('반복·장시간 요구');
+  if(has('abuse')) reason.push('폭언·협박·압박 표현');
+  if(has('abuse') || has('repeat') || s>=8){
+    level='🚨 5단계 특이민원 위험'; temp=95;
+    teacherAction='교사 개인 대응을 중단하고 관리자·민원대응팀에 즉시 공유하세요. 상담을 계속 이어가지 않습니다.';
+    teamAction='특이민원 요소를 기록하고, 공식 창구 이용 안내·종결 가능성·관리자 개입·필요 시 보호 조치를 검토합니다.';
+  }else if(has('action') || has('change') || s>=5){
+    level='🟠 4단계 민원'; temp=75;
+    teacherAction='혼자 해결하려 하지 말고 학교 체계에 공유하세요. 사실관계 확인 후 공식 절차와 답변 경로를 안내합니다.';
+    teamAction='민원 유형을 검토하고 담당자 협조, 처리 기한, 답변 방식, 종결 기준을 정합니다.';
+  }else if(has('blame') || has('teacher') || s>=3){
+    level='🟡 3단계 경계'; temp=55;
+    teacherAction='상담은 가능하지만 기록을 남기고, 불만이 조치 요구로 바뀌는지 살핍니다. 필요하면 부장·관리자와 공유합니다.';
+    teamAction='현재 즉시 개입보다는 모니터링이 적절합니다. 책임 추궁·결과 변경 요구가 추가되면 민원 전환으로 봅니다.';
+  }else if(has('fact') || s>=1){
+    level='🔵 2단계 상담 + 기록'; temp=35;
+    teacherAction='상담을 진행하되 사실 확인 내용과 안내 내용을 간단히 기록하세요.';
+    teamAction='민원대응팀 개입은 보통 필요하지 않습니다. 반복 문의로 바뀌는지만 확인합니다.';
+  }else{
+    level='🟢 1단계 상담'; temp=15;
+    teacherAction='교사가 상담을 진행합니다. 학생 지원 방안을 중심으로 대화하세요.';
+    teamAction='개입 불필요. 상담이 조치 요구로 전환되는 경우에만 공유받습니다.';
+  }
+  diagnosisResult.className='result show';
+  diagnosisResult.innerHTML=`<b>${level}</b><br><span class="note">판단 근거: ${reason.length?reason.join(' · '):'체크된 위험 신호 없음'}</span><div class="temp"><div class="needle" style="left:${temp}%"></div></div><div class="tempLabels"><span>상담</span><span>상담+기록</span><span>경계</span><span>민원</span><span>특이</span></div><div class="teacher"><b>교사 행동</b><br>${teacherAction}</div><div class="team teamOnly"><b>민원대응팀 참고</b><br>${teamAction}</div>`
+}
+function resetDiagnosis(){document.querySelectorAll('.check').forEach(c=>c.checked=false);diagnosisResult.className='result';diagnosisResult.innerHTML=''}
+
+const boundaryScenarios=[
+{title:'친구 관계',start:'“아이가 친구들과 잘 어울리지 못하는 것 같습니다.”',startWhy:'학생의 학교생활 적응과 관계 지원이 목적이므로 상담으로 시작합니다.',supportEnd:'“상담해 보니 가정에서도 함께 도와보겠습니다.”',supportWhy:'학생 지원 방안에 합의했고 학교에 특정 조치 요구가 없습니다.',edge:'“왜 이런 일이 생겼는지 자세히 설명해 주세요.”',edgeWhy:'아직 민원은 아니지만 사실 확인 요구와 불만이 포함되어 기록이 필요합니다.',returnText:'“상황을 이해했습니다. 아이를 같이 지켜보겠습니다.”',returnWhy:'책임 추궁이나 조치 요구 없이 상담 목표로 돌아왔습니다.',complaint:'“학교가 제대로 지도하지 않은 책임이 있는 것 아닙니까?”',complaintWhy:'학교 책임을 주장하기 시작해 민원으로 전환될 수 있습니다.',demand:'“상대 학생을 반드시 처벌해 주세요.”',demandWhy:'학교에 특정 조치와 결과를 요구하므로 민원으로 보아야 합니다.',special:'“답이 마음에 들 때까지 계속 전화하겠습니다.”',specialWhy:'반복 연락 예고는 특이민원 위험 신호입니다.'},
+{title:'평가 불만',start:'“우리 아이 수행평가 기준이 궁금합니다.”',startWhy:'평가 기준에 대한 설명 요청으로 상담 또는 단순 질의에 가깝습니다.',supportEnd:'“기준을 들으니 이해했습니다. 아이에게도 설명하겠습니다.”',supportWhy:'설명 후 납득했고 추가 조치 요구가 없습니다.',edge:'“왜 우리 아이 점수가 낮은지 구체적으로 알고 싶습니다.”',edgeWhy:'사실 확인 요구가 포함되어 기록을 남기며 응대하는 것이 안전합니다.',returnText:'“채점 기준을 확인했습니다. 다음 과제 준비를 도와보겠습니다.”',returnWhy:'학생 지원 방향으로 돌아와 상담으로 종결 가능합니다.',complaint:'“채점이 부당합니다. 학교가 잘못한 것 아닙니까?”',complaintWhy:'평가 결과에 대한 책임 주장과 불복 성격이 나타납니다.',demand:'“수행평가 점수를 수정해 주세요.”',demandWhy:'결과 변경이라는 특정 행위를 요구하므로 민원입니다.',special:'“점수 바꿀 때까지 매일 전화하겠습니다.”',specialWhy:'반복 요구와 압박이 결합되어 개인 대응을 멈춰야 합니다.'},
+{title:'생활지도 불만',start:'“우리 아이가 수업 중 지적을 받아 속상해합니다.”',startWhy:'학생의 정서와 생활지도 상황을 이해하려는 상담으로 시작할 수 있습니다.',supportEnd:'“아이에게도 수업 태도를 이야기해 보겠습니다.”',supportWhy:'학생 지원과 가정 협력으로 마무리되어 상담 종결입니다.',edge:'“왜 공개적으로 지적했는지 설명해 주세요.”',edgeWhy:'불만과 사실 확인 요구가 있어 상담+기록 단계입니다.',returnText:'“상황을 알겠습니다. 앞으로 아이가 위축되지 않게 살펴봐 주세요.”',returnWhy:'조치 요구가 아니라 학생 지원 요청으로 정리되었습니다.',complaint:'“그 지도 방식은 문제가 있습니다. 학교가 책임져야 합니다.”',complaintWhy:'학교 책임 주장과 지도 방식 문제 제기가 시작되었습니다.',demand:'“담임 선생님을 교체해 주세요.”',demandWhy:'특정 교사에 대한 인사·배치성 조치 요구로 교사 개인 대응 범위를 넘습니다.',special:'“교체 안 하면 가만두지 않겠습니다.”',specialWhy:'협박성 표현이 있으므로 특이민원 위험입니다.'}
+];
+let currentBoundary=0;
+function nodeHTML(tagClass,tag,title,quote,why,teacher,team,extra=''){
+return `<div class="branchNode ${extra}"><div class="branchTop"><span class="tag ${tagClass}">${tag}</span><b>${title}</b></div><div class="branchQuote">${quote}</div><div class="why"><b>왜?</b><br>${why}</div><div class="actionGrid"><div class="actionBox teacherBox"><b>교사 행동</b><br>${teacher}</div><div class="actionBox teamBox teamOnly"><b>민원대응팀</b><br>${team}</div></div></div>`
+}
+function setBoundaryScenario(idx,btn){currentBoundary=idx;document.querySelectorAll('.scenarioNav button').forEach(b=>b.classList.remove('active')); if(btn)btn.classList.add('active'); renderBoundary('start')}
+function renderBoundary(path='start'){
+const b=boundaryScenarios[currentBoundary];
+let html=nodeHTML('t-green','상담 출발','출발점',b.start,b.startWhy,'상담을 진행하고 학생 지원 방안을 확인합니다.','개입 불필요. 조치 요구가 추가되는지 지켜봅니다.','main');
+html += '<div class="branchChoice"><button class="pathBtn '+(path==='end'?'active':'')+'" onclick="renderBoundary(\'end\')">① 상담으로 종결되는 경우 보기</button><button class="pathBtn '+(path!=='end'?'active':'')+'" onclick="renderBoundary(\'edge\')">② 경계 단계로 가는 경우 보기</button></div>';
+if(path==='end'){
+html += nodeHTML('t-green','상담 종결','좋은 종결',b.supportEnd,b.supportWhy,'상담 기록을 간단히 남기고 학생 지원을 이어갑니다.','개입 불필요. 반복 문의가 생길 때만 공유받습니다.');
+}else{
+html += nodeHTML('t-blue','상담+기록','불만이 섞인 상담',b.edge,b.edgeWhy,'감정적 반응을 피하고 사실 확인 내용, 안내 내용을 기록합니다. 필요 시 부장에게 공유합니다.','즉시 개입보다는 모니터링. 같은 내용 반복 또는 조치 요구가 생기면 전환합니다.');
+html += '<div class="branchChoice"><button class="pathBtn '+(path==='return'?'active':'')+'" onclick="renderBoundary(\'return\')">③ 상담으로 다시 돌아가는 경우</button><button class="pathBtn '+(path==='complaint'||path==='demand'||path==='special'?'active':'')+'" onclick="renderBoundary(\'complaint\')">④ 민원으로 전환되는 경우</button></div>';
+if(path==='return'){
+html += nodeHTML('t-green','상담 복귀','상담으로 회복',b.returnText,b.returnWhy,'상담을 마무리하고 학생 지원 계획을 공유합니다.','개입 불필요. 단, 상담 기록은 남기는 편이 안전합니다.');
+}else{
+html += nodeHTML('t-yellow','경계→민원','책임 주장 시작',b.complaint,b.complaintWhy,'혼자 판단하지 말고 부장·관리자와 공유를 검토합니다.','공식 창구 안내 필요성을 검토합니다. 사실관계와 요구 내용을 분리합니다.');
+html += '<div class="branchChoice"><button class="pathBtn '+(path==='demand'?'active':'')+'" onclick="renderBoundary(\'demand\')">⑤ 특정 조치 요구까지 진행</button><button class="pathBtn '+(path==='special'?'active':'')+'" onclick="renderBoundary(\'special\')">⑥ 반복·협박 등 위험 신호</button></div>';
+if(path==='demand'){
+html += nodeHTML('t-orange','민원','특정 행위 요구',b.demand,b.demandWhy,'공식 절차를 안내하고 개인 답변으로 종결하려 하지 않습니다. 관리자에게 공유합니다.','민원 유형, 담당자 협조, 답변 방식, 처리 기록을 정합니다.');
+}else if(path==='special'){
+html += nodeHTML('t-red','특이민원 위험','개인 대응 중단',b.special,b.specialWhy,'즉시 관리자·민원대응팀에 알리고 통화를 계속 이어가지 않습니다.','기록 확보, 종결 안내, 제한 조치, 필요 시 보호 조치를 검토합니다.');
+}
+}
+}
+boundaryMap.innerHTML=html;
+}
+
+let caseFilter='전체';
+function tagClass(ans,temp){return ans==='상담'?'t-green':ans==='경계'?'t-yellow':ans==='민원'?'t-orange':'t-red'}
+function filterCases(type,btn){caseFilter=type;document.querySelectorAll('.filterBtn').forEach(b=>b.classList.remove('active')); if(btn)btn.classList.add('active'); renderCases()}
+function renderCases(){
+  caseList.innerHTML='';
+  const list=cases.filter(c=>caseFilter==='전체'||c.ans===caseFilter);
+  list.forEach((c)=>{
+    const i=cases.indexOf(c);
+    let div=document.createElement('div');div.className='caseCard';div.onclick=()=>openCase(i);
+    div.innerHTML=`<span class="tag ${tagClass(c.ans,c.temp)}">${c.ans}</span><span class="difficulty"> 난이도 <b>${c.difficulty}</b></span><span class="levelBadge">${c.level}</span><h3>${c.t}</h3><p>${c.text}</p><div class="caseMeta"><span class="miniTag">온도 ${c.temp}도</span><span class="miniTag">${c.level}</span><span class="miniTag">${c.owner}</span></div>`;
+    caseList.appendChild(div)
+  });
+  if(!list.length) caseList.innerHTML='<div class="mini">해당 사례가 없습니다.</div>'
+}
+function openCase(i){
+ const c=cases[i];
+ caseList.innerHTML=`<div class="caseCard" style="grid-column:1/-1;cursor:auto"><div class="caseDetailGrid"><div><span class="tag ${tagClass(c.ans,c.temp)}">${c.ans}</span><span class="difficulty"> 난이도 <b>${c.difficulty}</b></span><span class="levelBadge">${c.level}</span><h3>${c.t}</h3><div class="scenario">${c.text}</div><b>상담·민원 온도: ${c.temp}도</b><div class="temp"><div class="needle" style="left:${c.temp}%"></div></div><div class="tempLabels"><span>상담</span><span>경계</span><span>민원</span><span>특이 가능</span></div></div><div class="judgePanel"><h3>1단계: 먼저 판단해 보세요</h3><p class="sub">정답을 바로 보지 말고, 일반 교사 입장에서 먼저 고르세요.</p><div class="judgeBtns"><button onclick="judgeCase(${i},'상담',this)">🟢 상담</button><button onclick="judgeCase(${i},'경계',this)">🟡 경계</button><button onclick="judgeCase(${i},'민원',this)">🔴 민원</button></div><div id="caseFeedback" class="caseFeedback"></div></div></div><div class="caseFooterBtns"><button class="btn light" onclick="renderCases()">목록으로</button><button class="btn light" onclick="newCase()">다른 사례</button></div></div>`
+}
+function judgeCase(i,choice,btn){
+ const c=cases[i];
+ document.querySelectorAll('.judgeBtns button').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected');
+ const correct=(choice===c.ans)||(choice==='민원'&&c.ans==='특이민원 가능');
+ const fb=document.getElementById('caseFeedback'); fb.className='caseFeedback show';
+ fb.innerHTML=`<div class="result show" style="margin-top:0"><b>${correct?'판단 좋습니다.':'조금 더 살펴보세요.'}</b><br>권장 판정: <b>${c.ans}</b><div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div><div class="teacher"><b>2단계: 교사 1차 행동</b><br>${c.teacher}</div><div class="team teamOnly"><b>3단계: 민원대응팀 판단</b><br>${c.team}<div class="teamDecision"><div class="decisionItem"><small>개입 수준</small>${c.level}</div><div class="decisionItem"><small>민원 유형</small>${c.type}</div><div class="decisionItem"><small>처리 주체</small>${c.owner}</div><div class="decisionItem"><small>공식 창구</small>${c.official}</div><div class="decisionItem"><small>종결 가능성</small>${c.close}</div><div class="decisionItem"><small>교육활동 침해</small>${c.infringe}</div></div><div class="teamQuestion"><b>지원 요청 판단</b><br>${c.support}</div></div><div class="nextQuestion"><b>민원으로 바뀌는 다음 신호</b><br>${c.next}</div></div>`
+}
+function newCase(){
+ const list=cases.filter(c=>caseFilter==='전체'||c.ans===caseFilter);
+ const c=list[Math.floor(Math.random()*list.length)]||cases[0];
+ openCase(cases.indexOf(c))
+}
+let quizStep=0;let quizAnswers={};
+const quizSteps=[
+  {key:'judge',title:'1단계: 현재 상태 판정',desc:'이 상황을 교사 입장에서 먼저 분류하세요.',options:['상담','경계','민원','특이민원 가능']},
+  {key:'signal',title:'2단계: 핵심 신호 찾기',desc:'이 사례에서 가장 중요한 판단 근거를 고르세요.',options:['학생 지원 목적','사실 확인·설명 요구','특정 조치·결과 변경 요구','반복·폭언·압박 신호']},
+  {key:'teacherAction',title:'3단계: 교사 1차 행동',desc:'교사가 바로 취해야 할 행동을 고르세요.',options:['상담 진행','상담 진행 + 기록','공식 창구 안내 + 관리자 공유','개인 대응 중단 + 즉시 보고']},
+  {key:'teamAction',title:'4단계: 민원대응팀 판단',desc:'민원대응팀의 개입 수준을 고르세요.',options:['개입 불필요','공유 검토','즉시 공유','즉시 개입']}
+];
+function expectedQuiz(c,key){
+  if(key==='judge') return c.ans;
+  if(key==='signal'){
+    if(c.ans==='상담') return '학생 지원 목적';
+    if(c.ans==='경계') return c.why.some(w=>w.includes('설명')||w.includes('사실')||w.includes('기준'))?'사실 확인·설명 요구':'학생 지원 목적';
+    if(c.ans==='민원') return '특정 조치·결과 변경 요구';
+    return '반복·폭언·압박 신호';
+  }
+  if(key==='teacherAction'){
+    if(c.ans==='상담') return '상담 진행';
+    if(c.ans==='경계') return '상담 진행 + 기록';
+    if(c.ans==='민원') return '공식 창구 안내 + 관리자 공유';
+    return '개인 대응 중단 + 즉시 보고';
+  }
+  if(key==='teamAction'){
+    if(c.intervention==='개입 불필요') return '개입 불필요';
+    if(c.intervention==='공유 검토'||c.intervention==='공유 권장') return '공유 검토';
+    if(c.intervention==='공유 필요'||c.intervention==='즉시 공유') return '즉시 공유';
+    return '즉시 개입';
+  }
+}
+function showQuizIntro(){
+  quizBox.innerHTML=`<div class="quizFeedbackPanel"><div class="quizBadgeBig">🎯</div><b>퀴즈 방식</b><br>한 사례마다 4개 질문을 풉니다. ① 상담/경계/민원 판정 ② 판단 신호 ③ 교사 행동 ④ 민원대응팀 개입 수준을 차례로 고릅니다.<div class="quizExplain"><div class="teacher"><b>교사 연습</b><br>혼자 상담을 계속할지, 기록할지, 공유할지 판단합니다.</div><div class="team teamOnly"><b>민원대응팀 연습</b><br>개입 수준·처리 주체·종결 가능성까지 함께 확인합니다.</div></div></div>`
+}
+function startQuiz(){quiz=[...cases].sort(()=>Math.random()-.5).slice(0,5);qi=0;score=0;quizStep=0;quizAnswers={};showQuiz()}
+function showQuiz(){
+  if(qi>=quiz.length){
+    let best=Math.max(Number(localStorage.bestScore||0),score);localStorage.bestScore=best;localStorage.tryCount=Number(localStorage.tryCount||0)+1;loadProgress();
+    const max=quiz.length*quizSteps.length;
+    const title=score>=18?'민원 대응 전문가':score>=14?'경계 판단 우수':score>=10?'분류 연습생':'다시 연습 필요';
+    quizBox.innerHTML=`<div class="result show"><div class="quizBadgeBig">🏁</div><b>퀴즈 완료: ${title}</b><br>${score}/${max}점입니다.<br><span class="note">정답보다 중요한 것은 판정 근거와 다음 행동까지 연결하는 것입니다.</span></div>`;
+    return
+  }
+  let c=quiz[qi], st=quizSteps[quizStep];
+  let progress=((qi*quizSteps.length+quizStep)/(quiz.length*quizSteps.length))*100;
+  quizBox.innerHTML=`<div class="quizStepHeader"><b>${qi+1}/${quiz.length}번 사례 · ${quizStep+1}/4</b><span class="tag ${tagClass(c.ans,c.temp)}">${c.ans}</span></div><div class="quizProgress"><span style="width:${progress}%"></span></div><div class="scenario">${c.text}</div><div class="quizQuestion"><h3>${st.title}</h3><p class="sub">${st.desc}</p><div class="multiChoices">${st.options.map(o=>`<button onclick="quizAns('${o.replace(/'/g,"\'")}',this)">${o}</button>`).join('')}</div></div>`
+}
+function quizAns(a,btn){
+  let c=quiz[qi], st=quizSteps[quizStep], expected=expectedQuiz(c,st.key);
+  document.querySelectorAll('.multiChoices button').forEach(b=>b.classList.remove('selected')); if(btn)btn.classList.add('selected');
+  const correct=a===expected || (st.key==='judge'&&a==='민원'&&c.ans==='특이민원 가능');
+  if(correct) score++;
+  quizAnswers[st.key]=a;
+  const fb=document.createElement('div');fb.className='quizFeedbackPanel';
+  fb.innerHTML=`<b>${correct?'좋은 판단입니다.':'다시 생각해 볼 지점이 있습니다.'}</b><br>권장 답: <b>${expected}</b><div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div>`;
+  quizBox.appendChild(fb);
+  setTimeout(()=>{quizStep++; if(quizStep>=quizSteps.length){showQuizSummary(c)}else{showQuiz()}},850)
+}
+function showQuizSummary(c){
+  quizBox.innerHTML=`<div class="scenario">${c.text}</div><div class="quizFeedbackPanel"><b>사례 정리</b><br>권장 판정: <b>${c.ans}</b><div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div><div class="quizExplain"><div class="teacher"><b>교사 행동</b><br>${c.teacher}</div><div class="team"><b>민원대응팀 판단</b><br>${c.team}<div class="teamDecision"><div class="decisionItem"><small>개입 수준</small>${c.level}</div><div class="decisionItem"><small>처리 주체</small>${c.owner}</div><div class="decisionItem"><small>종결 가능성</small>${c.close}</div><div class="decisionItem"><small>교육활동 침해</small>${c.infringe}</div></div></div></div><div class="nextQuestion"><b>다음 위험 신호</b><br>${c.next}</div></div><div class="quizBtns"><button class="btn" onclick="nextQuizCase()">다음 사례</button></div>`
+}
+function nextQuizCase(){qi++;quizStep=0;quizAnswers={};showQuiz()}
+function loadProgress(){bestScore.textContent=localStorage.bestScore||0;tryCount.textContent=localStorage.tryCount||0;let b=Number(localStorage.bestScore||0);badge.textContent=b>=18?'전문가':b>=14?'경계 판단 우수':b>=10?'분류 연습생':'-' }
+function resetProgress(){localStorage.removeItem('bestScore');localStorage.removeItem('tryCount');loadProgress()}
+renderBoundary();renderCases();loadProgress();showQuizIntro();
+</script>
+</body>
+</html>
