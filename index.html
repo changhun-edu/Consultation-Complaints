@@ -2542,12 +2542,7 @@ function resetChecker(){
 }
 
 renderBoundary();renderIncident();renderCases();loadProgress();showQuizIntro();
-</script>
 
-<!-- 복사 토스트 -->
-<div class="copyToast" id="copyToast">클립보드에 복사했습니다 ✓</div>
-
-<script>
 // ── 내보내기 유틸
 function showToast(msg){
   const t=document.getElementById('copyToast');
@@ -2555,13 +2550,11 @@ function showToast(msg){
   t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2200);
 }
-
 function copyText(txt){
   if(navigator.clipboard){
     navigator.clipboard.writeText(txt).then(()=>showToast()).catch(()=>fallbackCopy(txt));
   } else { fallbackCopy(txt); }
 }
-
 function fallbackCopy(txt){
   const ta=document.createElement('textarea');
   ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
@@ -2569,33 +2562,28 @@ function fallbackCopy(txt){
   try{ document.execCommand('copy'); showToast(); }catch(e){ showToast('복사 실패 — 직접 선택 후 복사하세요'); }
   document.body.removeChild(ta);
 }
-
 function printPage(){ window.print(); }
-
-// ── 자가진단 결과 복사
 function copyDiagnosis(){
   const el=document.getElementById('diagnosisResult');
   if(!el||!el.textContent.trim()){ showToast('먼저 판별하기를 눌러 주세요'); return; }
-  copyText('【자가진단 결과】
-' + el.innerText.replace(/\s+/g,' ').trim());
+  copyText('【자가진단 결과】\n' + el.innerText.replace(/\s+/g,' ').trim());
 }
-
-// ── 상황 판단기 결과 복사
 function copyCheckerResult(){
   const el=document.getElementById('checkerResult');
   if(!el||el.style.display==='none'){ showToast('먼저 상황 판단하기를 눌러 주세요'); return; }
-  copyText('【상황 판단기 결과】
-' + el.innerText.replace(/\s+/g,' ').trim());
+  copyText('【상황 판단기 결과】\n' + el.innerText.replace(/\s+/g,' ').trim());
 }
-
-// ── 퀴즈 결과 복사 (renderQuizResult 끝에 호출)
 function copyQuizResult(){
   const el=document.getElementById('quizBox');
   if(!el){ return; }
-  copyText('【퀴즈 결과】
-' + el.innerText.replace(/\s+/g,' ').trim());
+  copyText('【퀴즈 결과】\n' + el.innerText.replace(/\s+/g,' ').trim());
 }
 </script>
 
+
+
+
+<!-- 복사 토스트 -->
+<div class="copyToast" id="copyToast">클립보드에 복사했습니다 ✓</div>
 </body>
 </html>
