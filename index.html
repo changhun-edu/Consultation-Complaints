@@ -44,7 +44,7 @@
 
   body {
     margin:0;
-    font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif;
+    font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR","Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",system-ui,sans-serif;
     font-size:var(--fs-base);
     line-height:1.6;
     color:var(--ink);
@@ -1091,6 +1091,34 @@
     .levelMiniBar { grid-template-columns:repeat(3,1fr); }
   }
 
+  /* ── 인쇄·복사 버튼 ── */
+  .exportBtns { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  .exportBtn {
+    display:inline-flex; align-items:center; gap:6px;
+    border:1px solid var(--line); background:var(--card);
+    border-radius:var(--r-btn); padding:9px 14px;
+    font-size:var(--fs-xs); font-weight:700; color:var(--ink2);
+    cursor:pointer; transition:.12s ease;
+  }
+  .exportBtn:hover { border-color:var(--sg); color:var(--sg); }
+  .copyToast {
+    position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; border-radius:var(--r-pill);
+    padding:10px 20px; font-size:var(--fs-xs); font-weight:700;
+    opacity:0; transition:.25s ease; pointer-events:none; z-index:999;
+  }
+  .copyToast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  @media print {
+    nav, header .mode, .modeBanner, .quizBtns, .exportBtns,
+    .btn, .filterBtn, .scenarioNav, .caseTools, .caseFooterBtns,
+    #situationChecker button, .signalCheckLabel input { display:none !important; }
+    body { background:#fff !important; font-size:14px; }
+    .card, .teamPanel, .quizFeedbackPanel { box-shadow:none !important; border:1px solid #ddd !important; }
+    section { padding:12px 0 !important; }
+    header { background:#1e293b !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
+
   /* ── 푸터 ── */
   .footer {
     padding:32px 20px;
@@ -1180,6 +1208,17 @@
     </div>
   </div>
 </header>
+<div style="background:#fff;border-bottom:1px solid var(--line);padding:14px 20px">
+  <div class="wrap" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:var(--fs-xs);color:var(--ink2)">
+    <b style="color:var(--ink)">처음 오셨나요?</b>
+    <span>→</span>
+    <a href="#quiz" style="color:var(--sg);font-weight:700;text-decoration:none">연습 퀴즈</a>
+    <span style="color:var(--ink3)">로 바로 시작하거나</span>
+    <a href="#diagnosis" style="color:var(--sg);font-weight:700;text-decoration:none">판별 체크</a>
+    <span style="color:var(--ink3)">로 지금 상황을 먼저 확인하세요.</span>
+    <span style="margin-left:8px;padding-left:8px;border-left:1px solid var(--line);color:var(--ink3)">민원대응팀이라면 우측 상단에서 <b style="color:var(--ink)">모드 전환</b>을 먼저 하세요.</span>
+  </div>
+</div>
 <nav><div class="wrap">
   <a href="#diagnosis">판별 체크</a>
   <a href="#boundary">발전 지도</a>
@@ -1194,6 +1233,7 @@
 <section id="diagnosis">
   <div class="card">
     <div class="sectionTitle"><div>
+      <div class="sectionEyebrow">Step 1 · 개념 이해</div>
       <h2>5단계 신호등 판별</h2>
       <p class="sub">핵심 질문: <b>"교사가 계속 상담할지, 학교 체계로 공유할지"</b>를 기준으로 5단계로 분류합니다.</p>
     </div></div>
@@ -1206,8 +1246,9 @@
     </div>
   </div>
   <div class="card">
+    <div class="sectionEyebrow">Step 2 · 지금 상황 확인</div>
     <h2>자가진단 체크</h2>
-    <p class="sub">해당되는 항목을 체크하세요.</p>
+    <p class="sub">지금 접하는 상황에 해당하는 항목을 체크하세요. 결과를 복사하거나 인쇄할 수 있습니다.</p>
     <div class="grid">
       <label class="mini"><input type="checkbox" class="check" data-type="support" value="-3"> 학생의 성장·지원이 중심이다</label>
       <label class="mini"><input type="checkbox" class="check" data-type="fact" value="1"> 사실 확인이나 설명을 요구한다</label>
@@ -1221,6 +1262,8 @@
     <br>
     <button class="btn" onclick="diagnose()">판별하기</button>
     <button class="btn light" onclick="resetDiagnosis()">체크 초기화</button>
+    <button class="exportBtn" onclick="copyDiagnosis()">📋 결과 복사</button>
+    <button class="exportBtn" onclick="printPage()">🖨 인쇄</button>
     <div id="diagnosisResult" class="result"></div>
   </div>
 </section>
@@ -1229,6 +1272,7 @@
 <section id="boundary">
   <div class="card">
     <div class="sectionTitle"><div>
+      <div class="sectionEyebrow">Step 3 · 흐름 이해</div>
       <h2>상담 → 민원 발전 지도</h2>
       <p class="sub">상담이 항상 민원으로 가는 것은 아닙니다. 같은 출발점에서도 <b>상담 종결</b>, <b>상담 복귀</b>, <b>민원 전환</b>, <b>특이민원 위험</b>으로 갈라질 수 있습니다.</p>
     </div></div>
@@ -1246,6 +1290,7 @@
   <div class="card">
     <div class="sectionTitle">
       <div>
+        <div class="sectionEyebrow">Step 4 · 시간 흐름 연습</div>
         <h2>사건 파일: 언제부터 민원인가?</h2>
         <p class="sub">실제 현장에 가까운 <b>시간 흐름형 사례</b>입니다. 왼쪽 날짜를 클릭하면 오른쪽에서 상세 내용을 확인합니다. 어느 시점부터 민원인지 직접 판단해 보세요.</p>
       </div>
@@ -1264,7 +1309,7 @@
   <div class="card">
     <div class="sectionTitle">
       <div>
-        <div class="sectionEyebrow">현장 참고 사전</div>
+        <div class="sectionEyebrow">Step 5 · 현장 참고 사전</div>
         <h2>사례 카드</h2>
         <p class="sub">실제 상황에서 <b>"이 경우가 어떤 단계였더라?"</b> 할 때 바로 찾아보는 레퍼런스입니다. 판정 근거·교사 행동·전환 트리거를 한눈에 확인합니다. 판단 훈련은 <a href="#quiz" style="color:var(--sg);font-weight:700">연습 퀴즈</a>에서 하세요.</p>
       </div>
@@ -1292,7 +1337,7 @@
 <section id="team">
   <div class="card">
     <div class="sectionTitle"><div>
-      <div class="sectionEyebrow">상황 판단기</div>
+      <div class="sectionEyebrow">Step 7 · 상황 판단기</div>
       <h2>지금 이 상황, 어떻게 해야 할까요?</h2>
       <p class="sub">현재 민원 상황에서 <b>어떤 신호가 있는지 체크</b>하면, Level이 자동으로 결정되고 지금 당장 해야 할 행동이 나옵니다. 하드코딩된 예시가 아니라 <b>지금 내 상황</b>에 맞는 판단입니다.</p>
     </div></div>
@@ -1393,6 +1438,8 @@
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn" onclick="calcLevel()">상황 판단하기</button>
         <button class="btn light" onclick="resetChecker()">초기화</button>
+        <button class="exportBtn" onclick="copyCheckerResult()">📋 결과 복사</button>
+        <button class="exportBtn" onclick="printPage()">🖨 인쇄</button>
       </div>
     </div>
 
@@ -1431,6 +1478,7 @@
 <!-- ⑥ 퀴즈 -->
 <section id="quiz">
   <div class="card">
+    <div class="sectionEyebrow">Step 6 · 실전 훈련</div>
     <h2>의사결정 연습 퀴즈</h2>
     <p class="sub"><b>교사 모드</b>: 전체 사례 중 5개 무작위 · 4단계 · 만점 20점. <b>민원대응팀 모드</b>: 민원·특이민원 위주 5개 · 5단계(개입 레벨·종결·침해 판단 추가) · 만점 25점. 모드를 바꾸면 문제와 점수판이 함께 바뀝니다.</p>
     <div id="quizBox"></div>
@@ -1438,6 +1486,8 @@
       <button class="btn" onclick="startQuiz()">퀴즈 시작</button>
       <button class="btn light" onclick="showQuizIntro()">방식 보기</button>
       <button class="btn secondary" onclick="resetProgress()">점수 초기화</button>
+      <button class="exportBtn" onclick="copyQuizResult()">📋 결과 복사</button>
+      <button class="exportBtn" onclick="printPage()">🖨 인쇄</button>
     </div>
   </div>
   <div class="scoreBox">
@@ -1482,7 +1532,23 @@ const cases=[
 /* ── 특이민원 가능 (3) ── */
 {t:'반복 전화 예고',text:'"답이 마음에 들 때까지 매일 전화하겠습니다."',ans:'특이민원 가능',temp:95,difficulty:'하',signal:'반복·폭언·압박 신호',why:['반복 연락 예고','시간지연형 위험','개인 대응 한계'],teacher:'즉시 민원대응팀 또는 학교장에 알리고 개인 대응을 중단합니다.',team:'반복·시간지연형 특이민원 가능성. 종결 안내와 기록, 필요시 제한 조치를 검토합니다.',next:'폭언·협박이 동반되면 즉시 보호 조치와 학교장 총괄이 필요합니다.',intervention:'즉시 개입'},
 {t:'SNS 캡처 압박',text:'"지금까지 선생님과 나눈 카톡 내용을 캡처해서 학부모 단체방에 올리겠습니다."',ans:'특이민원 가능',temp:92,difficulty:'중',signal:'반복·폭언·압박 신호',why:['공개 압박 예고','개인 채널 악용','교사 명예 훼손 위험'],teacher:'개인 대응을 즉시 중단하고 관리자에게 보고합니다. 이후 공식 채널로만 소통합니다.',team:'증거 보전, 법적 대응 가능성, 교육지원청 지원 요청 여부를 검토합니다.',next:'실제로 유포되면 명예훼손 법적 조치 대상이 될 수 있습니다.',intervention:'즉시 개입'},
-{t:'야간 문자 반복',text:'"밤 11시에 문자가 왔습니다. 내일까지 답 안 하면 교육청에 민원 넣겠다고 합니다."',ans:'특이민원 가능',temp:93,difficulty:'중',signal:'반복·폭언·압박 신호',why:['야간 반복 연락','시간 압박','공식 채널 이탈'],teacher:'야간 연락에는 응답하지 않고, 다음날 업무 시간에 민원대응팀을 통해 공식 답변합니다.',team:'시간 압박형 특이민원으로 기록하고, 반복 시 연락 제한 및 교육지원청 지원 요청을 검토합니다.',next:'위협·폭언이 추가되면 보호 조치와 학교장 총괄이 즉시 필요합니다.',intervention:'즉시 개입'}
+{t:'야간 문자 반복',text:'"밤 11시에 문자가 왔습니다. 내일까지 답 안 하면 교육청에 민원 넣겠다고 합니다."',ans:'특이민원 가능',temp:93,difficulty:'중',signal:'반복·폭언·압박 신호',why:['야간 반복 연락','시간 압박','공식 채널 이탈'],teacher:'야간 연락에는 응답하지 않고, 다음날 업무 시간에 민원대응팀을 통해 공식 답변합니다.',team:'시간 압박형 특이민원으로 기록하고, 반복 시 연락 제한 및 교육지원청 지원 요청을 검토합니다.',next:'위협·폭언이 추가되면 보호 조치와 학교장 총괄이 즉시 필요합니다.',intervention:'즉시 개입'},
+
+/* ── 상담 추가 (2) ── */
+{t:'진로 상담 요청',text:'"아이가 중학교 진학에 대해 걱정이 많습니다. 학교에서 진로 상담을 받을 수 있을까요?"',ans:'상담',temp:14,difficulty:'하',signal:'학생 지원 목적',why:['진로 지원 요청','갈등·불만 없음','협력적 대화'],teacher:'진로 상담 일정을 잡고 담임 및 진로 담당 교사와 연계합니다.',team:'개입 불필요. 학교 진로 프로그램 안내로 충분합니다.',next:'"우리 아이가 특정 학교에 꼭 가야 하는데 학교가 도와주지 않는다"가 나오면 경계입니다.',intervention:'개입 불필요'},
+{t:'특수교육 지원 문의',text:'"아이에게 학습 어려움이 있는데, 학교에서 받을 수 있는 지원이 있는지 알고 싶습니다."',ans:'상담',temp:16,difficulty:'하',signal:'학생 지원 목적',why:['학생 학습 지원 요청','특수교육 안내 요청','협력적 대화'],teacher:'특수교육 지원 절차와 담당자를 안내하고 학생 상태를 파악합니다.',team:'개입 불필요. 지원 요구가 특정 조치 강요로 바뀌는지만 살핍니다.',next:'"우리 아이를 특수학급에 넣지 말라"거나 "즉시 지원을 보장해 달라"는 요구가 나오면 경계입니다.',intervention:'개입 불필요'},
+
+/* ── 경계 추가 (3) ── */
+{t:'현장체험학습 장소 불만',text:'"이번 현장체험학습 장소가 아이에게 위험할 것 같습니다. 왜 그 장소를 선택했는지 설명해 주세요."',ans:'경계',temp:45,difficulty:'중',signal:'사실 확인·설명 요구',why:['장소 선택 근거 설명 요구','안전 우려 표현','아직 장소 변경 요구는 아님'],teacher:'선택 근거와 안전 대책을 설명하고 대화 내용을 기록합니다.',team:'장소 변경 요구로 이어지면 공식 절차 안내가 필요합니다.',next:'"장소를 바꾸지 않으면 우리 아이는 참가하지 않겠습니다"가 나오면 민원입니다.',intervention:'공유 검토'},
+{t:'또래 갈등 중재 방식 이의',text:'"선생님이 우리 아이 편을 안 드는 것 같습니다. 갈등 중재 방식이 공정한지 설명해 주세요."',ans:'경계',temp:54,difficulty:'상',signal:'감정적 손상 호소',why:['중재 방식에 의문','공정성 문제 제기','아직 교사 처벌 요구는 아님'],teacher:'중재 과정을 설명하고 학부모의 감정을 공감하되 방어적으로 반응하지 않습니다. 기록합니다.',team:'교사 책임 주장으로 이어지면 부장 공유를 검토합니다.',next:'"선생님이 잘못 중재했으니 책임지세요"가 나오면 민원입니다.',intervention:'공유 권장'},
+{t:'학교 안전 환경 우려',text:'"학교 건물 계단이 미끄러워 보입니다. 우리 아이가 다칠까 걱정됩니다. 확인해 주실 수 있나요?"',ans:'경계',temp:38,difficulty:'하',signal:'사실 확인·설명 요구',why:['안전 환경 우려 제기','사실 확인 요청','아직 학교 책임 주장은 아님'],teacher:'시설 안전 담당 부서에 연결하고 확인 내용을 안내합니다.',team:'안전 사고 발생 후 책임 주장이 나오면 즉시 공유합니다.',next:'"학교가 방치한 것이니 책임지세요"가 나오면 민원입니다.',intervention:'공유 검토'},
+
+/* ── 민원 추가 (2) ── */
+{t:'학교 규정 변경 요구',text:'"두발 규정이 시대에 맞지 않습니다. 학교 규정을 바꿔 주세요. 학생들도 동의합니다."',ans:'민원',temp:70,difficulty:'중',signal:'특정 조치·결과 변경 요구',why:['학교 규정 변경 요구','집단 동의 주장','공식 답변 필요'],teacher:'학교 규정 개정 절차(학교운영위원회 등)를 안내하고 민원대응팀에 공유합니다.',team:'규정 개정은 공식 절차를 통해서만 가능함을 안내하고 답변 경로를 정합니다.',next:'반복 요구나 학부모 단체 연대가 추가되면 특이민원 위험입니다.',intervention:'공유 필요'},
+{t:'성적 처리 불복',text:'"기말고사 성적이 입력 오류 같습니다. 확인하고 정정해 주세요. 입시에 영향을 미칩니다."',ans:'민원',temp:78,difficulty:'중',signal:'특정 조치·결과 변경 요구',why:['성적 정정 요구','입시 영향 주장','공식 처리 필요'],teacher:'성적 이의 신청 절차를 안내합니다. 교사 단독으로 성적을 수정하지 않습니다.',team:'담당 부서와 교무부장이 사실 확인 후 공식 답변합니다. 기한 내 처리 여부를 확인합니다.',next:'"정정 안 해주면 교육청에 신고하겠다"가 나오면 특이민원 위험입니다.',intervention:'즉시 공유'},
+
+/* ── 특이민원 가능 추가 (1) ── */
+{t:'학교 앞 1인 시위 예고',text:'"내일 학교 앞에서 1인 시위를 하겠습니다. 학교가 잘못 처리한 것을 알려야겠습니다."',ans:'특이민원 가능',temp:96,difficulty:'중',signal:'반복·폭언·압박 신호',why:['공개 압박 행동 예고','기관 대응 범위 초과','교육활동 침해 위험'],teacher:'즉시 학교장과 민원대응팀에 보고합니다. 개인 대응을 일절 하지 않습니다.',team:'학교장 총괄 대응으로 전환하고 교육지원청에 상황을 알립니다. 법적 조치 가능성을 검토합니다.',next:'실제 시위 진행 시 교육활동 침해 여부를 법률 지원과 함께 검토합니다.',intervention:'즉시 개입'}
 ];
 function enrichCases(){
   const map={
@@ -1505,7 +1571,15 @@ function enrichCases(){
     '교무실 방문 항의':{level:'Level 4',type:'민원/직접 항의',owner:'교장·민원대응팀',official:'필요',close:'면담 후 판단',infringe:'현장 상황에 따라 높음',support:'필요 시 검토'},
     '반복 전화 예고':{level:'Level 5',type:'특이민원 위험',owner:'학교장 총괄+민원대응팀',official:'공식창구 제한 검토',close:'종결·제한 검토',infringe:'높음',support:'검토 필요'},
     'SNS 캡처 압박':{level:'Level 5',type:'특이민원/공개 압박',owner:'학교장 총괄+민원대응팀+법률 지원',official:'공식창구만 사용',close:'법적 조치 검토',infringe:'높음',support:'검토 필요'},
-    '야간 문자 반복':{level:'Level 5',type:'특이민원/시간압박형',owner:'학교장 총괄+민원대응팀',official:'업무시간 외 연락 제한 안내',close:'종결·제한 검토',infringe:'높음',support:'검토 필요'}
+    '야간 문자 반복':{level:'Level 5',type:'특이민원/시간압박형',owner:'학교장 총괄+민원대응팀',official:'업무시간 외 연락 제한 안내',close:'종결·제한 검토',infringe:'높음',support:'검토 필요'},
+    '진로 상담 요청':{level:'Level 1',type:'상담',owner:'담임/진로 담당',official:'불필요',close:'상담 종결 가능',infringe:'없음',support:'불필요'},
+    '특수교육 지원 문의':{level:'Level 1',type:'상담',owner:'담임/특수교육 담당',official:'불필요',close:'지원 연계 후 종결',infringe:'없음',support:'불필요'},
+    '현장체험학습 장소 불만':{level:'Level 2',type:'상담+사실확인',owner:'담임/학년부장',official:'장소 변경 요구 시 필요',close:'설명 후 종결 가능',infringe:'낮음',support:'불필요'},
+    '또래 갈등 중재 방식 이의':{level:'Level 2',type:'상담+경계',owner:'담임, 필요 시 부장',official:'책임 주장 시 필요',close:'낮음',infringe:'낮음',support:'불필요'},
+    '학교 안전 환경 우려':{level:'Level 2',type:'질의+시설 안전',owner:'담임/시설 담당',official:'사고 발생 시 필요',close:'확인 안내 후 종결 가능',infringe:'없음',support:'불필요'},
+    '학교 규정 변경 요구':{level:'Level 3',type:'민원/규정 변경 요구',owner:'민원대응팀+교무부장',official:'필요',close:'절차 안내 후 검토',infringe:'반복 시 가능',support:'불필요'},
+    '성적 처리 불복':{level:'Level 3',type:'민원/성적 이의',owner:'민원대응팀+교무부장',official:'필요',close:'사실 확인 후 판단',infringe:'반복 시 가능',support:'사안 복잡 시 검토'},
+    '학교 앞 1인 시위 예고':{level:'Level 5',type:'특이민원/공개 압박',owner:'학교장 총괄+민원대응팀+교육지원청',official:'공식창구만 사용',close:'법적 조치 검토',infringe:'높음',support:'검토 필요'}
   };
   cases.forEach(c=>Object.assign(c,map[c.t]||{level:'Level 2',type:'검토 필요',owner:'민원대응팀 검토',official:'상황별 판단',close:'상황별 판단',infringe:'상황별 판단',support:'상황별 판단'}));
 }
@@ -2469,5 +2543,59 @@ function resetChecker(){
 
 renderBoundary();renderIncident();renderCases();loadProgress();showQuizIntro();
 </script>
+
+<!-- 복사 토스트 -->
+<div class="copyToast" id="copyToast">클립보드에 복사했습니다 ✓</div>
+
+<script>
+// ── 내보내기 유틸
+function showToast(msg){
+  const t=document.getElementById('copyToast');
+  t.textContent=msg||'클립보드에 복사했습니다 ✓';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function copyText(txt){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(()=>showToast()).catch(()=>fallbackCopy(txt));
+  } else { fallbackCopy(txt); }
+}
+
+function fallbackCopy(txt){
+  const ta=document.createElement('textarea');
+  ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); showToast(); }catch(e){ showToast('복사 실패 — 직접 선택 후 복사하세요'); }
+  document.body.removeChild(ta);
+}
+
+function printPage(){ window.print(); }
+
+// ── 자가진단 결과 복사
+function copyDiagnosis(){
+  const el=document.getElementById('diagnosisResult');
+  if(!el||!el.textContent.trim()){ showToast('먼저 판별하기를 눌러 주세요'); return; }
+  copyText('【자가진단 결과】
+' + el.innerText.replace(/\s+/g,' ').trim());
+}
+
+// ── 상황 판단기 결과 복사
+function copyCheckerResult(){
+  const el=document.getElementById('checkerResult');
+  if(!el||el.style.display==='none'){ showToast('먼저 상황 판단하기를 눌러 주세요'); return; }
+  copyText('【상황 판단기 결과】
+' + el.innerText.replace(/\s+/g,' ').trim());
+}
+
+// ── 퀴즈 결과 복사 (renderQuizResult 끝에 호출)
+function copyQuizResult(){
+  const el=document.getElementById('quizBox');
+  if(!el){ return; }
+  copyText('【퀴즈 결과】
+' + el.innerText.replace(/\s+/g,' ').trim());
+}
+</script>
+
 </body>
 </html>
