@@ -1091,26 +1091,9 @@
     .levelMiniBar { grid-template-columns:repeat(3,1fr); }
   }
 
-  /* ── 인쇄·복사 버튼 ── */
-  .exportBtns { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
-  .exportBtn {
-    display:inline-flex; align-items:center; gap:6px;
-    border:1px solid var(--line); background:var(--card);
-    border-radius:var(--r-btn); padding:9px 14px;
-    font-size:var(--fs-xs); font-weight:700; color:var(--ink2);
-    cursor:pointer; transition:.12s ease;
-  }
-  .exportBtn:hover { border-color:var(--sg); color:var(--sg); }
-  .copyToast {
-    position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px);
-    background:var(--ink); color:#fff; border-radius:var(--r-pill);
-    padding:10px 20px; font-size:var(--fs-xs); font-weight:700;
-    opacity:0; transition:.25s ease; pointer-events:none; z-index:999;
-  }
-  .copyToast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
   @media print {
-    nav, header .mode, .modeBanner, .quizBtns, .exportBtns,
+    nav, header .mode, .modeBanner, .quizBtns,
     .btn, .filterBtn, .scenarioNav, .caseTools, .caseFooterBtns,
     #situationChecker button, .signalCheckLabel input { display:none !important; }
     body { background:#fff !important; font-size:14px; }
@@ -1248,7 +1231,7 @@
   <div class="card">
     <div class="sectionEyebrow">Step 2 · 지금 상황 확인</div>
     <h2>자가진단 체크</h2>
-    <p class="sub">지금 접하는 상황에 해당하는 항목을 체크하세요. 결과를 복사하거나 인쇄할 수 있습니다.</p>
+    <p class="sub">지금 접하는 상황에 해당하는 항목을 체크하세요.</p>
     <div class="grid">
       <label class="mini"><input type="checkbox" class="check" data-type="support" value="-3"> 학생의 성장·지원이 중심이다</label>
       <label class="mini"><input type="checkbox" class="check" data-type="fact" value="1"> 사실 확인이나 설명을 요구한다</label>
@@ -1262,8 +1245,6 @@
     <br>
     <button class="btn" onclick="diagnose()">판별하기</button>
     <button class="btn light" onclick="resetDiagnosis()">체크 초기화</button>
-    <button class="exportBtn" onclick="copyDiagnosis()">📋 결과 복사</button>
-    <button class="exportBtn" onclick="printPage()">🖨 인쇄</button>
     <div id="diagnosisResult" class="result"></div>
   </div>
 </section>
@@ -1438,8 +1419,6 @@
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn" onclick="calcLevel()">상황 판단하기</button>
         <button class="btn light" onclick="resetChecker()">초기화</button>
-        <button class="exportBtn" onclick="copyCheckerResult()">📋 결과 복사</button>
-        <button class="exportBtn" onclick="printPage()">🖨 인쇄</button>
       </div>
     </div>
 
@@ -1486,8 +1465,6 @@
       <button class="btn" onclick="startQuiz()">퀴즈 시작</button>
       <button class="btn light" onclick="showQuizIntro()">방식 보기</button>
       <button class="btn secondary" onclick="resetProgress()">점수 초기화</button>
-      <button class="exportBtn" onclick="copyQuizResult()">📋 결과 복사</button>
-      <button class="exportBtn" onclick="printPage()">🖨 인쇄</button>
     </div>
   </div>
   <div class="scoreBox">
@@ -2544,46 +2521,16 @@ function resetChecker(){
 renderBoundary();renderIncident();renderCases();loadProgress();showQuizIntro();
 
 // ── 내보내기 유틸
-function showToast(msg){
-  const t=document.getElementById('copyToast');
-  t.textContent=msg||'클립보드에 복사했습니다 ✓';
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2200);
-}
-function copyText(txt){
-  if(navigator.clipboard){
-    navigator.clipboard.writeText(txt).then(()=>showToast()).catch(()=>fallbackCopy(txt));
-  } else { fallbackCopy(txt); }
-}
-function fallbackCopy(txt){
-  const ta=document.createElement('textarea');
-  ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
-  document.body.appendChild(ta); ta.select();
-  try{ document.execCommand('copy'); showToast(); }catch(e){ showToast('복사 실패 — 직접 선택 후 복사하세요'); }
-  document.body.removeChild(ta);
-}
-function printPage(){ window.print(); }
-function copyDiagnosis(){
-  const el=document.getElementById('diagnosisResult');
-  if(!el||!el.textContent.trim()){ showToast('먼저 판별하기를 눌러 주세요'); return; }
-  copyText('【자가진단 결과】\n' + el.innerText.replace(/\s+/g,' ').trim());
-}
-function copyCheckerResult(){
-  const el=document.getElementById('checkerResult');
-  if(!el||el.style.display==='none'){ showToast('먼저 상황 판단하기를 눌러 주세요'); return; }
-  copyText('【상황 판단기 결과】\n' + el.innerText.replace(/\s+/g,' ').trim());
-}
-function copyQuizResult(){
-  const el=document.getElementById('quizBox');
-  if(!el){ return; }
-  copyText('【퀴즈 결과】\n' + el.innerText.replace(/\s+/g,' ').trim());
-}
+
+
+
+
+
+
+
 </script>
 
 
 
-
-<!-- 복사 토스트 -->
-<div class="copyToast" id="copyToast">클립보드에 복사했습니다 ✓</div>
 </body>
 </html>
