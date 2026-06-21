@@ -630,6 +630,9 @@
   }
   .caseFooterBtns { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
   .difficulty { font-size:var(--fs-xs); font-weight:700; color:var(--ink2); }
+  .refCard { transition:.15s ease; }
+  .refCard:hover { border-color:var(--sg); transform:translateY(-2px); box-shadow:var(--shadow-md); }
+  #caseSearch:focus { border-color:var(--sg); box-shadow:0 0 0 3px rgba(22,163,74,.12); }
   .difficulty b { color:var(--ink); }
 
   /* ── 민원 후 유의사항 ── */
@@ -1073,7 +1076,7 @@
   <a href="#diagnosis">판별 체크</a>
   <a href="#boundary">발전 지도</a>
   <a href="#incident">사건 파일</a>
-  <a href="#cases">사례 카드</a>
+  <a href="#cases">사례 사전</a>
   <a href="#team">대응팀 활용</a>
   <a href="#quiz">연습 퀴즈</a>
 </div></nav>
@@ -1153,17 +1156,25 @@
   <div class="card">
     <div class="sectionTitle">
       <div>
-        <h2>사례 카드 연습</h2>
-        <p class="sub">정답이 뻔한 카드보다 <b>애매한 경계 사례</b>를 많이 넣었습니다. 먼저 판정하고, 왜 그렇게 판단했는지와 다음 행동을 확인합니다.</p>
+        <div class="sectionEyebrow">현장 참고 사전</div>
+        <h2>사례 카드</h2>
+        <p class="sub">실제 상황에서 <b>"이 경우가 어떤 단계였더라?"</b> 할 때 바로 찾아보는 레퍼런스입니다. 판정 근거·교사 행동·전환 트리거를 한눈에 확인합니다. 판단 훈련은 <a href="#quiz" style="color:var(--sg);font-weight:700">연습 퀴즈</a>에서 하세요.</p>
       </div>
-      <div class="caseTools"><button class="btn light" onclick="newCase()">랜덤 사례</button></div>
+      <div class="caseTools" style="flex-shrink:0">
+        <button class="btn light" onclick="randomRef()">랜덤 사례</button>
+      </div>
     </div>
-    <div class="caseTools" style="margin-bottom:14px">
-      <button class="filterBtn active" onclick="filterCases('전체',this)">전체</button>
-      <button class="filterBtn" onclick="filterCases('상담',this)">상담</button>
-      <button class="filterBtn" onclick="filterCases('경계',this)">경계</button>
-      <button class="filterBtn" onclick="filterCases('민원',this)">민원</button>
-      <button class="filterBtn" onclick="filterCases('특이민원 가능',this)">특이민원</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px">
+      <input id="caseSearch" type="text" placeholder="사례 검색…"
+        oninput="renderCases()"
+        style="border:1px solid var(--line);border-radius:var(--r-btn);padding:10px 14px;font-size:var(--fs-xs);color:var(--ink);background:var(--card);flex:1;min-width:160px;outline:none">
+      <div class="caseTools">
+        <button class="filterBtn active" onclick="filterCases('전체',this)">전체</button>
+        <button class="filterBtn" onclick="filterCases('상담',this)">상담</button>
+        <button class="filterBtn" onclick="filterCases('경계',this)">경계</button>
+        <button class="filterBtn" onclick="filterCases('민원',this)">민원</button>
+        <button class="filterBtn" onclick="filterCases('특이민원 가능',this)">특이민원</button>
+      </div>
     </div>
     <div class="cards" id="caseList"></div>
   </div>
@@ -1581,122 +1592,136 @@ let caseFilter='전체';
 function tagClass(ans){return ans==='상담'?'t-green':ans==='경계'?'t-yellow':ans==='민원'?'t-orange':'t-red'}
 function filterCases(type,btn){caseFilter=type;document.querySelectorAll('.filterBtn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderCases()}
 function renderCases(){
+  const q=(document.getElementById('caseSearch')||{}).value||'';
+  const list=cases.filter(c=>{
+    const matchFilter=caseFilter==='전체'||c.ans===caseFilter;
+    const matchSearch=!q||c.t.includes(q)||c.text.includes(q)||c.why.join('').includes(q);
+    return matchFilter&&matchSearch;
+  });
   caseList.innerHTML='';
-  const list=cases.filter(c=>caseFilter==='전체'||c.ans===caseFilter);
-  list.forEach((c)=>{
+  if(!list.length){caseList.innerHTML='<div class="mini" style="grid-column:1/-1">검색 결과가 없습니다.</div>';return;}
+  list.forEach(c=>{
     const i=cases.indexOf(c);
     const div=document.createElement('div');
-    div.className='caseCard';
-    div.onclick=()=>openCase(i);
-    // 목록에서는 정답 태그 대신 난이도만 — 스포일러 방지
+    div.className='caseCard refCard';
+    div.onclick=()=>openRef(i);
     div.innerHTML=`
-      <span class="difficulty">난이도 <b>${c.difficulty}</b></span>
-      <h3>${c.t}</h3>
-      <p>${c.text}</p>
-      <div class="caseMeta">
-        <span class="miniTag">클릭해서 판별하기</span>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+        <span class="tag ${tagClass(c.ans)}">${c.ans}</span>
+        <span class="miniTag">${c.level}</span>
+        <span class="difficulty" style="margin-left:auto">난이도 <b>${c.difficulty}</b></span>
+      </div>
+      <h3 style="margin:0 0 8px">${c.t}</h3>
+      <p style="margin:0;color:var(--ink2);font-size:var(--fs-xs);line-height:1.55">${c.text}</p>
+      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+        ${c.why.map(w=>`<span class="miniTag">${w}</span>`).join('')}
+      </div>
+      <div style="margin-top:12px;font-size:var(--fs-xs);color:var(--ink2);display:flex;align-items:center;gap:6px">
+        <span style="color:var(--so);font-weight:700">▶ 클릭해서 상세 보기</span>
       </div>`;
     caseList.appendChild(div);
   });
-  if(!list.length) caseList.innerHTML='<div class="mini">해당 사례가 없습니다.</div>';
 }
 
-function openCase(i){
+function openRef(i){
   const c=cases[i];
-  // ── 판단 전: 시나리오 + 판단 버튼만 표시. 정답·온도계·이유는 숨김
+  const triggerColor=c.ans==='상담'?'var(--sg)':c.ans==='경계'?'var(--sy)':c.ans==='민원'?'var(--so)':'var(--sr)';
   caseList.innerHTML=`
     <div class="caseCard" style="grid-column:1/-1;cursor:auto">
-      <div class="caseDetailGrid">
 
-        <!-- 왼쪽: 제목 + 시나리오 (정답 태그 없음) -->
-        <div>
-          <span class="difficulty">난이도 <b>${c.difficulty}</b></span>
-          <h3 style="margin-top:8px">${c.t}</h3>
-          <div class="scenario">${c.text}</div>
-
-          <!-- 판단 후에만 공개되는 영역 -->
-          <div id="caseReveal" style="display:none">
-            <div style="margin-top:16px;display:flex;align-items:center;gap:10px">
-              <span class="tag ${tagClass(c.ans)}">${c.ans}</span>
-              <span class="difficulty">정답</span>
-            </div>
-            <div style="margin-top:12px"><b style="font-size:var(--fs-xs)">상담·민원 온도: ${c.temp}도</b></div>
-            <div class="temp"><div class="needle" style="left:${c.temp}%"></div></div>
-            <div class="tempLabels"><span>상담</span><span>경계</span><span>민원</span><span>특이 가능</span></div>
-          </div>
-        </div>
-
-        <!-- 오른쪽: 판단 패널 -->
-        <div class="judgePanel">
-          <h3>먼저 판단해 보세요</h3>
-          <p class="sub">정답을 보기 전에 교사 입장에서 직접 골라보세요.</p>
-          <div class="judgeBtns">
-            <button onclick="judgeCase(${i},'상담',this)">🟢 상담</button>
-            <button onclick="judgeCase(${i},'경계',this)">🟡 경계</button>
-            <button onclick="judgeCase(${i},'민원',this)">🔴 민원</button>
-          </div>
-          <div id="caseFeedback" class="caseFeedback"></div>
-        </div>
-
+      <!-- 헤더: 분류·난이도·온도 한눈에 -->
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+        <span class="tag ${tagClass(c.ans)}" style="font-size:var(--fs-sm);padding:6px 14px">${c.ans}</span>
+        <span class="miniTag">${c.level}</span>
+        <span class="miniTag">${c.type||''}</span>
+        <span class="difficulty" style="margin-left:auto">난이도 <b>${c.difficulty}</b></span>
       </div>
-      <div class="caseFooterBtns">
+
+      <h3 style="font-size:var(--fs-lg);margin:0 0 12px">${c.t}</h3>
+
+      <!-- 시나리오 -->
+      <div class="scenario" style="border-left-color:${triggerColor}">${c.text}</div>
+
+      <!-- 온도 게이지 -->
+      <div style="margin:16px 0 6px">
+        <b style="font-size:var(--fs-xs)">상담·민원 온도: ${c.temp}도</b>
+      </div>
+      <div class="temp"><div class="needle" style="left:${c.temp}%"></div></div>
+      <div class="tempLabels"><span>상담</span><span>경계</span><span>민원</span><span>특이 가능</span></div>
+
+      <!-- 판정 근거 -->
+      <div style="margin-top:20px">
+        <b style="font-size:var(--fs-sm);display:block;margin-bottom:10px">📌 판정 근거</b>
+        <div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div>
+      </div>
+
+      <!-- 핵심 신호 -->
+      <div style="background:var(--bg);border:1px solid var(--line);border-radius:var(--r-btn);padding:14px 16px;margin-top:14px;font-size:var(--fs-xs)">
+        <b style="display:block;margin-bottom:4px;color:var(--ink)">🔑 핵심 신호</b>
+        <span style="color:var(--ink2)">${c.signal}</span>
+      </div>
+
+      <!-- 교사 행동 / 대응팀 -->
+      <div class="actionGrid" style="margin-top:14px">
+        <div class="actionBox teacherBox">
+          <b style="display:block;margin-bottom:6px">👩‍🏫 교사 행동</b>
+          ${c.teacher}
+        </div>
+        <div class="actionBox teamBox teamOnly">
+          <b style="display:block;margin-bottom:6px">🏢 민원대응팀</b>
+          ${c.team}
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px">
+            <div style="background:var(--card);border-radius:var(--r-btn);padding:8px;font-size:var(--fs-xs)">
+              <small style="color:var(--ink2);display:block;margin-bottom:2px">처리 주체</small>${c.owner}
+            </div>
+            <div style="background:var(--card);border-radius:var(--r-btn);padding:8px;font-size:var(--fs-xs)">
+              <small style="color:var(--ink2);display:block;margin-bottom:2px">종결 가능성</small>${c.close}
+            </div>
+            <div style="background:var(--card);border-radius:var(--r-btn);padding:8px;font-size:var(--fs-xs)">
+              <small style="color:var(--ink2);display:block;margin-bottom:2px">침해 가능성</small>${c.infringe}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 전환 트리거 — 가장 중요한 실무 정보 -->
+      <div style="background:var(--so-bg);border:2px solid var(--so-bd);border-radius:var(--r-card);padding:16px 18px;margin-top:14px">
+        <b style="display:block;margin-bottom:6px;color:var(--so-tx);font-size:var(--fs-sm)">⚡ 이 상황이 악화되는 트리거</b>
+        <span style="font-size:var(--fs-xs);color:var(--ink2);line-height:1.65">${c.next}</span>
+      </div>
+
+      ${situationRoom(c)}
+
+      <!-- 비슷한 사례 -->
+      <div style="margin-top:18px">
+        <b style="font-size:var(--fs-xs);display:block;margin-bottom:10px;color:var(--ink2)">같은 분류의 다른 사례</b>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${cases.filter(x=>x.ans===c.ans&&x.t!==c.t).slice(0,3).map(x=>`
+            <button onclick="openRef(${cases.indexOf(x)})"
+              style="border:1px solid var(--line);background:var(--card);border-radius:var(--r-btn);padding:8px 14px;font-size:var(--fs-xs);font-weight:700;cursor:pointer;color:var(--ink);transition:.12s ease"
+              onmouseover="this.style.borderColor='var(--so)'" onmouseout="this.style.borderColor='var(--line)'">
+              ${x.t}
+            </button>`).join('')}
+        </div>
+      </div>
+
+      <div class="caseFooterBtns" style="margin-top:16px">
         <button class="btn light" onclick="renderCases()">목록으로</button>
-        <button class="btn light" onclick="newCase()">다른 사례</button>
+        <button class="btn light" onclick="randomRef()">다른 사례</button>
       </div>
     </div>`;
-}
-
-function judgeCase(i,choice,btn){
-  const c=cases[i];
-
-  // 버튼 선택 표시 + 이후 비활성화
-  document.querySelectorAll('.judgeBtns button').forEach(b=>{
-    b.classList.remove('selected');
-    b.disabled=true;
-    b.style.opacity='0.55';
-    b.style.cursor='default';
-  });
-  btn.classList.add('selected');
-  btn.style.opacity='1';
-
-  const correct=(choice===c.ans)||(choice==='민원'&&c.ans==='특이민원 가능');
   setHeaderState(c.ans);
-
-  // 왼쪽 정답 영역 공개 (애니메이션)
-  const reveal=document.getElementById('caseReveal');
-  if(reveal){
-    reveal.style.display='block';
-    reveal.style.opacity='0';
-    reveal.style.transition='opacity .35s ease';
-    setTimeout(()=>{ reveal.style.opacity='1'; }, 20);
-  }
-
-  // 피드백 패널
-  const fb=document.getElementById('caseFeedback');
-  fb.className='caseFeedback show';
-  fb.innerHTML=`
-    <div class="result show ${correct?'correct':'wrong'}" style="margin-top:14px">
-      <b>${correct?'✅ 판단 좋습니다.':'다시 살펴보세요.'}</b>
-      ${!correct?`<br>정답은 <b>${c.ans}</b>입니다.`:''}
-      <div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div>
-    </div>
-    <div class="teacher" style="margin-top:10px"><b>교사 1차 행동</b><br>${c.teacher}</div>
-    <div class="team teamOnly" style="margin-top:10px"><b>민원대응팀 판단</b><br>${c.team}
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">
-        <div style="background:var(--bg);border-radius:var(--r-btn);padding:10px;font-size:var(--fs-xs)"><small style="color:var(--ink2);display:block;margin-bottom:2px">개입 수준</small>${c.level}</div>
-        <div style="background:var(--bg);border-radius:var(--r-btn);padding:10px;font-size:var(--fs-xs)"><small style="color:var(--ink2);display:block;margin-bottom:2px">처리 주체</small>${c.owner}</div>
-        <div style="background:var(--bg);border-radius:var(--r-btn);padding:10px;font-size:var(--fs-xs)"><small style="color:var(--ink2);display:block;margin-bottom:2px">종결 가능성</small>${c.close}</div>
-      </div>
-    </div>
-    ${situationRoom(c)}
-    <div class="nextQuestion"><b>민원으로 바뀌는 다음 신호</b><br>${c.next}</div>`;
 }
 
-function newCase(){
+function randomRef(){
   const list=cases.filter(c=>caseFilter==='전체'||c.ans===caseFilter);
   const c=list[Math.floor(Math.random()*list.length)]||cases[0];
-  openCase(cases.indexOf(c));
+  openRef(cases.indexOf(c));
 }
+
+// 구형 호환성 (퀴즈·다른 곳에서 openCase 호출 시)
+function openCase(i){ openRef(i); }
+function newCase(){ randomRef(); }
 
 // ════════════════════════════════════════════════
 //  퀴즈 — A안 전면 재설계
