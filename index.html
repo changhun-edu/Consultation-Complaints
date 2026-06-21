@@ -1319,7 +1319,7 @@ function enrichCases(){
 }
 enrichCases();
 
-let current=0;let quiz=[];let qi=0;let score=0;
+let current=0; // (사례 카드용)
 
 // ── 모드 전환
 function setMode(m){
@@ -1562,38 +1562,137 @@ function renderCases(){
   const list=cases.filter(c=>caseFilter==='전체'||c.ans===caseFilter);
   list.forEach((c)=>{
     const i=cases.indexOf(c);
-    let div=document.createElement('div');div.className='caseCard';div.onclick=()=>openCase(i);
-    div.innerHTML=`<span class="tag ${tagClass(c.ans)}">${c.ans}</span><span class="difficulty"> 난이도 <b>${c.difficulty}</b></span><h3>${c.t}</h3><p>${c.text}</p><div class="caseMeta"><span class="miniTag">온도 ${c.temp}도</span><span class="miniTag">${c.level}</span><span class="miniTag">${c.owner}</span></div>`;
+    const div=document.createElement('div');
+    div.className='caseCard';
+    div.onclick=()=>openCase(i);
+    // 목록에서는 정답 태그 대신 난이도만 — 스포일러 방지
+    div.innerHTML=`
+      <span class="difficulty">난이도 <b>${c.difficulty}</b></span>
+      <h3>${c.t}</h3>
+      <p>${c.text}</p>
+      <div class="caseMeta">
+        <span class="miniTag">클릭해서 판별하기</span>
+      </div>`;
     caseList.appendChild(div);
   });
   if(!list.length) caseList.innerHTML='<div class="mini">해당 사례가 없습니다.</div>';
 }
+
 function openCase(i){
   const c=cases[i];
-  caseList.innerHTML=`<div class="caseCard" style="grid-column:1/-1;cursor:auto"><div class="caseDetailGrid"><div><span class="tag ${tagClass(c.ans)}">${c.ans}</span><span class="difficulty"> 난이도 <b>${c.difficulty}</b></span><h3>${c.t}</h3><div class="scenario">${c.text}</div><b>상담·민원 온도: ${c.temp}도</b><div class="temp"><div class="needle" style="left:${c.temp}%"></div></div><div class="tempLabels"><span>상담</span><span>경계</span><span>민원</span><span>특이 가능</span></div></div><div class="judgePanel"><h3>먼저 판단해 보세요</h3><p class="sub">정답을 바로 보지 말고, 일반 교사 입장에서 먼저 고르세요.</p><div class="judgeBtns"><button onclick="judgeCase(${i},'상담',this)">🟢 상담</button><button onclick="judgeCase(${i},'경계',this)">🟡 경계</button><button onclick="judgeCase(${i},'민원',this)">🔴 민원</button></div><div id="caseFeedback" class="caseFeedback"></div></div></div><div class="caseFooterBtns"><button class="btn light" onclick="renderCases()">목록으로</button><button class="btn light" onclick="newCase()">다른 사례</button></div></div>`;
+  // ── 판단 전: 시나리오 + 판단 버튼만 표시. 정답·온도계·이유는 숨김
+  caseList.innerHTML=`
+    <div class="caseCard" style="grid-column:1/-1;cursor:auto">
+      <div class="caseDetailGrid">
+
+        <!-- 왼쪽: 제목 + 시나리오 (정답 태그 없음) -->
+        <div>
+          <span class="difficulty">난이도 <b>${c.difficulty}</b></span>
+          <h3 style="margin-top:8px">${c.t}</h3>
+          <div class="scenario">${c.text}</div>
+
+          <!-- 판단 후에만 공개되는 영역 -->
+          <div id="caseReveal" style="display:none">
+            <div style="margin-top:16px;display:flex;align-items:center;gap:10px">
+              <span class="tag ${tagClass(c.ans)}">${c.ans}</span>
+              <span class="difficulty">정답</span>
+            </div>
+            <div style="margin-top:12px"><b style="font-size:var(--fs-xs)">상담·민원 온도: ${c.temp}도</b></div>
+            <div class="temp"><div class="needle" style="left:${c.temp}%"></div></div>
+            <div class="tempLabels"><span>상담</span><span>경계</span><span>민원</span><span>특이 가능</span></div>
+          </div>
+        </div>
+
+        <!-- 오른쪽: 판단 패널 -->
+        <div class="judgePanel">
+          <h3>먼저 판단해 보세요</h3>
+          <p class="sub">정답을 보기 전에 교사 입장에서 직접 골라보세요.</p>
+          <div class="judgeBtns">
+            <button onclick="judgeCase(${i},'상담',this)">🟢 상담</button>
+            <button onclick="judgeCase(${i},'경계',this)">🟡 경계</button>
+            <button onclick="judgeCase(${i},'민원',this)">🔴 민원</button>
+          </div>
+          <div id="caseFeedback" class="caseFeedback"></div>
+        </div>
+
+      </div>
+      <div class="caseFooterBtns">
+        <button class="btn light" onclick="renderCases()">목록으로</button>
+        <button class="btn light" onclick="newCase()">다른 사례</button>
+      </div>
+    </div>`;
 }
+
 function judgeCase(i,choice,btn){
   const c=cases[i];
-  document.querySelectorAll('.judgeBtns button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');
+
+  // 버튼 선택 표시 + 이후 비활성화
+  document.querySelectorAll('.judgeBtns button').forEach(b=>{
+    b.classList.remove('selected');
+    b.disabled=true;
+    b.style.opacity='0.55';
+    b.style.cursor='default';
+  });
+  btn.classList.add('selected');
+  btn.style.opacity='1';
+
   const correct=(choice===c.ans)||(choice==='민원'&&c.ans==='특이민원 가능');
   setHeaderState(c.ans);
-  const fb=document.getElementById('caseFeedback');fb.className='caseFeedback show';
-  fb.innerHTML=`<div class="result show ${correct?'correct':'wrong'}" style="margin-top:0"><b>${correct?'✅ 판단 좋습니다.':'다시 살펴보세요.'}</b><br>권장 판정: <b>${c.ans}</b><div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div><div class="teacher"><b>교사 1차 행동</b><br>${c.teacher}</div><div class="team teamOnly"><b>민원대응팀 판단</b><br>${c.team}<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px"><div style="background:#f8fafc;border-radius:12px;padding:10px;font-size:13px"><small style="color:#667085;display:block">개입 수준</small>${c.level}</div><div style="background:#f8fafc;border-radius:12px;padding:10px;font-size:13px"><small style="color:#667085;display:block">처리 주체</small>${c.owner}</div><div style="background:#f8fafc;border-radius:12px;padding:10px;font-size:13px"><small style="color:#667085;display:block">종결 가능성</small>${c.close}</div></div></div>${situationRoom(c)}<div class="nextQuestion"><b>민원으로 바뀌는 다음 신호</b><br>${c.next}</div></div>`;
+
+  // 왼쪽 정답 영역 공개 (애니메이션)
+  const reveal=document.getElementById('caseReveal');
+  if(reveal){
+    reveal.style.display='block';
+    reveal.style.opacity='0';
+    reveal.style.transition='opacity .35s ease';
+    setTimeout(()=>{ reveal.style.opacity='1'; }, 20);
+  }
+
+  // 피드백 패널
+  const fb=document.getElementById('caseFeedback');
+  fb.className='caseFeedback show';
+  fb.innerHTML=`
+    <div class="result show ${correct?'correct':'wrong'}" style="margin-top:14px">
+      <b>${correct?'✅ 판단 좋습니다.':'다시 살펴보세요.'}</b>
+      ${!correct?`<br>정답은 <b>${c.ans}</b>입니다.`:''}
+      <div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div>
+    </div>
+    <div class="teacher" style="margin-top:10px"><b>교사 1차 행동</b><br>${c.teacher}</div>
+    <div class="team teamOnly" style="margin-top:10px"><b>민원대응팀 판단</b><br>${c.team}
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">
+        <div style="background:var(--bg);border-radius:var(--r-btn);padding:10px;font-size:var(--fs-xs)"><small style="color:var(--ink2);display:block;margin-bottom:2px">개입 수준</small>${c.level}</div>
+        <div style="background:var(--bg);border-radius:var(--r-btn);padding:10px;font-size:var(--fs-xs)"><small style="color:var(--ink2);display:block;margin-bottom:2px">처리 주체</small>${c.owner}</div>
+        <div style="background:var(--bg);border-radius:var(--r-btn);padding:10px;font-size:var(--fs-xs)"><small style="color:var(--ink2);display:block;margin-bottom:2px">종결 가능성</small>${c.close}</div>
+      </div>
+    </div>
+    ${situationRoom(c)}
+    <div class="nextQuestion"><b>민원으로 바뀌는 다음 신호</b><br>${c.next}</div>`;
 }
+
 function newCase(){
   const list=cases.filter(c=>caseFilter==='전체'||c.ans===caseFilter);
   const c=list[Math.floor(Math.random()*list.length)]||cases[0];
   openCase(cases.indexOf(c));
 }
 
-// ── 퀴즈 (수동 전환으로 개선)
-let quizStep=0;let quizAnswers={};
+// ════════════════════════════════════════════════
+//  퀴즈 — A안 전면 재설계
+//  • 전역 quizStep 제거 → qState 객체로 완전 캡슐화
+//  • 사례 텍스트는 상단 고정, 질문 영역만 교체
+//  • 정답 태그 스포일러 제거 (사례 정리 화면에서만 공개)
+//  • DOM 교체 타이밍 버그 제거 (클로저 캡처 기반)
+// ════════════════════════════════════════════════
+
 const quizSteps=[
-  {key:'judge',title:'1단계: 현재 상태 판정',desc:'이 상황을 교사 입장에서 먼저 분류하세요.',options:['상담','경계','민원','특이민원 가능']},
-  {key:'signal',title:'2단계: 핵심 신호 찾기',desc:'이 사례에서 가장 중요한 판단 근거를 고르세요.',options:['학생 지원 목적','사실 확인·설명 요구','특정 조치·결과 변경 요구','반복·폭언·압박 신호']},
-  {key:'teacherAction',title:'3단계: 교사 1차 행동',desc:'교사가 바로 취해야 할 행동을 고르세요.',options:['상담 진행','상담 진행 + 기록','공식 창구 안내 + 민원대응팀 공유','개인 대응 중단 + 즉시 보고']},
-  {key:'teamAction',title:'4단계: 민원대응팀 판단',desc:'민원대응팀의 개입 수준을 고르세요.',options:['개입 불필요','공유 검토','즉시 공유','즉시 개입']}
+  {key:'judge',      title:'1 / 4  —  현재 상태 판정',   desc:'이 상황을 교사 입장에서 분류하세요.',             options:['상담','경계','민원','특이민원 가능']},
+  {key:'signal',     title:'2 / 4  —  핵심 신호 찾기',   desc:'가장 중요한 판단 근거를 고르세요.',              options:['학생 지원 목적','사실 확인·설명 요구','특정 조치·결과 변경 요구','반복·폭언·압박 신호']},
+  {key:'teacherAction',title:'3 / 4  —  교사 1차 행동', desc:'교사가 바로 취해야 할 행동을 고르세요.',          options:['상담 진행','상담 진행 + 기록','공식 창구 안내 + 민원대응팀 공유','개인 대응 중단 + 즉시 보고']},
+  {key:'teamAction', title:'4 / 4  —  민원대응팀 판단',  desc:'민원대응팀의 개입 수준을 고르세요.',             options:['개입 불필요','공유 검토','즉시 공유','즉시 개입']}
 ];
+
+// 퀴즈 전체 상태를 하나의 객체로 관리
+let qState={list:[],ci:0,score:0};
+
 function expectedQuiz(c,key){
   if(key==='judge') return c.ans;
   if(key==='signal'){
@@ -1615,6 +1714,7 @@ function expectedQuiz(c,key){
     return '즉시 개입';
   }
 }
+
 function optionDesc(key,o){
   const map={
     judge:{'상담':'학생 지원 중심의 대화','경계':'민원 전환 가능성이 있는 상황','민원':'조치·시정·공식 답변 요구','특이민원 가능':'반복·폭언·부당요구 등 위험 신호'},
@@ -1622,62 +1722,207 @@ function optionDesc(key,o){
     teacherAction:{'상담 진행':'교사가 상담을 계속 진행','상담 진행 + 기록':'경계 상황이므로 기록 병행','공식 창구 안내 + 민원대응팀 공유':'민원 전환 가능성에 대비','개인 대응 중단 + 즉시 보고':'특이민원 위험 시 즉시 중단'},
     teamAction:{'개입 불필요':'담임이 자율 상담·안내','공유 검토':'사실 확인 및 내용 공유','즉시 공유':'팀 단위 검토와 대응 방향 결정','즉시 개입':'반복·부당 요구 등 기관 대응'}
   };
-  return (map[key]&&map[key][o])?map[key][o]:'선택 후 해설을 확인합니다';
+  return (map[key]&&map[key][o])||'선택 후 해설을 확인합니다';
 }
-function startQuiz(){quiz=[...cases].sort(()=>Math.random()-.5).slice(0,5);qi=0;score=0;quizStep=0;quizAnswers={};showQuiz()}
-function showQuiz(){
-  if(qi>=quiz.length){
-    let best=Math.max(Number(localStorage.bestScore||0),score);localStorage.bestScore=best;localStorage.tryCount=Number(localStorage.tryCount||0)+1;loadProgress();
-    const max=quiz.length*quizSteps.length;
-    const title=score>=18?'민원 대응 전문가':score>=14?'경계 판단 우수':score>=10?'분류 연습생':'다시 연습 필요';
-    quizBox.innerHTML=`<div class="result show"><div class="quizBadgeBig">🏁</div><b>퀴즈 완료: ${title}</b><br>${score}/${max}점입니다.<br><span class="note">정답보다 중요한 것은 판정 근거와 다음 행동까지 연결하는 것입니다.</span></div>`;
-    return;
-  }
-  let c=quiz[qi],st=quizSteps[quizStep];
-  let progress=((qi*quizSteps.length+quizStep)/(quiz.length*quizSteps.length))*100;
-  quizBox.innerHTML=`<div class="quizStepHeader"><b>${qi+1}/${quiz.length}번 사례 · ${quizStep+1}/4단계</b><span class="tag ${tagClass(c.ans)}">${c.ans}</span></div><div class="quizProgress"><span style="width:${progress}%"></span></div><div class="scenario">${c.text}</div><div class="quizQuestion"><h3>${st.title}</h3><p class="sub">${st.desc}</p><div class="multiChoices">${st.options.map(o=>`<button class="quiz-option" onclick="quizAns('${o.replace(/'/g,"\\'")}',this)"><span>${o}</span><small>${optionDesc(st.key,o)}</small></button>`).join('')}</div></div>`;
+
+// ── 퀴즈 시작
+function startQuiz(){
+  qState={list:[...cases].sort(()=>Math.random()-.5).slice(0,5), ci:0, score:0};
+  renderQuizCase(qState.list[0], 0);
 }
-function quizAns(a,btn){
-  // 이미 선택된 경우 무시
-  if(quizBox.querySelector('.quizNextBtn')) return;
-  let c=quiz[qi],st=quizSteps[quizStep],expected=expectedQuiz(c,st.key);
-  document.querySelectorAll('.multiChoices button').forEach(b=>{b.disabled=true;b.style.cursor='default'});
-  if(btn) btn.classList.add('selected');
-  const correct=a===expected||(st.key==='judge'&&a==='민원'&&c.ans==='특이민원 가능');
-  // 오답일 때 정답 표시
-  if(!correct){
-    document.querySelectorAll('.multiChoices button').forEach(b=>{
-      if(b.querySelector('span')&&b.querySelector('span').textContent===expected) b.classList.add('selected');
-      else if(b===btn) b.classList.add('wrong-answer');
-    });
-  }
-  if(correct) score++;
-  quizAnswers[st.key]=a;
-  const fb=document.createElement('div');fb.className='quizFeedbackPanel';
-  fb.innerHTML=`<b>${correct?'✅ 좋은 판단입니다.':'❌ 다시 생각해 볼 지점이 있습니다.'}</b><br>권장 답: <b>${expected}</b><div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div>`;
-  quizBox.appendChild(fb);
-  // 수동 전환 버튼
-  const nextBtn=document.createElement('button');
-  nextBtn.className='quizNextBtn';
-  const isLastStep=quizStep>=quizSteps.length-1;
-  const isLastCase=qi>=quiz.length-1;
-  nextBtn.textContent=isLastStep?(isLastCase?'퀴즈 결과 보기 →':'다음 사례로 →'):'다음 질문으로 →';
-  nextBtn.onclick=()=>{
-    quizStep++;
-    if(quizStep>=quizSteps.length){showQuizSummary(c);}
-    else{showQuiz();}
+
+// ── 사례 렌더 — 사례 텍스트 고정 + 첫 질문 삽입
+function renderQuizCase(c, caseIdx){
+  const total=qState.list.length;
+  const totalSteps=quizSteps.length;
+  // 전체 진행률 (사례 단위)
+  const pct=Math.round((caseIdx/total)*100);
+
+  quizBox.innerHTML=`
+    <div class="quizCaseWrap">
+      <!-- 상단 고정: 진행 상태 + 사례 텍스트 -->
+      <div class="quizCaseHeader">
+        <div class="quizStepHeader">
+          <b>사례 ${caseIdx+1} / ${total}</b>
+          <span class="note" style="font-size:var(--fs-xs)">4개 질문을 모두 풀면 정답이 공개됩니다</span>
+        </div>
+        <div class="quizProgress"><span id="qProgressBar" style="width:${pct}%"></span></div>
+        <div class="scenario" id="qScenario">${c.text}</div>
+      </div>
+      <!-- 질문 영역 — 단계마다 이 부분만 교체 -->
+      <div id="qStepArea"></div>
+    </div>`;
+
+  // 첫 번째 질문 렌더
+  renderQuizStep(c, caseIdx, 0, totalSteps, 0);
+}
+
+// ── 단계 렌더 — #qStepArea 만 교체, 사례 텍스트는 건드리지 않음
+function renderQuizStep(c, caseIdx, stepIdx, totalSteps, stepScore){
+  const st=quizSteps[stepIdx];
+  const stepArea=document.getElementById('qStepArea');
+  if(!stepArea) return;
+
+  stepArea.innerHTML=`
+    <div class="quizQuestion" style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <h3 style="margin:0">${st.title}</h3>
+        <span class="miniTag">이 사례 ${stepIdx+1}/${totalSteps}단계</span>
+      </div>
+      <p class="sub" style="margin:0 0 14px">${st.desc}</p>
+      <div class="multiChoices" id="qChoices">
+        ${st.options.map((o,oi)=>`
+          <button id="qopt${oi}" onclick="answerQuizStep(event,'${o.replace(/'/g,"\\'")}',${caseIdx},${stepIdx},${stepScore})">
+            <span>${o}</span>
+            <small>${optionDesc(st.key,o)}</small>
+          </button>`).join('')}
+      </div>
+      <div id="qFeedback"></div>
+    </div>`;
+}
+
+// ── 답 선택 처리 — 클로저로 caseIdx·stepIdx·stepScore 캡처, 전역 변수 불필요
+function answerQuizStep(event, answer, caseIdx, stepIdx, stepScore){
+  // 이미 답한 경우 무시 (피드백 박스가 있으면)
+  const feedbackEl=document.getElementById('qFeedback');
+  if(!feedbackEl||feedbackEl.innerHTML.trim()) return;
+
+  const c=qState.list[caseIdx];
+  const st=quizSteps[stepIdx];
+  const expected=expectedQuiz(c, st.key);
+  const correct=answer===expected||(st.key==='judge'&&answer==='민원'&&c.ans==='특이민원 가능');
+  const newStepScore=stepScore+(correct?1:0);
+  if(correct) qState.score++;
+
+  // 선택지 전체 비활성화 + 정오 표시
+  document.querySelectorAll('#qChoices button').forEach(b=>{
+    b.disabled=true;
+    b.style.cursor='default';
+    const txt=b.querySelector('span')?.textContent;
+    if(txt===expected)       b.classList.add('selected');
+    if(txt===answer&&!correct) b.classList.add('wrong-answer');
+  });
+
+  // 피드백 삽입
+  const isLastStep=(stepIdx>=quizSteps.length-1);
+  const isLastCase=(caseIdx>=qState.list.length-1);
+  const nextLabel=isLastStep?(isLastCase?'퀴즈 결과 보기 →':'사례 정리 보기 →'):'다음 질문으로 →';
+
+  feedbackEl.innerHTML=`
+    <div class="quizFeedbackPanel" style="margin-top:14px">
+      <b>${correct?'✅ 좋은 판단입니다.':'❌ 다시 생각해 볼 지점이 있습니다.'}</b>
+      ${!correct?`<br>권장 답: <b>${expected}</b>`:''}
+      <div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div>
+    </div>
+    <button class="quizNextBtn" id="qNextBtn">${nextLabel}</button>`;
+
+  // 다음 단계 이동 — 새로운 클로저로 캡처
+  document.getElementById('qNextBtn').onclick=()=>{
+    if(isLastStep){
+      renderQuizSummary(c, caseIdx, newStepScore);
+    } else {
+      renderQuizStep(c, caseIdx, stepIdx+1, quizSteps.length, newStepScore);
+    }
   };
-  quizBox.appendChild(nextBtn);
 }
-function showQuizSummary(c){
-  quizBox.innerHTML=`<div class="scenario">${c.text}</div><div class="quizFeedbackPanel"><b>사례 정리</b><br>권장 판정: <b>${c.ans}</b><div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div><div class="quizExplain"><div class="teacher"><b>교사 행동</b><br>${c.teacher}</div><div class="team"><b>민원대응팀 판단</b><br>${c.team}</div></div>${situationRoom(c)}<div class="nextQuestion"><b>다음 위험 신호</b><br>${c.next}</div></div><button class="quizNextBtn" onclick="nextQuizCase()">다음 사례로 →</button>`;
+
+// ── 사례 정리 화면 — 4단계 완료 후 정답 공개
+function renderQuizSummary(c, caseIdx, stepScore){
+  const isLastCase=(caseIdx>=qState.list.length-1);
+  const pct=Math.round(((caseIdx+1)/qState.list.length)*100);
+
+  // 진행 바 업데이트
+  const pb=document.getElementById('qProgressBar');
+  if(pb) pb.style.width=pct+'%';
+
+  const stepArea=document.getElementById('qStepArea');
+  if(!stepArea) return;
+
+  stepArea.innerHTML=`
+    <div class="quizFeedbackPanel" style="margin-top:16px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+        <span class="tag ${tagClass(c.ans)}">${c.ans}</span>
+        <b style="font-size:var(--fs-md)">사례 정리</b>
+        <span class="miniTag">이 사례 ${stepScore}/${quizSteps.length}점</span>
+      </div>
+      <div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div>
+      <div class="quizExplain" style="margin-top:14px">
+        <div class="teacher"><b>교사 행동</b><br>${c.teacher}</div>
+        <div class="team"><b>민원대응팀 판단</b><br>${c.team}</div>
+      </div>
+      ${situationRoom(c)}
+      <div class="nextQuestion" style="margin-top:12px"><b>다음 위험 신호</b><br>${c.next}</div>
+    </div>
+    <button class="quizNextBtn" id="qNextBtn">
+      ${isLastCase?'퀴즈 결과 보기 →':'다음 사례로 →'}
+    </button>`;
+
+  document.getElementById('qNextBtn').onclick=()=>{
+    if(isLastCase){
+      renderQuizResult();
+    } else {
+      const next=caseIdx+1;
+      renderQuizCase(qState.list[next], next);
+      // 스크롤을 퀴즈 섹션 상단으로
+      document.getElementById('quiz').scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  };
 }
-function nextQuizCase(){qi++;quizStep=0;quizAnswers={};showQuiz()}
+
+// ── 최종 결과 화면
+function renderQuizResult(){
+  const total=qState.list.length*quizSteps.length;
+  const s=qState.score;
+  const title=s>=18?'민원 대응 전문가':s>=14?'경계 판단 우수':s>=10?'분류 연습생':'다시 연습 필요';
+  let best=Math.max(Number(localStorage.bestScore||0),s);
+  localStorage.bestScore=best;
+  localStorage.tryCount=Number(localStorage.tryCount||0)+1;
+  loadProgress();
+
+  quizBox.innerHTML=`
+    <div class="quizFeedbackPanel" style="text-align:center;padding:32px 24px">
+      <div class="quizBadgeBig">🏁</div>
+      <b style="font-size:var(--fs-xl)">${title}</b>
+      <p style="font-size:var(--fs-lg);margin:12px 0 6px;color:var(--ink)">${s} / ${total}점</p>
+      <p class="note">정답보다 중요한 것은 판정 근거와 다음 행동까지 연결하는 것입니다.</p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px;text-align:left">
+        <div style="background:var(--bg);border-radius:var(--r-btn);padding:14px">
+          <small style="color:var(--ink2);display:block;margin-bottom:4px">이번 점수</small>
+          <b style="font-size:var(--fs-lg)">${s}점</b>
+        </div>
+        <div style="background:var(--bg);border-radius:var(--r-btn);padding:14px">
+          <small style="color:var(--ink2);display:block;margin-bottom:4px">최고 점수</small>
+          <b style="font-size:var(--fs-lg)">${best}점</b>
+        </div>
+        <div style="background:var(--bg);border-radius:var(--r-btn);padding:14px">
+          <small style="color:var(--ink2);display:block;margin-bottom:4px">누적 도전</small>
+          <b style="font-size:var(--fs-lg)">${localStorage.tryCount}회</b>
+        </div>
+      </div>
+    </div>`;
+}
+
 function loadProgress(){bestScore.textContent=localStorage.bestScore||0;tryCount.textContent=localStorage.tryCount||0;let b=Number(localStorage.bestScore||0);badge.textContent=b>=18?'전문가':b>=14?'경계 판단 우수':b>=10?'분류 연습생':'-'}
 function resetProgress(){localStorage.removeItem('bestScore');localStorage.removeItem('tryCount');loadProgress()}
 
 function showQuizIntro(){
-  quizBox.innerHTML=`<div class="quizFeedbackPanel"><div class="quizBadgeBig">🎯</div><b>퀴즈 방식</b><br>한 사례마다 4개 질문을 풉니다. ① 상담/경계/민원 판정 ② 판단 신호 ③ 교사 행동 ④ 민원대응팀 개입 수준을 차례로 고릅니다.<br><br><b>선택 후 해설을 읽고 직접 다음 단계로 넘어갑니다.</b> 오답일 경우 정답이 강조 표시됩니다.<div class="quizExplain"><div class="teacher"><b>교사 연습</b><br>혼자 상담을 계속할지, 기록할지, 공유할지 판단합니다.</div><div class="team teamOnly"><b>민원대응팀 연습</b><br>개입 수준·처리 주체·종결 가능성까지 함께 확인합니다.</div></div></div>`;
+  quizBox.innerHTML=`
+    <div class="quizFeedbackPanel">
+      <div class="quizBadgeBig">🎯</div>
+      <b style="font-size:var(--fs-lg)">퀴즈 방식</b>
+      <p style="margin:10px 0 0">한 사례마다 4개 질문을 순서대로 풉니다.</p>
+      <div style="display:grid;gap:8px;margin-top:14px">
+        <div style="background:var(--bg);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">① 상담 / 경계 / 민원 / 특이민원 <b>판정</b></div>
+        <div style="background:var(--bg);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">② 이 사례의 <b>핵심 판단 신호</b> 찾기</div>
+        <div style="background:var(--bg);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">③ 교사가 취해야 할 <b>1차 행동</b> 고르기</div>
+        <div style="background:var(--bg);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">④ 민원대응팀 <b>개입 수준</b> 판단</div>
+      </div>
+      <p style="margin:14px 0 0;font-size:var(--fs-xs);color:var(--ink2)">4단계를 모두 마치면 정답 태그와 사례 정리가 공개됩니다. 사례 텍스트는 단계가 바뀌어도 화면 위에 고정됩니다.</p>
+      <div class="quizExplain" style="margin-top:14px">
+        <div class="teacher"><b>교사 모드</b><br>상담 계속 / 기록 / 공유 여부를 판단합니다.</div>
+        <div class="team teamOnly"><b>민원대응팀 모드</b><br>개입 수준·처리 주체·종결 가능성까지 함께 확인합니다.</div>
+      </div>
+    </div>`;
 }
 
 renderBoundary();renderIncident();renderCases();loadProgress();showQuizIntro();
