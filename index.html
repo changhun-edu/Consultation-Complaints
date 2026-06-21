@@ -1374,10 +1374,23 @@ function nextHero(){
 
 // ── 자가진단
 function diagnose(){
-  let s=0; const checked=[...document.querySelectorAll('.check:checked')];
+  const checked=[...document.querySelectorAll('.check:checked')];
+
+  // ── 아무것도 체크하지 않은 경우: 결과 없이 안내만 표시
+  if(checked.length===0){
+    diagnosisResult.className='result show';
+    diagnosisResult.style.background='var(--sy-bg)';
+    diagnosisResult.style.border='1px solid var(--sy-bd)';
+    diagnosisResult.innerHTML='<b>⚠️ 먼저 해당 항목을 체크해 주세요</b><br><span class="note">현재 상황에 해당하는 항목을 하나 이상 체크한 뒤 판별하기를 누르세요. 아무것도 해당되지 않는다면 상담이 아니라 아직 상황이 시작되지 않은 것입니다.</span>';
+    return;
+  }
+  diagnosisResult.style.background='';
+  diagnosisResult.style.border='';
+
+  let s=0;
   checked.forEach(c=>s+=Number(c.value));
   const has=(type)=>checked.some(c=>c.dataset.type===type);
-  let level,label,temp,teacherAction,teamAction,reason=[];
+  let level,temp,teacherAction,teamAction,reason=[];
   if(has('support')) reason.push('학생 지원 목적');
   if(has('fact')) reason.push('사실 확인·설명 요구');
   if(has('action')) reason.push('학교에 특정 행위 요구');
@@ -1386,35 +1399,47 @@ function diagnose(){
   if(has('teacher')) reason.push('특정 교사 대상 요구');
   if(has('repeat')) reason.push('반복·장시간 요구');
   if(has('abuse')) reason.push('폭언·협박·압박 표현');
+
+  // 판정 로직 — 위험 신호 우선 체크
   if(has('abuse')||has('repeat')||s>=8){
-    level='🚨 5단계 특이민원 위험';temp=95;
+    level='🚨 5단계 특이민원 위험'; temp=95;
     teacherAction='교사 개인 대응을 중단하고 관리자·민원대응팀에 즉시 공유하세요. 상담을 계속 이어가지 않습니다.';
     teamAction='특이민원 요소를 기록하고, 공식 창구 이용 안내·종결 가능성·학교장 총괄·필요 시 보호 조치를 검토합니다.';
   }else if(has('action')||has('change')||s>=5){
-    level='🟠 4단계 민원';temp=75;
+    level='🟠 4단계 민원'; temp=75;
     teacherAction='혼자 해결하려 하지 말고 학교 체계에 공유하세요. 사실관계 확인 후 공식 절차와 답변 경로를 안내합니다.';
     teamAction='민원 유형을 검토하고 담당자 협조, 처리 기한, 답변 방식, 종결 기준을 정합니다.';
   }else if(has('blame')||has('teacher')||s>=3){
-    level='🟡 3단계 경계';temp=55;
+    level='🟡 3단계 경계'; temp=55;
     teacherAction='상담은 가능하지만 기록을 남기고, 불만이 조치 요구로 바뀌는지 살핍니다. 필요하면 부장·관리자와 공유합니다.';
     teamAction='현재 즉시 개입보다는 모니터링이 적절합니다. 책임 추궁·결과 변경 요구가 추가되면 민원 전환으로 봅니다.';
   }else if(has('fact')||s>=1){
-    level='🔵 2단계 상담 + 기록';temp=35;
+    level='🔵 2단계 상담 + 기록'; temp=35;
     teacherAction='상담을 진행하되 사실 확인 내용과 안내 내용을 간단히 기록하세요.';
     teamAction='민원대응팀 개입은 보통 필요하지 않습니다. 반복 문의로 바뀌는지만 확인합니다.';
   }else{
-    level='🟢 1단계 상담';temp=15;
+    // 체크는 했지만 '학생 지원 목적'(value=-3)만 체크해서 s<1인 경우
+    level='🟢 1단계 상담'; temp=15;
     teacherAction='교사가 상담을 진행합니다. 학생 지원 방안을 중심으로 대화하세요.';
     teamAction='개입 불필요. 상담이 조치 요구로 전환되는 경우에만 공유받습니다.';
   }
+
+  // 결과 클래스: 단계에 따라 배경색 다르게
   let resultCls='result show';
-  if(has('abuse')||has('repeat')||s>=8) resultCls+=' wrong';
-  else if(has('action')||has('change')||s>=5) resultCls+=' wrong';
-  else resultCls+=' correct';
+  if(has('abuse')||has('repeat')||s>=8)          resultCls+=' wrong';   // 빨강 계열
+  else if(has('action')||has('change')||s>=5)     resultCls+=' wrong';   // 주황 계열
+  else                                             resultCls+=' correct'; // 초록 계열
+
   diagnosisResult.className=resultCls;
-  diagnosisResult.innerHTML=`<b>${level}</b><br><span class="note">판단 근거: ${reason.length?reason.join(' · '):'체크된 위험 신호 없음'}</span><div class="temp"><div class="needle" style="left:${temp}%"></div></div><div class="tempLabels"><span>상담</span><span>상담+기록</span><span>경계</span><span>민원</span><span>특이</span></div><div class="teacher"><b>교사 행동</b><br>${teacherAction}</div><div class="team teamOnly"><b>민원대응팀 참고</b><br>${teamAction}</div>`;
+  diagnosisResult.innerHTML=`<b>${level}</b><br><span class="note">판단 근거: ${reason.join(' · ')}</span><div class="temp"><div class="needle" style="left:${temp}%"></div></div><div class="tempLabels"><span>상담</span><span>상담+기록</span><span>경계</span><span>민원</span><span>특이</span></div><div class="teacher"><b>교사 행동</b><br>${teacherAction}</div><div class="team teamOnly"><b>민원대응팀 참고</b><br>${teamAction}</div>`;
 }
-function resetDiagnosis(){document.querySelectorAll('.check').forEach(c=>c.checked=false);diagnosisResult.className='result';diagnosisResult.innerHTML=''}
+function resetDiagnosis(){
+  document.querySelectorAll('.check').forEach(c=>c.checked=false);
+  diagnosisResult.className='result';
+  diagnosisResult.innerHTML='';
+  diagnosisResult.style.background='';
+  diagnosisResult.style.border='';
+}
 
 // ── 발전 지도 데이터
 const boundaryScenarios=[
