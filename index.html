@@ -5,178 +5,1300 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>상담일까? 민원일까?</title>
   <style>
-    :root{
-      --green:#0f766e; --green2:#14b8a6; --yellow:#f59e0b; --orange:#f97316; --red:#ef4444;
-      --blue:#2563eb; --ink:#111827; --muted:#667085; --bg:#f7fafc; --card:#fff; --line:#e6eaf0;
-      --shadow:0 18px 50px rgba(15,23,42,.10);
-    }
-    *{box-sizing:border-box} html{scroll-behavior:smooth}
-    body{margin:0;font-family:"Pretendard","Noto Sans KR",Arial,sans-serif;background:radial-gradient(circle at top left,#e6fffb 0,#f7fafc 34%,#f8fafc 100%);color:var(--ink)}
-    .wrap{max-width:1120px;margin:0 auto}
-    header{background:transparent;color:var(--ink);padding:22px 20px 34px}
-    .top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:24px}
-    .logo{font-weight:950;font-size:22px;letter-spacing:-.5px;display:flex;align-items:center;gap:8px}.logo:before{content:"💬"}
-    .mode{display:flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px;box-shadow:0 8px 24px rgba(15,23,42,.06)}
-    .mode button{border:0;border-radius:999px;padding:9px 14px;color:#475467;background:transparent;font-weight:900;cursor:pointer}.mode button.active{background:var(--green);color:#fff;box-shadow:0 8px 18px rgba(15,118,110,.22)}
-    .hero{display:grid;grid-template-columns:.86fr 1.14fr;gap:28px;align-items:center;margin-top:10px}
-    .hero h1{font-size:54px;line-height:1.04;margin:0 0 16px;letter-spacing:-2px}.hero p{font-size:18px;color:#475467;line-height:1.65;margin:0 0 20px}.pill{display:inline-flex;gap:8px;align-items:center;background:#ecfeff;color:#0f766e;border:1px solid #99f6e4;padding:8px 12px;border-radius:999px;margin-bottom:14px;font-weight:900;font-size:14px}
-    .quickStats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}.quickStats div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 8px 22px rgba(15,23,42,.05)}.quickStats b{display:block;font-size:22px;color:var(--green)}.quickStats span{font-size:13px;color:var(--muted);font-weight:700}
-    .heroCard{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:32px;padding:28px;box-shadow:var(--shadow);position:relative;overflow:hidden}.heroCard:before{content:"오늘의 사례";position:absolute;right:20px;top:18px;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;border-radius:999px;padding:7px 11px;font-weight:950;font-size:13px}.heroCard h2{font-size:24px;margin:0 0 4px;color:var(--ink)}.heroCard .subMini{color:var(--muted);margin:0 0 14px;font-weight:700}
-    nav{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.84);backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.5);border-bottom:1px solid var(--line)}nav .wrap{display:flex;gap:8px;overflow:auto;padding:10px 20px}nav a{text-decoration:none;color:#475467;font-weight:900;padding:9px 13px;border-radius:999px;white-space:nowrap}nav a:hover{background:#ecfeff;color:var(--green)}
-    section{padding:30px 20px}.card{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:26px;padding:24px;box-shadow:0 10px 30px rgba(15,23,42,.06);margin-bottom:20px}.sectionTitle{display:flex;justify-content:space-between;gap:12px;align-items:end;margin-bottom:14px}h2{margin:0;color:var(--green);font-size:26px;letter-spacing:-.7px}.sub{color:var(--muted);line-height:1.55}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.mini{border:1px solid var(--line);border-radius:20px;padding:18px;background:#fff}.mini h3{margin:0 0 8px}.tag{display:inline-block;border-radius:999px;padding:6px 10px;font-weight:950;font-size:13px}.t-green{background:#dcfce7;color:#166534}.t-yellow{background:#fef3c7;color:#92400e}.t-orange{background:#ffedd5;color:#9a3412}.t-red{background:#fee2e2;color:#991b1b}.t-blue{background:#dbeafe;color:#1d4ed8}
-    .scenario{font-size:25px;line-height:1.65;background:linear-gradient(180deg,#f8fafc,#fff);border:1px solid var(--line);border-left:8px solid var(--green2);border-radius:22px;padding:24px;margin:16px 0 18px;font-weight:850;letter-spacing:-.7px}.card .scenario{font-size:20px;font-weight:700}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.choice{border:2px solid var(--line);background:#fff;border-radius:20px;padding:18px;cursor:pointer;text-align:left;font-weight:950;font-size:18px;transition:.18s ease}.choice:hover{transform:translateY(-3px);box-shadow:0 14px 28px rgba(15,23,42,.10);border-color:#99f6e4}.choice small{display:block;font-weight:700;color:var(--muted);margin-top:5px;font-size:13px}.result{display:none;margin-top:16px;border-radius:20px;padding:18px;background:#ecfdf5;border:1px solid #99f6e4;line-height:1.65}.result.show{display:block}.teacher,.team{border-radius:18px;padding:16px;margin-top:12px}.teacher{background:#eff6ff}.team{background:#fff7ed}.teamOnly{display:none}.team-mode .teamOnly{display:block}.temp{height:18px;border-radius:999px;background:linear-gradient(90deg,#22c55e,#facc15,#f97316,#ef4444);position:relative;margin:16px 0}.needle{position:absolute;top:-7px;width:4px;height:32px;background:#111827;border-radius:999px}.tempLabels{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.caseCard{border:1px solid var(--line);border-radius:20px;padding:18px;background:#fff;cursor:pointer;transition:.18s ease}.caseCard:hover{border-color:#14b8a6;transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,23,42,.08)}.timeline{display:grid;gap:12px}.stage{display:grid;grid-template-columns:110px 1fr 140px;gap:12px;align-items:center;border:1px solid var(--line);border-radius:18px;padding:15px;background:#fff}.quizBtns{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:16px;background:var(--green);color:white;padding:14px 19px;font-weight:950;cursor:pointer;box-shadow:0 10px 24px rgba(15,118,110,.18)}.btn.secondary{background:#2563eb}.btn.light{background:#f3f4f6;color:#111827;box-shadow:none}.scoreBox{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.score{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;text-align:center}.score strong{font-size:28px;color:#0f766e}.footer{padding:32px 20px;color:#667085;text-align:center}.note{font-size:13px;color:#667085;line-height:1.5}.hidden{display:none!important}
+  /* ═══════════════════════════════════════════════════════
+     디자인 토큰 — 신호등 4색이 UI 언어를 이룹니다
+     ─────────────────────────────────────────────────────
+     배경: #f5f5f0 오프화이트 (흰색보다 눈 덜 피로)
+     카드: #ffffff  테두리 반경 12px 단일 규칙
+     태그/칩: 4px
+     버튼: 8px
+     신호 4색:
+       G  #16a34a / bg #f0fdf4 / border #bbf7d0
+       Y  #ca8a04 / bg #fefce8 / border #fef08a
+       O  #ea580c / bg #fff7ed / border #fed7aa
+       R  #dc2626 / bg #fef2f2 / border #fecaca
+  ═══════════════════════════════════════════════════════ */
+  :root{
+    /* 신호 색 — 본색 */
+    --sg:#16a34a; --sy:#ca8a04; --so:#ea580c; --sr:#dc2626;
+    /* 신호 색 — 연한 배경 */
+    --sg-bg:#f0fdf4; --sy-bg:#fefce8; --so-bg:#fff7ed; --sr-bg:#fef2f2;
+    /* 신호 색 — 테두리 */
+    --sg-bd:#bbf7d0; --sy-bd:#fef08a; --so-bd:#fed7aa; --sr-bd:#fecaca;
+    /* 신호 색 — 텍스트 */
+    --sg-tx:#14532d; --sy-tx:#713f12; --so-tx:#7c2d12; --sr-tx:#7f1d1d;
+    /* 중립 */
+    --ink:#1e293b; --ink2:#475569; --ink3:#94a3b8;
+    --bg:#f5f5f0; --card:#ffffff; --line:#e2e8f0;
+    --shadow-sm:0 1px 3px rgba(15,23,42,.08),0 4px 12px rgba(15,23,42,.06);
+    --shadow-md:0 4px 16px rgba(15,23,42,.10),0 12px 32px rgba(15,23,42,.08);
+    /* 타이포 스케일 — 최소 16px */
+    --fs-xs:16px; --fs-sm:17px; --fs-base:18px; --fs-md:20px;
+    --fs-lg:22px; --fs-xl:28px; --fs-2xl:42px;
+    /* radius */
+    --r-card:12px; --r-btn:8px; --r-pill:999px;
+  }
 
-    .boundaryMap{display:grid;grid-template-columns:1fr;gap:14px;margin-top:18px}.branchNode{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:0 8px 22px rgba(15,23,42,.05)}.branchNode.main{border-left:8px solid var(--green2)}.branchTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}.branchQuote{font-size:20px;line-height:1.55;font-weight:850;letter-spacing:-.4px;margin:10px 0 12px}.why{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:16px;padding:12px;margin:10px 0;color:#344054}.actionGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.actionBox{border-radius:16px;padding:14px;line-height:1.55}.actionBox.teacherBox{background:#eff6ff}.actionBox.teamBox{background:#fff7ed}.branchChoice{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}.pathBtn{border:1px solid var(--line);background:#fff;border-radius:16px;padding:13px;text-align:left;cursor:pointer;font-weight:900}.pathBtn:hover{border-color:#14b8a6;box-shadow:0 8px 20px rgba(15,23,42,.08)}.pathBtn.active{border-color:#0f766e;background:#f0fdfa}.branchLine{width:2px;height:18px;background:#cbd5e1;margin:0 auto}.branchResult{display:none}.branchResult.show{display:block}.scenarioNav{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.scenarioNav button{border:0;border-radius:999px;padding:9px 12px;background:#f3f4f6;color:#344054;font-weight:900;cursor:pointer}.scenarioNav button.active{background:#0f766e;color:#fff}.fork{display:grid;grid-template-columns:1fr 1fr;gap:14px}.fork .branchNode{height:100%}
+  *, *::before, *::after { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
 
-    .caseTools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.filterBtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 12px;font-weight:900;cursor:pointer;color:#344054}.filterBtn.active{background:#0f766e;color:#fff;border-color:#0f766e}.caseCard .caseMeta{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.miniTag{font-size:12px;border-radius:999px;background:#f3f4f6;color:#475467;padding:5px 8px;font-weight:900}.caseDetailGrid{display:grid;grid-template-columns:1.05fr .95fr;gap:16px}.judgePanel{border:1px solid var(--line);border-radius:20px;background:#fff;padding:18px}.judgeBtns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.judgeBtns button{border:2px solid var(--line);background:#fff;border-radius:16px;padding:14px;font-weight:950;cursor:pointer}.judgeBtns button:hover{border-color:#14b8a6;transform:translateY(-2px)}.judgeBtns button.selected{background:#f0fdfa;border-color:#0f766e}.caseFeedback{display:none;margin-top:14px}.caseFeedback.show{display:block}.whyChips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.whyChips span{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:999px;padding:7px 10px;font-weight:850;color:#344054}.nextQuestion{background:#fffbeb;border:1px solid #fde68a;border-radius:18px;padding:14px;margin-top:12px}.caseFooterBtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.difficulty{font-size:13px;font-weight:950;color:#667085}.difficulty b{color:#111827}
+  body {
+    margin:0;
+    font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif;
+    font-size:var(--fs-base);
+    line-height:1.6;
+    color:var(--ink);
+    background:#f5f5f0;
+  }
 
+  /* ── 레이아웃 ── */
+  .wrap { max-width:1100px; margin:0 auto; }
 
-    .signalBar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.signalStep{border:1px solid var(--line);background:#fff;border-radius:16px;padding:12px;text-align:center;font-weight:950;color:#475467}.signalStep.active{transform:translateY(-2px);box-shadow:0 12px 28px rgba(15,23,42,.12)}.signalStep.green.active{background:#dcfce7;color:#166534;border-color:#86efac}.signalStep.yellow.active{background:#fef3c7;color:#92400e;border-color:#fcd34d}.signalStep.orange.active{background:#ffedd5;color:#9a3412;border-color:#fdba74}.signalStep.red.active{background:#fee2e2;color:#991b1b;border-color:#fca5a5}
-    .incidentWrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:18px}.incidentList{display:grid;gap:10px}.incidentDay{border:2px solid var(--line);background:#fff;border-radius:20px;padding:16px;cursor:pointer;transition:.18s}.incidentDay:hover{border-color:#14b8a6;transform:translateY(-2px)}.incidentDay.active{border-color:#0f766e;background:#f0fdfa}.incidentDay b{display:block;margin-bottom:6px}.incidentPanel{border:1px solid var(--line);background:#fff;border-radius:24px;padding:20px}.incidentQuote{font-size:22px;line-height:1.55;font-weight:900;letter-spacing:-.4px;background:#f8fafc;border-left:7px solid var(--green2);padding:18px;border-radius:18px;margin:12px 0}.whenBtns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.whenBtns button{border:2px solid var(--line);background:#fff;border-radius:16px;padding:13px;font-weight:950;cursor:pointer}.whenBtns button:hover{border-color:#14b8a6}.whenBtns button.selected{background:#f0fdfa;border-color:#0f766e}.incidentFeedback{display:none}.incidentFeedback.show{display:block}.modeHint{font-size:13px;color:#667085;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:14px;padding:10px;margin-top:10px}
-    .situationRoom{border:1px solid #fed7aa;background:#fff7ed;border-radius:20px;padding:16px;margin-top:14px}.situationRoom h4{margin:0 0 10px;color:#9a3412}.radarGrid{display:grid;gap:9px;margin:10px 0}.radarRow{display:grid;grid-template-columns:100px 1fr 46px;gap:10px;align-items:center;font-size:13px;font-weight:900;color:#475467}.barTrack{height:12px;background:#f3f4f6;border-radius:999px;overflow:hidden}.barFill{height:100%;background:linear-gradient(90deg,#22c55e,#facc15,#f97316,#ef4444);border-radius:999px}.teamMiniGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}.teamMiniCard{border:1px solid #fed7aa;background:#fff;border-radius:15px;padding:12px;font-weight:900}.teamMiniCard small{display:block;color:#9a3412;margin-bottom:4px}.pathPreview{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.pathPreview span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:13px;font-weight:900}.pathPreview b{color:#9a3412}
-    @media(max-width:860px){header{padding:18px 16px 26px}.top{align-items:flex-start}.mode button{padding:8px 10px;font-size:13px}.hero,.grid,.cards,.scoreBox,.actionGrid,.branchChoice,.fork,.caseDetailGrid,.judgeBtns,.incidentWrap,.whenBtns,.teamMiniGrid{grid-template-columns:1fr}.hero h1{font-size:39px}.quickStats{grid-template-columns:1fr}.choices{grid-template-columns:1fr}.stage{grid-template-columns:1fr}.scenario{font-size:21px}.heroCard:before{position:static;display:inline-block;margin-bottom:8px}}
+  /* ── 헤더 ── */
+  header {
+    background:#1e293b;
+    color:#fff;
+    padding:28px 24px 36px;
+    position:relative;
+    overflow:hidden;
+  }
+  /* 시그니처: 좌측 상단 신호등 막대 — 현재 판정 색으로 바뀜 */
+  header::before {
+    content:"";
+    position:absolute;
+    left:0; top:0; bottom:0;
+    width:6px;
+    background:linear-gradient(180deg,var(--sg) 0%,var(--sy) 33%,var(--so) 66%,var(--sr) 100%);
+    transition:background .4s ease;
+  }
+  body.state-상담 header::before   { background:var(--sg); }
+  body.state-경계 header::before   { background:var(--sy); }
+  body.state-민원 header::before   { background:var(--so); }
+  body.state-특이 header::before   { background:var(--sr); }
 
-    .orgFlow{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.orgFlow span{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 12px;font-weight:950;color:#475467}.orgFlow span.active{background:#0f766e;color:#fff;border-color:#0f766e;box-shadow:0 8px 18px rgba(15,118,110,.18)}
-    .processFlow span{display:block;font-size:11px;color:#667085;margin-top:4px;font-weight:700}
+  .top {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    margin-bottom:28px;
+  }
+  .logo {
+    font-size:var(--fs-md);
+    font-weight:800;
+    letter-spacing:-.3px;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .logo::before { content:"🚦"; font-size:22px; }
 
+  /* 모드 토글 */
+  .mode {
+    display:flex;
+    background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:var(--r-pill);
+    padding:4px;
+  }
+  .mode button {
+    border:0;
+    border-radius:var(--r-pill);
+    padding:10px 18px;
+    font-size:var(--fs-xs);
+    font-weight:700;
+    color:rgba(255,255,255,.7);
+    background:transparent;
+    cursor:pointer;
+    transition:.15s ease;
+    white-space:nowrap;
+  }
+  .mode button.active {
+    background:#fff;
+    color:var(--ink);
+    font-weight:800;
+    box-shadow:var(--shadow-sm);
+  }
 
-    /* v9: 민원대응팀 워크벤치 UI 개선 */
-    .teamWorkbench{margin-top:18px;display:grid;gap:18px}
-    .workbenchHeader{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-    .dashTile{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:0 8px 22px rgba(15,23,42,.05)}
-    .dashTile small{display:block;color:#667085;font-weight:900;margin-bottom:6px}.dashTile b{font-size:23px;color:#0f766e}.dashTile.orange b{color:#f97316}.dashTile.red b{color:#ef4444}
-    .teamPanel{background:#fff;border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 8px 24px rgba(15,23,42,.05)}
-    .panelHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}.panelHead h3{margin:0;font-size:22px}.panelHead .hint{font-size:13px;color:#667085;font-weight:800;background:#f8fafc;border:1px solid var(--line);border-radius:999px;padding:7px 10px}
-    .levelTimeline{position:relative;display:grid;gap:12px;margin-top:4px}.levelTimeline:before{content:"";position:absolute;left:28px;top:24px;bottom:24px;width:3px;background:#e2e8f0;border-radius:999px}
-    .levelItem{position:relative;display:grid;grid-template-columns:58px 1fr;gap:14px;align-items:start;padding:14px;border:1px solid var(--line);border-radius:18px;background:#fff;transition:.2s ease}.levelItem.current{border-color:#fb923c;background:linear-gradient(90deg,#fff7ed,#fff);box-shadow:0 12px 28px rgba(249,115,22,.14);transform:translateX(4px)}
-    .levelDot{position:relative;z-index:1;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:950;box-shadow:0 8px 20px rgba(15,23,42,.12)}
-    .dot1{background:#22c55e}.dot2{background:#eab308}.dot3{background:#f97316}.dot4{background:#ef4444}.dot5{background:#7c3aed}
-    .levelText b{display:block;font-size:17px;margin-bottom:4px}.levelText span{display:block;color:#475467;line-height:1.45}.levelText em{display:inline-block;margin-top:8px;background:#f8fafc;border:1px solid var(--line);border-radius:999px;padding:5px 8px;font-style:normal;font-size:12px;color:#667085;font-weight:900}
-    .processDiagram{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap}.processStep{flex:1;min-width:135px;border:1px solid var(--line);background:#fff;border-radius:18px;padding:16px;text-align:center;position:relative}.processStep:not(:last-child)::after{content:"→";position:absolute;right:-17px;top:50%;transform:translateY(-50%);font-weight:950;color:#94a3b8}.processStep.current{border-color:#0f766e;background:#f0fdfa;box-shadow:0 12px 26px rgba(15,118,110,.13)}.processIcon{font-size:24px;margin-bottom:6px}.processStep b{display:block}.processStep span{display:block;font-size:12px;color:#667085;line-height:1.4;margin-top:5px}
-    .workbenchGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.signalChecklist{display:grid;gap:9px}.signalItem{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:#fff}.signalItem.on{background:#fff7ed;border-color:#fed7aa}.signalItem b{font-size:14px}.signalItem span{font-size:12px;font-weight:950;border-radius:999px;padding:4px 8px;background:#f3f4f6;color:#475467}.signalItem.on span{background:#ffedd5;color:#9a3412}
-    .decisionList{display:grid;gap:9px}.decisionItem{border:1px solid var(--line);border-radius:16px;padding:13px;background:#fff}.decisionItem strong{display:block;margin-bottom:4px}.decisionItem p{margin:0;color:#667085;line-height:1.45;font-size:14px}.decisionItem.good{border-color:#bbf7d0;background:#f0fdf4}.decisionItem.warn{border-color:#fed7aa;background:#fff7ed}.decisionItem.danger{border-color:#fecaca;background:#fef2f2}
-    @media(max-width:860px){.workbenchHeader,.workbenchGrid{grid-template-columns:1fr}.processDiagram{display:grid;grid-template-columns:1fr}.processStep:not(:last-child)::after{content:"↓";right:50%;top:auto;bottom:-21px;transform:translateX(50%)}}
+  /* 모드 배너 */
+  .modeBanner {
+    display:none;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:var(--r-card);
+    padding:14px 18px;
+    margin-bottom:20px;
+    font-size:var(--fs-xs);
+    line-height:1.6;
+    color:rgba(255,255,255,.85);
+  }
+  .modeBanner b { color:#fff; display:block; margin-bottom:4px; font-weight:800; }
+  .team-mode .modeBanner { display:block; }
 
+  /* 히어로 */
+  .hero {
+    display:grid;
+    grid-template-columns:1fr 1.1fr;
+    gap:32px;
+    align-items:center;
+  }
+  .hero h1 {
+    font-size:var(--fs-2xl);
+    line-height:1.12;
+    margin:0 0 18px;
+    letter-spacing:-1.5px;
+    color:#fff;
+    font-weight:800;
+  }
+  .hero p {
+    font-size:var(--fs-sm);
+    color:rgba(255,255,255,.75);
+    line-height:1.7;
+    margin:0 0 22px;
+  }
+  .pill {
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+    background:rgba(255,255,255,.12);
+    color:rgba(255,255,255,.9);
+    border:1px solid rgba(255,255,255,.2);
+    padding:8px 14px;
+    border-radius:var(--r-pill);
+    margin-bottom:16px;
+    font-weight:700;
+    font-size:var(--fs-xs);
+  }
+  .quickStats {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-top:20px;
+  }
+  .quickStats div {
+    background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius:var(--r-card);
+    padding:14px 16px;
+  }
+  .quickStats b { display:block; font-size:var(--fs-lg); color:#fff; font-weight:800; }
+  .quickStats span { font-size:var(--fs-xs); color:rgba(255,255,255,.6); font-weight:600; }
 
-    /* v10: 의사결정 연습 퀴즈 UI 개선 */
-    #quiz .card{position:relative;overflow:hidden}
-    #quiz .card::before{content:"";position:absolute;right:-90px;top:-90px;width:220px;height:220px;background:radial-gradient(circle,#ccfbf1,transparent 70%);opacity:.75}
-    .quizStepHeader{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:#f8fafc;border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:12px}
-    .quizStepHeader b{font-size:16px;color:#0f172a}.quizProgress{height:12px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:12px 0 18px}.quizProgress span{display:block;height:100%;background:linear-gradient(90deg,#0f766e,#2563eb);border-radius:999px;transition:.25s ease}
-    .quizQuestion{border:1px solid var(--line);background:linear-gradient(180deg,#fff,#f8fafc);border-radius:24px;padding:20px;margin-top:16px}.quizQuestion h3{margin:0 0 8px;font-size:22px;letter-spacing:-.4px}.quizQuestion .sub{margin:0 0 14px}
-    .multiChoices{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:14px}
-    .multiChoices button{appearance:none;border:2px solid #dbe3ef;background:#fff;border-radius:18px;padding:16px 16px 15px;text-align:left;cursor:pointer;font-weight:950;font-size:15px;line-height:1.35;min-height:92px;box-shadow:0 6px 16px rgba(15,23,42,.04);transition:.18s ease;position:relative;overflow:hidden}
-    .multiChoices button::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:#e5e7eb;transition:.18s ease}.multiChoices button:hover{border-color:#14b8a6;background:#f0fdfa;transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,23,42,.10)}.multiChoices button:hover::before{background:#14b8a6}.multiChoices button.selected{border-color:#0f766e;background:#ccfbf1;box-shadow:0 10px 26px rgba(15,118,110,.18)}.multiChoices button.selected::before{background:#0f766e}
-    .multiChoices button small{display:block;margin-top:8px;color:#667085;font-weight:800;font-size:12px;line-height:1.45}.multiChoices button.selected small{color:#0f766e}
-    #quiz .quizBtns{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);align-items:center}.quizBtns .btn{min-width:112px}.quizBtns .btn.light{background:#f8fafc;border:1px solid var(--line);color:#334155}.quizBtns .btn.secondary{background:#eef2ff;color:#3730a3;box-shadow:none;border:1px solid #c7d2fe}.quizBtns .btn.secondary:hover{background:#e0e7ff}.btn:hover{filter:brightness(.98);transform:translateY(-1px)}
-    .quizFeedbackPanel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px;margin-top:16px;box-shadow:0 8px 24px rgba(15,23,42,.06);line-height:1.65}.quizFeedbackPanel b{font-size:18px}.quizBadgeBig{font-size:34px;margin-bottom:8px}.quizExplain{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-    @media(max-width:860px){.multiChoices{grid-template-columns:1fr}.multiChoices button{min-height:auto}.quizExplain{grid-template-columns:1fr}}
+  /* 히어로 카드 */
+  .heroCard {
+    background:#fff;
+    border-radius:var(--r-card);
+    padding:28px;
+    box-shadow:var(--shadow-md);
+    position:relative;
+  }
+  .heroCard::before {
+    content:"오늘의 연습";
+    position:absolute;
+    right:18px; top:16px;
+    background:var(--sg-bg);
+    color:var(--sg-tx);
+    border:1px solid var(--sg-bd);
+    border-radius:var(--r-pill);
+    padding:5px 12px;
+    font-weight:700;
+    font-size:var(--fs-xs);
+  }
+  .heroCard h2 {
+    font-size:var(--fs-lg);
+    margin:0 0 6px;
+    color:var(--ink);
+    font-weight:800;
+  }
+  .heroCard .subMini {
+    color:var(--ink2);
+    margin:0 0 16px;
+    font-weight:600;
+    font-size:var(--fs-xs);
+  }
+  .heroNext {
+    margin-top:16px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .heroNext .hintTxt { font-size:var(--fs-xs); color:var(--ink3); font-weight:600; }
 
-  </style>
+  /* ── 네비게이션 ── */
+  nav {
+    position:sticky;
+    top:0;
+    z-index:20;
+    background:rgba(30,41,59,.96);
+    border-bottom:1px solid rgba(255,255,255,.08);
+    backdrop-filter:blur(12px);
+  }
+  nav .wrap { display:flex; gap:4px; overflow:auto; padding:8px 20px; }
+  nav a {
+    text-decoration:none;
+    color:rgba(255,255,255,.65);
+    font-weight:700;
+    font-size:var(--fs-xs);
+    padding:8px 14px;
+    border-radius:var(--r-btn);
+    white-space:nowrap;
+    transition:.15s ease;
+  }
+  nav a:hover { background:rgba(255,255,255,.10); color:#fff; }
+
+  /* ── 섹션 & 카드 ── */
+  section { padding:32px 20px; }
+  .card {
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--r-card);
+    padding:28px;
+    box-shadow:var(--shadow-sm);
+    margin-bottom:20px;
+  }
+  .sectionTitle {
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:flex-start;
+    margin-bottom:20px;
+  }
+  .sectionEyebrow {
+    font-size:var(--fs-xs);
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink3);
+    margin-bottom:6px;
+  }
+  h2 {
+    margin:0;
+    color:var(--ink);
+    font-size:var(--fs-xl);
+    font-weight:800;
+    letter-spacing:-.5px;
+  }
+  h3 { margin:0 0 8px; font-size:var(--fs-md); font-weight:800; color:var(--ink); }
+  .sub { color:var(--ink2); line-height:1.6; font-size:var(--fs-sm); margin-top:8px; }
+
+  /* ── 신호 태그 (4px radius) ── */
+  .tag {
+    display:inline-block;
+    border-radius:4px;
+    padding:5px 10px;
+    font-weight:700;
+    font-size:var(--fs-xs);
+    letter-spacing:.01em;
+  }
+  .t-green  { background:var(--sg-bg); color:var(--sg-tx); border:1px solid var(--sg-bd); }
+  .t-yellow { background:var(--sy-bg); color:var(--sy-tx); border:1px solid var(--sy-bd); }
+  .t-orange { background:var(--so-bg); color:var(--so-tx); border:1px solid var(--so-bd); }
+  .t-red    { background:var(--sr-bg); color:var(--sr-tx); border:1px solid var(--sr-bd); }
+  .t-blue   { background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; }
+
+  /* ── 5단계 그리드 ── */
+  .grid { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+  .grid.g3 { grid-template-columns:repeat(3,1fr); }
+  .mini {
+    border:1px solid var(--line);
+    border-radius:var(--r-card);
+    padding:18px;
+    background:var(--card);
+    font-size:var(--fs-xs);
+  }
+  .mini h3 { font-size:var(--fs-sm); margin:10px 0 6px; }
+  .mini p { margin:0; color:var(--ink2); line-height:1.55; }
+
+  /* 단계별 왼쪽 강조 */
+  .mini.step-1 { border-left:4px solid var(--sg); }
+  .mini.step-2 { border-left:4px solid #60a5fa; }
+  .mini.step-3 { border-left:4px solid var(--sy); }
+  .mini.step-4 { border-left:4px solid var(--so); }
+  .mini.step-5 { border-left:4px solid var(--sr); }
+
+  /* ── 체크박스 진단 ── */
+  label.mini {
+    cursor:pointer;
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    font-size:var(--fs-sm);
+    line-height:1.55;
+    transition:.12s ease;
+  }
+  label.mini:hover { border-color:var(--sg-bd); background:var(--sg-bg); }
+  label.mini input[type=checkbox] {
+    width:20px; height:20px;
+    margin-top:2px;
+    accent-color:var(--sg);
+    flex-shrink:0;
+    cursor:pointer;
+  }
+
+  /* ── 시나리오 인용 박스 ── */
+  .scenario {
+    font-size:var(--fs-md);
+    line-height:1.65;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-left:5px solid var(--sg);
+    border-radius:0 var(--r-card) var(--r-card) 0;
+    padding:20px 22px;
+    margin:18px 0;
+    font-weight:600;
+    color:var(--ink);
+    letter-spacing:-.2px;
+  }
+
+  /* ── 선택지 버튼 ── */
+  .choices { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .choice {
+    border:2px solid var(--line);
+    background:var(--card);
+    border-radius:var(--r-btn);
+    padding:18px 16px;
+    cursor:pointer;
+    text-align:left;
+    font-weight:700;
+    font-size:var(--fs-sm);
+    transition:.15s ease;
+    color:var(--ink);
+  }
+  .choice:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
+  .choice.c-green:hover, .choice.c-green:focus { border-color:var(--sg); background:var(--sg-bg); }
+  .choice.c-yellow:hover, .choice.c-yellow:focus { border-color:var(--sy); background:var(--sy-bg); }
+  .choice.c-orange:hover, .choice.c-orange:focus { border-color:var(--so); background:var(--so-bg); }
+  .choice small { display:block; font-weight:600; color:var(--ink2); margin-top:6px; font-size:var(--fs-xs); }
+
+  /* ── 결과 박스 ── */
+  .result { display:none; margin-top:18px; border-radius:var(--r-card); padding:20px; line-height:1.65; font-size:var(--fs-sm); }
+  .result.show { display:block; }
+  .result.correct { background:var(--sg-bg); border:1px solid var(--sg-bd); }
+  .result.wrong   { background:var(--so-bg); border:1px solid var(--so-bd); }
+  /* 기본(진단 결과 등) */
+  .result:not(.correct):not(.wrong).show { background:var(--sg-bg); border:1px solid var(--sg-bd); }
+
+  .teacher { border-radius:var(--r-card); padding:16px; margin-top:14px; background:#eff6ff; border:1px solid #bfdbfe; font-size:var(--fs-sm); }
+  .team    { border-radius:var(--r-card); padding:16px; margin-top:14px; background:var(--so-bg); border:1px solid var(--so-bd); font-size:var(--fs-sm); }
+  .teamOnly { display:none; }
+  .team-mode .teamOnly { display:block; }
+
+  /* 온도 게이지 */
+  .temp { height:16px; border-radius:var(--r-pill); background:linear-gradient(90deg,var(--sg),var(--sy),var(--so),var(--sr)); position:relative; margin:16px 0; }
+  .needle { position:absolute; top:-8px; width:4px; height:32px; background:var(--ink); border-radius:var(--r-pill); box-shadow:0 2px 6px rgba(0,0,0,.25); }
+  .tempLabels { display:flex; justify-content:space-between; color:var(--ink2); font-size:var(--fs-xs); font-weight:600; }
+
+  /* ── 버튼 ── */
+  .btn {
+    border:0;
+    border-radius:var(--r-btn);
+    background:var(--ink);
+    color:#fff;
+    padding:12px 20px;
+    font-size:var(--fs-sm);
+    font-weight:700;
+    cursor:pointer;
+    transition:.15s ease;
+  }
+  .btn:hover { filter:brightness(1.12); transform:translateY(-1px); }
+  .btn.secondary { background:#2563eb; }
+  .btn.light { background:#f1f5f9; color:var(--ink); }
+  .btn.light:hover { background:#e2e8f0; filter:none; }
+  .btn.danger { background:var(--sr); }
+
+  /* ── 네비 필터 버튼 ── */
+  .scenarioNav { display:flex; gap:8px; flex-wrap:wrap; margin-top:16px; }
+  .scenarioNav button {
+    border:1px solid var(--line);
+    border-radius:var(--r-pill);
+    padding:9px 16px;
+    background:var(--card);
+    color:var(--ink2);
+    font-weight:700;
+    font-size:var(--fs-xs);
+    cursor:pointer;
+    transition:.12s ease;
+  }
+  .scenarioNav button.active { background:var(--ink); color:#fff; border-color:var(--ink); }
+
+  /* ── 사건파일 ── */
+  .signalBar { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:16px 0; }
+  .signalStep {
+    border:2px solid var(--line);
+    background:var(--card);
+    border-radius:var(--r-card);
+    padding:14px 10px;
+    text-align:center;
+    font-weight:700;
+    font-size:var(--fs-xs);
+    color:var(--ink3);
+    transition:.2s ease;
+  }
+  .signalStep.green.active  { background:var(--sg-bg); color:var(--sg-tx); border-color:var(--sg); box-shadow:0 4px 12px rgba(22,163,74,.18); }
+  .signalStep.yellow.active { background:var(--sy-bg); color:var(--sy-tx); border-color:var(--sy); box-shadow:0 4px 12px rgba(202,138,4,.18); }
+  .signalStep.orange.active { background:var(--so-bg); color:var(--so-tx); border-color:var(--so); box-shadow:0 4px 12px rgba(234,88,12,.18); }
+  .signalStep.red.active    { background:var(--sr-bg); color:var(--sr-tx); border-color:var(--sr); box-shadow:0 4px 12px rgba(220,38,38,.18); }
+
+  .incidentWrap { display:grid; grid-template-columns:.85fr 1.15fr; gap:20px; }
+  .incidentList { display:grid; gap:10px; align-content:start; }
+  .incidentDay {
+    border:2px solid var(--line);
+    background:var(--card);
+    border-radius:var(--r-card);
+    padding:16px 18px;
+    cursor:pointer;
+    transition:.15s ease;
+    font-size:var(--fs-xs);
+  }
+  .incidentDay:hover { border-color:var(--so); transform:translateY(-1px); }
+  .incidentDay.active { border-color:var(--sg); background:var(--sg-bg); }
+  .incidentDay b { display:block; margin-bottom:5px; font-size:var(--fs-sm); font-weight:700; }
+  .incidentDay span { color:var(--ink2); line-height:1.45; }
+  .incidentPanel {
+    border:1px solid var(--line);
+    background:var(--card);
+    border-radius:var(--r-card);
+    padding:24px;
+    box-shadow:var(--shadow-sm);
+  }
+  .incidentQuote {
+    font-size:var(--fs-md);
+    line-height:1.6;
+    font-weight:700;
+    background:var(--bg);
+    border-left:5px solid var(--sg);
+    padding:18px 20px;
+    border-radius:0 var(--r-card) var(--r-card) 0;
+    margin:14px 0;
+    color:var(--ink);
+  }
+  .whenBtns { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:14px; }
+  .whenBtns button {
+    border:2px solid var(--line);
+    background:var(--card);
+    border-radius:var(--r-btn);
+    padding:12px;
+    font-weight:700;
+    font-size:var(--fs-xs);
+    cursor:pointer;
+    transition:.12s ease;
+  }
+  .whenBtns button:hover { border-color:var(--so); }
+  .whenBtns button.selected { background:var(--sg-bg); border-color:var(--sg); color:var(--sg-tx); }
+  .incidentFeedback { display:none; }
+  .incidentFeedback.show { display:block; }
+  .modeHint {
+    font-size:var(--fs-xs);
+    color:var(--ink2);
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:var(--r-btn);
+    padding:12px 14px;
+    margin-top:12px;
+    font-weight:600;
+  }
+
+  /* ── 발전 지도 ── */
+  .boundaryMap { display:grid; gap:14px; margin-top:18px; }
+  .branchNode {
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--r-card);
+    padding:20px;
+    box-shadow:var(--shadow-sm);
+  }
+  .branchNode.main { border-left:5px solid var(--sg); }
+  .branchTop { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap; }
+  .branchQuote {
+    font-size:var(--fs-md);
+    line-height:1.6;
+    font-weight:700;
+    letter-spacing:-.2px;
+    margin:12px 0 14px;
+    color:var(--ink);
+  }
+  .why {
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:var(--r-btn);
+    padding:14px 16px;
+    margin:10px 0;
+    color:var(--ink2);
+    font-size:var(--fs-xs);
+    line-height:1.6;
+  }
+  .actionGrid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .actionBox { border-radius:var(--r-btn); padding:14px 16px; line-height:1.6; font-size:var(--fs-xs); }
+  .actionBox.teacherBox { background:#eff6ff; border:1px solid #bfdbfe; }
+  .actionBox.teamBox    { background:var(--so-bg); border:1px solid var(--so-bd); }
+  .branchChoice { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:14px 0; }
+  .pathBtn {
+    border:1px solid var(--line);
+    background:var(--card);
+    border-radius:var(--r-btn);
+    padding:14px 16px;
+    text-align:left;
+    cursor:pointer;
+    font-weight:700;
+    font-size:var(--fs-xs);
+    line-height:1.5;
+    transition:.12s ease;
+    color:var(--ink);
+  }
+  .pathBtn:hover { border-color:var(--so); box-shadow:var(--shadow-sm); }
+  .pathBtn.active { border-color:var(--sg); background:var(--sg-bg); color:var(--sg-tx); }
+
+  /* ── 사례 카드 ── */
+  .caseTools { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .filterBtn {
+    border:1px solid var(--line);
+    background:var(--card);
+    border-radius:var(--r-pill);
+    padding:9px 16px;
+    font-weight:700;
+    font-size:var(--fs-xs);
+    cursor:pointer;
+    color:var(--ink2);
+    transition:.12s ease;
+  }
+  .filterBtn.active { background:var(--ink); color:#fff; border-color:var(--ink); }
+  .cards { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  .caseCard {
+    border:1px solid var(--line);
+    border-radius:var(--r-card);
+    padding:20px;
+    background:var(--card);
+    cursor:pointer;
+    transition:.15s ease;
+  }
+  .caseCard:hover { border-color:var(--so); transform:translateY(-2px); box-shadow:var(--shadow-md); }
+  .caseCard h3 { font-size:var(--fs-sm); margin:10px 0 8px; }
+  .caseCard p  { color:var(--ink2); font-size:var(--fs-xs); line-height:1.55; margin:0; }
+  .caseMeta { display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; }
+  .miniTag {
+    font-size:var(--fs-xs);
+    border-radius:var(--r-pill);
+    background:#f1f5f9;
+    color:var(--ink2);
+    padding:5px 10px;
+    font-weight:600;
+  }
+  .caseDetailGrid { display:grid; grid-template-columns:1.1fr .9fr; gap:18px; }
+  .judgePanel {
+    border:1px solid var(--line);
+    border-radius:var(--r-card);
+    background:var(--bg);
+    padding:20px;
+  }
+  .judgeBtns { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
+  .judgeBtns button {
+    border:2px solid var(--line);
+    background:var(--card);
+    border-radius:var(--r-btn);
+    padding:14px;
+    font-weight:700;
+    font-size:var(--fs-sm);
+    cursor:pointer;
+    transition:.15s ease;
+  }
+  .judgeBtns button:hover { transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+  .judgeBtns button.selected { background:var(--sg-bg); border-color:var(--sg); color:var(--sg-tx); }
+  .caseFeedback { display:none; margin-top:16px; }
+  .caseFeedback.show { display:block; }
+  .whyChips { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .whyChips span {
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:var(--r-pill);
+    padding:7px 12px;
+    font-weight:600;
+    font-size:var(--fs-xs);
+    color:var(--ink2);
+  }
+  .nextQuestion {
+    background:var(--sy-bg);
+    border:1px solid var(--sy-bd);
+    border-radius:var(--r-card);
+    padding:16px 18px;
+    margin-top:14px;
+    font-size:var(--fs-xs);
+    line-height:1.6;
+  }
+  .caseFooterBtns { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+  .difficulty { font-size:var(--fs-xs); font-weight:700; color:var(--ink2); }
+  .difficulty b { color:var(--ink); }
+
+  /* ── 민원 후 유의사항 ── */
+  .donotBox {
+    background:var(--sr-bg);
+    border:1px solid var(--sr-bd);
+    border-radius:var(--r-card);
+    padding:20px;
+    margin-top:18px;
+  }
+  .donotBox h4 { margin:0 0 14px; color:var(--sr-tx); font-size:var(--fs-sm); font-weight:800; }
+  .donotList { display:grid; gap:10px; }
+  .donotItem {
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    font-size:var(--fs-xs);
+    line-height:1.6;
+    color:var(--ink2);
+  }
+  .donotItem::before { content:"✕"; color:var(--sr); font-weight:800; flex-shrink:0; margin-top:1px; font-size:var(--fs-sm); }
+
+  /* ── 법적 근거 ── */
+  .legalBox {
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:var(--r-card);
+    padding:20px;
+    margin-top:18px;
+  }
+  .legalBox h4 { margin:0 0 14px; color:var(--ink); font-size:var(--fs-sm); font-weight:800; }
+  .legalGrid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .legalItem {
+    font-size:var(--fs-xs);
+    line-height:1.6;
+    color:var(--ink2);
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--r-btn);
+    padding:14px 16px;
+  }
+  .legalItem b { display:block; color:var(--ink); margin-bottom:4px; font-weight:700; }
+
+  /* ── 상황실 ── */
+  .situationRoom {
+    border:1px solid var(--so-bd);
+    background:var(--so-bg);
+    border-radius:var(--r-card);
+    padding:18px;
+    margin-top:14px;
+  }
+  .situationRoom h4 { margin:0 0 12px; color:var(--so-tx); font-size:var(--fs-sm); font-weight:800; }
+  .radarGrid { display:grid; gap:10px; margin:10px 0; }
+  .radarRow {
+    display:grid;
+    grid-template-columns:110px 1fr 48px;
+    gap:12px;
+    align-items:center;
+    font-size:var(--fs-xs);
+    font-weight:600;
+    color:var(--ink2);
+  }
+  .barTrack { height:10px; background:rgba(0,0,0,.08); border-radius:var(--r-pill); overflow:hidden; }
+  .barFill  { height:100%; background:linear-gradient(90deg,var(--sg),var(--sy),var(--so),var(--sr)); border-radius:var(--r-pill); }
+  .orgFlow { display:flex; gap:8px; flex-wrap:wrap; margin:14px 0; }
+  .orgFlow span {
+    border:1px solid var(--line);
+    background:var(--card);
+    border-radius:var(--r-pill);
+    padding:8px 14px;
+    font-weight:700;
+    font-size:var(--fs-xs);
+    color:var(--ink2);
+  }
+  .orgFlow span.active {
+    background:var(--ink);
+    color:#fff;
+    border-color:var(--ink);
+  }
+  .teamMiniGrid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px; }
+  .teamMiniCard {
+    border:1px solid var(--so-bd);
+    background:var(--card);
+    border-radius:var(--r-btn);
+    padding:12px 14px;
+    font-weight:700;
+    font-size:var(--fs-xs);
+  }
+  .teamMiniCard small { display:block; color:var(--so-tx); margin-bottom:4px; font-weight:600; }
+  .pathPreview { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px; font-size:var(--fs-xs); }
+  .pathPreview span { background:var(--card); border:1px solid var(--line); border-radius:var(--r-pill); padding:6px 12px; font-weight:600; }
+  .pathPreview b { color:var(--so-tx); }
+
+  /* ── 민원대응팀 워크벤치 ── */
+  .teamWorkbench { margin-top:20px; display:grid; gap:18px; }
+  .workbenchHeader { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .dashTile {
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--r-card);
+    padding:18px;
+    box-shadow:var(--shadow-sm);
+  }
+  .dashTile small { display:block; color:var(--ink2); font-weight:700; font-size:var(--fs-xs); margin-bottom:8px; }
+  .dashTile b { font-size:var(--fs-lg); color:var(--ink); font-weight:800; }
+  .dashTile .note { font-size:var(--fs-xs); color:var(--ink2); display:block; margin-top:4px; }
+  .dashTile.orange b { color:var(--so); }
+  .dashTile.red b    { color:var(--sr); }
+  .teamPanel {
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--r-card);
+    padding:22px;
+    box-shadow:var(--shadow-sm);
+  }
+  .panelHead { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+  .panelHead h3 { margin:0; font-size:var(--fs-lg); font-weight:800; }
+  .panelHead .hint {
+    font-size:var(--fs-xs);
+    color:var(--ink2);
+    font-weight:700;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:var(--r-pill);
+    padding:6px 12px;
+  }
+  .levelTimeline { position:relative; display:grid; gap:10px; margin-top:4px; }
+  .levelTimeline::before {
+    content:"";
+    position:absolute;
+    left:28px; top:28px; bottom:28px;
+    width:2px;
+    background:var(--line);
+  }
+  .levelItem {
+    position:relative;
+    display:grid;
+    grid-template-columns:58px 1fr;
+    gap:14px;
+    align-items:start;
+    padding:14px;
+    border:1px solid var(--line);
+    border-radius:var(--r-card);
+    background:var(--card);
+    transition:.2s ease;
+    font-size:var(--fs-xs);
+  }
+  .levelItem.current {
+    border-color:var(--so);
+    background:var(--so-bg);
+    box-shadow:var(--shadow-sm);
+  }
+  .levelDot {
+    position:relative;
+    z-index:1;
+    width:42px; height:42px;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    color:#fff;
+    font-weight:800;
+    font-size:var(--fs-sm);
+  }
+  .dot1{background:var(--sg)} .dot2{background:#eab308} .dot3{background:var(--so)} .dot4{background:var(--sr)} .dot5{background:#7c3aed}
+  .levelText b { display:block; font-size:var(--fs-sm); margin-bottom:4px; font-weight:800; }
+  .levelText span { display:block; color:var(--ink2); line-height:1.5; }
+  .levelText em {
+    display:inline-block;
+    margin-top:8px;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:var(--r-pill);
+    padding:4px 10px;
+    font-style:normal;
+    font-size:var(--fs-xs);
+    color:var(--ink2);
+    font-weight:600;
+  }
+  .processDiagram { display:flex; align-items:stretch; gap:8px; flex-wrap:wrap; }
+  .processStep {
+    flex:1; min-width:120px;
+    border:1px solid var(--line);
+    background:var(--card);
+    border-radius:var(--r-card);
+    padding:16px;
+    text-align:center;
+    position:relative;
+    font-size:var(--fs-xs);
+  }
+  .processStep:not(:last-child)::after {
+    content:"→";
+    position:absolute;
+    right:-14px; top:50%;
+    transform:translateY(-50%);
+    font-weight:700;
+    color:var(--ink3);
+  }
+  .processStep.current { border-color:var(--sg); background:var(--sg-bg); }
+  .processIcon { font-size:22px; margin-bottom:6px; }
+  .processStep b { display:block; font-size:var(--fs-xs); font-weight:800; }
+  .processStep span { display:block; font-size:var(--fs-xs); color:var(--ink2); line-height:1.4; margin-top:4px; }
+  .workbenchGrid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .signalChecklist { display:grid; gap:8px; }
+  .signalItem {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    border:1px solid var(--line);
+    border-radius:var(--r-btn);
+    padding:12px 14px;
+    background:var(--card);
+    font-size:var(--fs-xs);
+  }
+  .signalItem.on { background:var(--so-bg); border-color:var(--so-bd); }
+  .signalItem b { font-size:var(--fs-xs); font-weight:700; }
+  .signalItem span {
+    font-size:var(--fs-xs);
+    font-weight:700;
+    border-radius:var(--r-pill);
+    padding:4px 10px;
+    background:#f1f5f9;
+    color:var(--ink2);
+    white-space:nowrap;
+  }
+  .signalItem.on span { background:var(--so-bg); color:var(--so-tx); border:1px solid var(--so-bd); }
+  .decisionList { display:grid; gap:8px; }
+  .decisionItem {
+    border:1px solid var(--line);
+    border-radius:var(--r-btn);
+    padding:14px 16px;
+    background:var(--card);
+    font-size:var(--fs-xs);
+  }
+  .decisionItem strong { display:block; margin-bottom:5px; font-size:var(--fs-xs); font-weight:800; }
+  .decisionItem p { margin:0; color:var(--ink2); line-height:1.5; }
+  .decisionItem.good   { border-color:var(--sg-bd); background:var(--sg-bg); }
+  .decisionItem.warn   { border-color:var(--sy-bd); background:var(--sy-bg); }
+  .decisionItem.danger { border-color:var(--sr-bd); background:var(--sr-bg); }
+
+  /* ── 퀴즈 ── */
+  .quizBtns { display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; }
+  .scoreBox { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .score {
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--r-card);
+    padding:18px;
+    text-align:center;
+  }
+  .score strong { font-size:var(--fs-xl); color:var(--ink); font-weight:800; display:block; }
+  .score span { font-size:var(--fs-xs); color:var(--ink2); font-weight:600; }
+  .quizStepHeader {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    background:var(--bg);
+    border:1px solid var(--line);
+    border-radius:var(--r-btn);
+    padding:14px 18px;
+    margin-bottom:14px;
+    font-size:var(--fs-xs);
+    font-weight:700;
+  }
+  .quizProgress {
+    height:10px;
+    background:var(--line);
+    border-radius:var(--r-pill);
+    overflow:hidden;
+    margin:0 0 18px;
+  }
+  .quizProgress span {
+    display:block;
+    height:100%;
+    background:linear-gradient(90deg,var(--sg),#2563eb);
+    border-radius:var(--r-pill);
+    transition:.25s ease;
+  }
+  .quizQuestion {
+    border:1px solid var(--line);
+    background:var(--card);
+    border-radius:var(--r-card);
+    padding:22px;
+    margin-top:18px;
+  }
+  .quizQuestion h3 { margin:0 0 8px; font-size:var(--fs-lg); font-weight:800; }
+  .multiChoices { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-top:16px; }
+  .multiChoices button {
+    appearance:none;
+    border:2px solid var(--line);
+    background:var(--card);
+    border-radius:var(--r-btn);
+    padding:16px;
+    text-align:left;
+    cursor:pointer;
+    font-weight:700;
+    font-size:var(--fs-sm);
+    line-height:1.4;
+    min-height:80px;
+    transition:.15s ease;
+    position:relative;
+    overflow:hidden;
+    color:var(--ink);
+  }
+  .multiChoices button::before {
+    content:"";
+    position:absolute;
+    left:0; top:0; bottom:0;
+    width:4px;
+    background:var(--line);
+    transition:.15s ease;
+  }
+  .multiChoices button:hover { border-color:var(--so); transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+  .multiChoices button:hover::before { background:var(--so); }
+  .multiChoices button.selected { border-color:var(--sg); background:var(--sg-bg); }
+  .multiChoices button.selected::before { background:var(--sg); }
+  .multiChoices button.wrong-answer { border-color:var(--sr); background:var(--sr-bg); }
+  .multiChoices button.wrong-answer::before { background:var(--sr); }
+  .multiChoices button small { display:block; margin-top:8px; color:var(--ink2); font-weight:600; font-size:var(--fs-xs); }
+  .quizFeedbackPanel {
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--r-card);
+    padding:20px;
+    margin-top:16px;
+    box-shadow:var(--shadow-sm);
+    line-height:1.65;
+    font-size:var(--fs-sm);
+  }
+  .quizFeedbackPanel b { font-size:var(--fs-md); font-weight:800; }
+  .quizBadgeBig { font-size:40px; margin-bottom:10px; }
+  .quizExplain { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px; }
+  .quizNextBtn {
+    display:block;
+    width:100%;
+    margin-top:14px;
+    background:var(--ink);
+    color:#fff;
+    border:0;
+    border-radius:var(--r-btn);
+    padding:14px;
+    font-weight:800;
+    font-size:var(--fs-sm);
+    cursor:pointer;
+    transition:.15s ease;
+  }
+  .quizNextBtn:hover { filter:brightness(1.12); transform:translateY(-1px); }
+
+  /* ── 푸터 ── */
+  .footer {
+    padding:32px 20px;
+    color:var(--ink2);
+    text-align:center;
+    font-size:var(--fs-xs);
+    line-height:1.7;
+    border-top:1px solid var(--line);
+    background:var(--card);
+  }
+
+  /* ── 유틸 ── */
+  .note { font-size:var(--fs-xs); color:var(--ink2); line-height:1.6; }
+  .hidden { display:none !important; }
+  hr { border:0; border-top:1px solid var(--line); margin:24px 0; }
+
+  /* ── 반응형 ── */
+  @media(max-width:860px){
+    header { padding:20px 16px 28px; }
+    .top { align-items:flex-start; flex-wrap:wrap; }
+    .mode button { padding:8px 12px; font-size:var(--fs-xs); }
+    .hero { grid-template-columns:1fr; }
+    .hero h1 { font-size:32px; }
+    .quickStats { grid-template-columns:repeat(3,1fr); }
+    .grid { grid-template-columns:repeat(2,1fr); }
+    .grid.g3 { grid-template-columns:1fr; }
+    .choices { grid-template-columns:1fr; }
+    .cards { grid-template-columns:1fr; }
+    .scoreBox { grid-template-columns:repeat(2,1fr); }
+    .actionGrid,.branchChoice,.fork,.caseDetailGrid,.judgeBtns { grid-template-columns:1fr; }
+    .incidentWrap,.whenBtns { grid-template-columns:1fr; }
+    .teamMiniGrid { grid-template-columns:repeat(2,1fr); }
+    .legalGrid { grid-template-columns:1fr; }
+    .workbenchHeader,.workbenchGrid { grid-template-columns:1fr; }
+    .processDiagram { display:grid; grid-template-columns:1fr; }
+    .processStep:not(:last-child)::after { content:"↓"; right:50%; top:auto; bottom:-18px; transform:translateX(50%); }
+    .quizExplain { grid-template-columns:1fr; }
+    .multiChoices { grid-template-columns:1fr; }
+    .multiChoices button { min-height:auto; }
+    .heroCard::before { position:static; display:inline-block; margin-bottom:10px; }
+    .sectionTitle { flex-direction:column; }
+  }
+  @media(max-width:480px){
+    .grid { grid-template-columns:1fr; }
+    .quickStats { grid-template-columns:1fr; }
+    .hero h1 { font-size:28px; }
+  }
+</style>
 </head>
 <body>
 <header>
   <div class="wrap">
     <div class="top">
       <div class="logo">상담일까? 민원일까?</div>
-      <div class="mode"><button id="teacherMode" class="active" onclick="setMode('teacher')">교사 모드</button><button id="teamMode" onclick="setMode('team')">민원대응팀 모드</button></div>
+      <div class="mode">
+        <button id="teacherMode" class="active" onclick="setMode('teacher')">👩‍🏫 교사 모드</button>
+        <button id="teamMode" onclick="setMode('team')">🏢 민원대응팀 모드</button>
+      </div>
+    </div>
+    <!-- 모드 전환 배너 -->
+    <div class="modeBanner">
+      <b>📋 민원대응팀 모드로 전환되었습니다</b>
+      교사 모드의 모든 기능에 더해 <b>① 사례 카드 피드백에 개입 수준·처리 주체·종결 가능성이 추가</b>되고, <b>② 민원대응팀 상황실 분석</b>이 표시되며, <b>③ 민원대응팀 워크벤치 전체</b>를 확인할 수 있습니다.
     </div>
     <div class="hero">
       <div>
-        <div class="pill">📘 학교 민원 처리 매뉴얼 기반 · 운영비 0원</div>
+        <div class="pill">📘 교원의 학생생활지도에 관한 고시 · 학교민원처리매뉴얼 기반</div>
         <h1>이 상황,<br>상담일까요<br>민원일까요?</h1>
         <p>일반 교사는 <b>계속 상담할지</b>, <b>학교 체계로 공유할지</b>를 빠르게 판단합니다. 민원대응팀 모드에서는 같은 사례를 더 깊게 검토합니다.</p>
         <div class="quickStats">
-          <div><b>3단계</b><span>상담 · 경계 · 민원</span></div>
-          <div><b>10초</b><span>빠른 판별 훈련</span></div>
-          <div><b>0원</b><span>서버·API 없음</span></div>
+          <div><b>5단계</b><span>상담·기록·경계·민원·특이</span></div>
+          <div><b>빠른 판별</b><span>체크리스트로 즉시 판정</span></div>
+          <div><b>무설치</b><span>브라우저 단독 실행</span></div>
         </div>
       </div>
       <div class="heroCard">
         <h2>바로 판단해 보세요</h2>
         <p class="subMini">첫 화면에서 곧바로 연습을 시작합니다.</p>
-        <div class="scenario" id="mainScenario">“우리 아이가 친구와 갈등이 있어 상담을 받고 싶습니다.”</div>
-        <div class="choices"><button class="choice" onclick="answerMain('상담')">🟢 상담<small>학생 지원 중심</small></button><button class="choice" onclick="answerMain('경계')">🟡 경계<small>민원 전환 가능</small></button><button class="choice" onclick="answerMain('민원')">🔴 민원<small>조치·시정 요구</small></button></div><div id="mainResult" class="result"></div></div>
+        <div class="scenario" id="mainScenario">"우리 아이가 친구와 갈등이 있어 상담을 받고 싶습니다."</div>
+        <div class="choices">
+          <button class="choice c-green" onclick="answerMain('상담')">🟢 상담<small>학생 지원 중심</small></button>
+          <button class="choice c-yellow" onclick="answerMain('경계')">🟡 경계<small>민원 전환 가능</small></button>
+          <button class="choice c-orange" onclick="answerMain('민원')">🔴 민원<small>조치·시정 요구</small></button>
+        </div>
+        <div id="mainResult" class="result"></div>
+      </div>
     </div>
   </div>
 </header>
-<nav><div class="wrap"><a href="#diagnosis">10초 판별</a><a href="#boundary">상담→민원</a><a href="#incident">사건 파일</a><a href="#cases">사례 카드</a><a href="#team">민원대응팀 활용</a><a href="#quiz">연습 퀴즈</a></div></nav>
+<nav><div class="wrap">
+  <a href="#diagnosis">판별 체크</a>
+  <a href="#boundary">발전 지도</a>
+  <a href="#incident">사건 파일</a>
+  <a href="#cases">사례 카드</a>
+  <a href="#team">대응팀 활용</a>
+  <a href="#quiz">연습 퀴즈</a>
+</div></nav>
 <main class="wrap" id="app">
-<section id="diagnosis"><div class="card"><div class="sectionTitle"><div><h2>10초 판별</h2><p class="sub">숫자 퍼센트 대신 <b>5단계 신호등</b>으로 판단합니다. 핵심은 “교사가 계속 상담할지, 학교 체계로 공유할지”입니다.</p></div></div><div class="grid"><div class="mini"><span class="tag t-green">1단계</span><h3>상담</h3><p>학생 지원 목적이 분명합니다. 교사가 상담을 진행합니다.</p></div><div class="mini"><span class="tag t-blue">2단계</span><h3>상담 + 기록</h3><p>불만·사실 확인이 포함됩니다. 상담은 하되 기록을 남깁니다.</p></div><div class="mini"><span class="tag t-yellow">3단계</span><h3>경계</h3><p>책임 추궁이나 결과 변경 요구로 전환될 수 있습니다. 공유를 검토합니다.</p></div><div class="mini"><span class="tag t-orange">4단계</span><h3>민원</h3><p>학교에 특정한 행위, 조치, 시정, 변경을 요구합니다.</p></div><div class="mini"><span class="tag t-red">5단계</span><h3>특이민원 위험</h3><p>반복 연락, 폭언, 협박, 부당요구가 있으면 개인 대응을 중단합니다.</p></div></div></div>
-<div class="card"><h2>자가진단 체크</h2><p class="sub">해당되는 항목을 체크하세요. AI 없이 브라우저 안에서만 판정합니다.</p><div class="grid"><label class="mini"><input type="checkbox" class="check" data-type="support" value="-3"> 학생의 성장·지원이 중심이다</label><label class="mini"><input type="checkbox" class="check" data-type="fact" value="1"> 사실 확인이나 설명을 요구한다</label><label class="mini"><input type="checkbox" class="check" data-type="action" value="3"> 학교에 무언가를 해달라고 요구한다</label><label class="mini"><input type="checkbox" class="check" data-type="change" value="3"> 결과·처분·평가·기록 변경을 요구한다</label><label class="mini"><input type="checkbox" class="check" data-type="blame" value="2"> 학교나 교사의 책임을 주장한다</label><label class="mini"><input type="checkbox" class="check" data-type="teacher" value="2"> 특정 교사를 대상으로 요구한다</label><label class="mini"><input type="checkbox" class="check" data-type="repeat" value="4"> 반복 연락, 장시간 통화, 계속 요구가 있다</label><label class="mini"><input type="checkbox" class="check" data-type="abuse" value="5"> 폭언·협박·모욕·압박 표현이 있다</label></div><br><button class="btn" onclick="diagnose()">판별하기</button><button class="btn light" onclick="resetDiagnosis()">체크 초기화</button><div id="diagnosisResult" class="result"></div></div></section>
-<section id="boundary"><div class="card"><div class="sectionTitle"><div><h2>상담 → 민원 발전 지도</h2><p class="sub">상담이 항상 민원으로 가는 것은 아닙니다. 같은 출발점에서도 <b>상담 종결</b>, <b>상담 복귀</b>, <b>민원 전환</b>, <b>특이민원 위험</b>으로 갈라질 수 있습니다.</p></div></div><div class="scenarioNav"><button class="active" onclick="setBoundaryScenario(0,this)">친구 관계</button><button onclick="setBoundaryScenario(1,this)">평가 불만</button><button onclick="setBoundaryScenario(2,this)">생활지도 불만</button></div><div id="boundaryMap" class="boundaryMap"></div></div></section>
-<section id="incident"><div class="card"><div class="sectionTitle"><div><h2>사건 파일: 언제부터 민원인가?</h2><p class="sub">한 문장 사례보다 실제 현장에 가까운 <b>시간 흐름형 사례</b>입니다. 어느 시점부터 상담을 넘어 민원으로 전환되는지 판단해 보세요.</p></div><div class="caseTools"><button class="btn light" onclick="nextIncident()">다른 사건 파일</button></div></div><div class="signalBar" id="incidentSignal"></div><div class="incidentWrap"><div class="incidentList" id="incidentList"></div><div class="incidentPanel" id="incidentPanel"></div></div></div></section>
-<section id="cases"><div class="card"><div class="sectionTitle"><div><h2>사례 카드 연습</h2><p class="sub">정답이 뻔한 카드보다 <b>애매한 경계 사례</b>를 많이 넣었습니다. 먼저 판정하고, 왜 그렇게 판단했는지와 다음 행동을 확인합니다.</p></div><div class="caseTools"><button class="btn light" onclick="newCase()">랜덤 사례</button></div></div><div class="caseTools" style="margin-bottom:14px"><button class="filterBtn active" onclick="filterCases('전체',this)">전체</button><button class="filterBtn" onclick="filterCases('상담',this)">상담</button><button class="filterBtn" onclick="filterCases('경계',this)">경계</button><button class="filterBtn" onclick="filterCases('민원',this)">민원</button><button class="filterBtn" onclick="filterCases('특이민원 가능',this)">특이민원</button></div><div class="cards" id="caseList"></div></div></section>
-<section id="team"><div class="card"><div class="sectionTitle"><div><h2>민원대응팀 워크벤치</h2><p class="sub">교사 중심 메인은 유지하되, 민원대응팀 모드에서는 <b>교감이 포함된 학교 민원대응팀</b> 관점으로 개입 수준·처리 주체·종결 가능성·교육활동 침해 가능성을 검토합니다.</p></div></div><div class="grid"><div class="mini"><span class="tag t-blue">교사 질문</span><h3>내가 계속 상담할까?</h3><p>상담·경계·민원 판정과 1차 행동을 확인합니다.</p></div><div class="mini"><span class="tag t-orange">대응팀 질문</span><h3>학교 체계로 전환할까?</h3><p>교감·행정실장·관련 담당자 등 민원대응팀 단위로 개입 여부를 판단합니다.</p></div><div class="mini"><span class="tag t-red">전환 기준</span><h3>개인 대응 → 기관 대응</h3><p>특정 조치 요구, 반복 요구, 폭언·압박이 생기면 학교 체계로 전환합니다.</p></div></div><div class="teamOnly"><hr>
-  <div class="teamWorkbench">
-    <div class="workbenchHeader">
-      <div class="dashTile"><small>현재 기본 단계</small><b>Level 3</b><br><span class="note">민원대응팀 검토</span></div>
-      <div class="dashTile orange"><small>핵심 전환 신호</small><b>조치 요구</b><br><span class="note">책임 주장·변경 요구 포함</span></div>
-      <div class="dashTile"><small>기본 종결 판단</small><b>근거 확인</b><br><span class="note">반복 여부·답변 가능성 검토</span></div>
-      <div class="dashTile red"><small>상향 기준</small><b>특이민원</b><br><span class="note">반복·폭언·협박·침해 가능</span></div>
+
+<!-- ① 5단계 판별 -->
+<section id="diagnosis">
+  <div class="card">
+    <div class="sectionTitle"><div>
+      <h2>5단계 신호등 판별</h2>
+      <p class="sub">핵심 질문: <b>"교사가 계속 상담할지, 학교 체계로 공유할지"</b>를 기준으로 5단계로 분류합니다.</p>
+    </div></div>
+    <div class="grid">
+      <div class="mini step-1"><span class="tag t-green">1단계</span><h3>상담</h3><p>학생 지원 목적이 분명합니다. 교사가 상담을 진행합니다.</p></div>
+      <div class="mini step-2"><span class="tag t-blue">2단계</span><h3>상담 + 기록</h3><p>불만·사실 확인이 포함됩니다. 상담은 하되 기록을 남깁니다.</p></div>
+      <div class="mini step-3"><span class="tag t-yellow">3단계</span><h3>경계</h3><p>책임 추궁이나 결과 변경 요구로 전환될 수 있습니다. 공유를 검토합니다.</p></div>
+      <div class="mini step-4"><span class="tag t-orange">4단계</span><h3>민원</h3><p>학교에 특정한 행위, 조치, 시정, 변경을 요구합니다.</p></div>
+      <div class="mini step-5"><span class="tag t-red">5단계</span><h3>특이민원 위험</h3><p>반복 연락, 폭언, 협박, 부당요구가 있으면 개인 대응을 중단합니다.</p></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>자가진단 체크</h2>
+    <p class="sub">해당되는 항목을 체크하세요. AI 없이 브라우저 안에서만 판정합니다.</p>
+    <div class="grid">
+      <label class="mini"><input type="checkbox" class="check" data-type="support" value="-3"> 학생의 성장·지원이 중심이다</label>
+      <label class="mini"><input type="checkbox" class="check" data-type="fact" value="1"> 사실 확인이나 설명을 요구한다</label>
+      <label class="mini"><input type="checkbox" class="check" data-type="action" value="3"> 학교에 무언가를 해달라고 요구한다</label>
+      <label class="mini"><input type="checkbox" class="check" data-type="change" value="3"> 결과·처분·평가·기록 변경을 요구한다</label>
+      <label class="mini"><input type="checkbox" class="check" data-type="blame" value="2"> 학교나 교사의 책임을 주장한다</label>
+      <label class="mini"><input type="checkbox" class="check" data-type="teacher" value="2"> 특정 교사를 대상으로 요구한다</label>
+      <label class="mini"><input type="checkbox" class="check" data-type="repeat" value="4"> 반복 연락, 장시간 통화, 계속 요구가 있다</label>
+      <label class="mini"><input type="checkbox" class="check" data-type="abuse" value="5"> 폭언·협박·모욕·압박 표현이 있다</label>
+    </div>
+    <br>
+    <button class="btn" onclick="diagnose()">판별하기</button>
+    <button class="btn light" onclick="resetDiagnosis()">체크 초기화</button>
+    <div id="diagnosisResult" class="result"></div>
+  </div>
+</section>
+
+<!-- ② 발전 지도 -->
+<section id="boundary">
+  <div class="card">
+    <div class="sectionTitle"><div>
+      <h2>상담 → 민원 발전 지도</h2>
+      <p class="sub">상담이 항상 민원으로 가는 것은 아닙니다. 같은 출발점에서도 <b>상담 종결</b>, <b>상담 복귀</b>, <b>민원 전환</b>, <b>특이민원 위험</b>으로 갈라질 수 있습니다.</p>
+    </div></div>
+    <div class="scenarioNav">
+      <button class="active" onclick="setBoundaryScenario(0,this)">친구 관계</button>
+      <button onclick="setBoundaryScenario(1,this)">평가 불만</button>
+      <button onclick="setBoundaryScenario(2,this)">생활지도 불만</button>
+    </div>
+    <div id="boundaryMap" class="boundaryMap"></div>
+  </div>
+</section>
+
+<!-- ③ 사건 파일 -->
+<section id="incident">
+  <div class="card">
+    <div class="sectionTitle">
+      <div>
+        <h2>사건 파일: 언제부터 민원인가?</h2>
+        <p class="sub">실제 현장에 가까운 <b>시간 흐름형 사례</b>입니다. 왼쪽 날짜를 클릭하면 오른쪽에서 상세 내용을 확인합니다. 어느 시점부터 민원인지 직접 판단해 보세요.</p>
+      </div>
+      <div class="caseTools"><button class="btn light" onclick="nextIncident()">다른 사건 파일</button></div>
+    </div>
+    <div class="signalBar" id="incidentSignal"></div>
+    <div class="incidentWrap">
+      <div class="incidentList" id="incidentList"></div>
+      <div class="incidentPanel" id="incidentPanel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ④ 사례 카드 -->
+<section id="cases">
+  <div class="card">
+    <div class="sectionTitle">
+      <div>
+        <h2>사례 카드 연습</h2>
+        <p class="sub">정답이 뻔한 카드보다 <b>애매한 경계 사례</b>를 많이 넣었습니다. 먼저 판정하고, 왜 그렇게 판단했는지와 다음 행동을 확인합니다.</p>
+      </div>
+      <div class="caseTools"><button class="btn light" onclick="newCase()">랜덤 사례</button></div>
+    </div>
+    <div class="caseTools" style="margin-bottom:14px">
+      <button class="filterBtn active" onclick="filterCases('전체',this)">전체</button>
+      <button class="filterBtn" onclick="filterCases('상담',this)">상담</button>
+      <button class="filterBtn" onclick="filterCases('경계',this)">경계</button>
+      <button class="filterBtn" onclick="filterCases('민원',this)">민원</button>
+      <button class="filterBtn" onclick="filterCases('특이민원 가능',this)">특이민원</button>
+    </div>
+    <div class="cards" id="caseList"></div>
+  </div>
+</section>
+
+<!-- ⑤ 민원대응팀 활용 -->
+<section id="team">
+  <div class="card">
+    <div class="sectionTitle"><div>
+      <h2>민원대응팀 워크벤치</h2>
+      <p class="sub">교사 중심 메인은 유지하되, 민원대응팀 모드에서는 <b>교감이 포함된 학교 민원대응팀</b> 관점으로 개입 수준·처리 주체·종결 가능성·교육활동 침해 가능성을 검토합니다.</p>
+    </div></div>
+    <div class="grid g3">
+      <div class="mini"><span class="tag t-blue">교사 질문</span><h3>내가 계속 상담할까?</h3><p>상담·경계·민원 판정과 1차 행동을 확인합니다.</p></div>
+      <div class="mini"><span class="tag t-orange">대응팀 질문</span><h3>학교 체계로 전환할까?</h3><p>교감·행정실장·관련 담당자 등 민원대응팀 단위로 개입 여부를 판단합니다.</p></div>
+      <div class="mini"><span class="tag t-red">전환 기준</span><h3>개인 대응 → 기관 대응</h3><p>특정 조치 요구, 반복 요구, 폭언·압박이 생기면 학교 체계로 전환합니다.</p></div>
     </div>
 
-    <div class="teamPanel">
-      <div class="panelHead"><h3>개입 레벨 타임라인</h3><span class="hint">현재 예시는 Level 3 강조</span></div>
-      <div class="levelTimeline">
-        <div class="levelItem"><div class="levelDot dot1">1</div><div class="levelText"><b>Level 1 · 담임 자율 상담</b><span>학생 지원 중심의 일반 상담 단계입니다.</span><em>학생 지원 중심</em></div></div>
-        <div class="levelItem"><div class="levelDot dot2">2</div><div class="levelText"><b>Level 2 · 부장교사 공유</b><span>불만, 사실 확인, 오해 가능성이 있어 기록과 공유가 필요합니다.</span><em>불만·사실 확인</em></div></div>
-        <div class="levelItem current"><div class="levelDot dot3">3</div><div class="levelText"><b>Level 3 · 민원대응팀 검토</b><span>교감이 포함된 민원대응팀이 사안을 검토합니다. 행정실장·관련 담당자가 함께 역할을 나눌 수 있습니다.</span><em>책임 주장·조치 요구</em></div></div>
-        <div class="levelItem"><div class="levelDot dot4">4</div><div class="levelText"><b>Level 4 · 학교장 총괄 대응</b><span>반복·부당 요구, 기관 차원의 답변, 민원 제한·종결 검토가 필요한 단계입니다.</span><em>반복·부당 요구</em></div></div>
-        <div class="levelItem"><div class="levelDot dot5">5</div><div class="levelText"><b>Level 5 · 교육지원청 지원 요청</b><span>특이민원, 교육활동 침해 가능성, 학교 단독 해결이 어려운 사안입니다.</span><em>특이민원·침해 가능</em></div></div>
+    <!-- 민원 후 교사 유의사항 (항상 표시) -->
+    <div class="donotBox" style="margin-top:20px">
+      <h4>🚫 민원 판정 후 교사가 해서는 안 되는 것</h4>
+      <div class="donotList">
+        <div class="donotItem">개인 휴대폰·SNS로 계속 응대하기 — 공식 창구 외 개인 연락은 기록이 남지 않고 교사를 더 취약하게 만듭니다.</div>
+        <div class="donotItem">혼자 해결하려 즉석에서 약속하기 — 맡기기 어렵더라도 "확인 후 안내하겠다"로 시간을 확보해야 합니다.</div>
+        <div class="donotItem">무기한 상담 지속하기 — 민원 단계에서 무한 상담은 민원인의 요구를 강화하고 교사의 소진으로 이어집니다.</div>
+        <div class="donotItem">자신의 판단으로 최종 답변 확정하기 — 민원 사안의 답변은 민원대응팀 검토 후 학교 차원에서 결정해야 합니다.</div>
+        <div class="donotItem">폭언·협박이 있어도 통화를 끊지 않기 — 특이민원 신호 발생 시 즉시 통화를 종료하고 관리자에게 보고합니다.</div>
       </div>
     </div>
 
-    <div class="teamPanel">
-      <div class="panelHead"><h3>학교 내 처리 흐름</h3><span class="hint">교감은 민원대응팀의 핵심 구성원</span></div>
-      <div class="processDiagram">
-        <div class="processStep"><div class="processIcon">👩‍🏫</div><b>담임 상담</b><span>학생 지원·1차 상담</span></div>
-        <div class="processStep"><div class="processIcon">🧑‍🏫</div><b>부장 공유</b><span>기록 확인·초기 조율</span></div>
-        <div class="processStep current"><div class="processIcon">🏢</div><b>민원대응팀 검토</b><span>교감·행정실장·관련 담당자</span></div>
-        <div class="processStep"><div class="processIcon">🏫</div><b>학교장 총괄</b><span>기관 대응·종결 검토</span></div>
-        <div class="processStep"><div class="processIcon">🤝</div><b>교육지원청 지원</b><span>학교 단독 해결 곤란</span></div>
+    <!-- 법적 근거 -->
+    <div class="legalBox">
+      <h4>📜 법적 근거 및 관련 규정</h4>
+      <div class="legalGrid">
+        <div class="legalItem"><b>교원의 학생생활지도에 관한 고시 (교육부고시 제2023-1호)</b>교사의 생활지도 권한과 절차의 법적 근거. 학부모 민원 대응 시 고시 내용을 바탕으로 설명합니다.</div>
+        <div class="legalItem"><b>민원 처리에 관한 법률 (민원처리법)</b>학교 민원의 접수·처리·답변 기한(14일 원칙)과 반복·부당 민원 종결 기준을 규정합니다.</div>
+        <div class="legalItem"><b>교육활동 침해 행위 및 조치기준에 관한 고시 (교육부고시 제2023-2호)</b>교육활동 침해 유형, 보호자의 침해 행위, 학교장 보고·분리 조치 등 절차를 규정합니다.</div>
+        <div class="legalItem"><b>학교폭력예방 및 대책에 관한 법률 (학교폭력예방법)</b>학교폭력 사안 처리 결과에 대한 불복 절차(행정심판·소청)와 이의 제기 경로를 안내할 때 활용합니다.</div>
       </div>
     </div>
 
-    <div class="workbenchGrid">
-      <div class="teamPanel">
-        <div class="panelHead"><h3>민원 신호 분석</h3><span class="hint">체크 신호가 많을수록 상향</span></div>
-        <div class="signalChecklist">
-          <div class="signalItem on"><b>특정 조치·변경 요구</b><span>주의</span></div>
-          <div class="signalItem on"><b>학교 또는 교사 책임 주장</b><span>주의</span></div>
-          <div class="signalItem"><b>동일 내용 반복 요구</b><span>관찰</span></div>
-          <div class="signalItem"><b>폭언·협박·모욕·압박</b><span>없음</span></div>
-          <div class="signalItem"><b>교육활동 침해 가능성</b><span>낮음</span></div>
+    <div class="teamOnly"><hr>
+      <div class="teamWorkbench">
+        <div class="workbenchHeader">
+          <div class="dashTile"><small>현재 기본 단계</small><b>Level 3</b><br><span class="note">민원대응팀 검토</span></div>
+          <div class="dashTile orange"><small>핵심 전환 신호</small><b>조치 요구</b><br><span class="note">책임 주장·변경 요구 포함</span></div>
+          <div class="dashTile"><small>기본 종결 판단</small><b>근거 확인</b><br><span class="note">반복 여부·답변 가능성 검토</span></div>
+          <div class="dashTile red"><small>상향 기준</small><b>특이민원</b><br><span class="note">반복·폭언·협박·침해 가능</span></div>
         </div>
-      </div>
-      <div class="teamPanel">
-        <div class="panelHead"><h3>다음 행동 결정</h3><span class="hint">분류보다 행동 중심</span></div>
-        <div class="decisionList">
-          <div class="decisionItem warn"><strong>① 민원대응팀 공유·검토</strong><p>담임 개인이 계속 응대하기보다 학교 체계 안에서 사실관계와 답변 방향을 정합니다.</p></div>
-          <div class="decisionItem good"><strong>② 공식 창구 안내</strong><p>개인 연락처·SNS가 아니라 학교가 정한 접수 창구로 안내합니다.</p></div>
-          <div class="decisionItem"><strong>③ 종결 가능성은 근거 기반 검토</strong><p>충분한 답변 후에도 동일 내용이 반복되는지, 부당 요구인지 확인합니다.</p></div>
-          <div class="decisionItem danger"><strong>④ 특이민원 신호 발생 시 상향</strong><p>반복·폭언·협박·업무방해가 있으면 학교장 총괄 또는 교육지원청 지원 요청을 검토합니다.</p></div>
+        <div class="teamPanel">
+          <div class="panelHead"><h3>개입 레벨 타임라인</h3><span class="hint">현재 예시는 Level 3 강조</span></div>
+          <div class="levelTimeline">
+            <div class="levelItem"><div class="levelDot dot1">1</div><div class="levelText"><b>Level 1 · 담임 자율 상담</b><span>학생 지원 중심의 일반 상담 단계입니다.</span><em>학생 지원 중심</em></div></div>
+            <div class="levelItem"><div class="levelDot dot2">2</div><div class="levelText"><b>Level 2 · 부장교사 공유</b><span>불만, 사실 확인, 오해 가능성이 있어 기록과 공유가 필요합니다.</span><em>불만·사실 확인</em></div></div>
+            <div class="levelItem current"><div class="levelDot dot3">3</div><div class="levelText"><b>Level 3 · 민원대응팀 검토</b><span>교감이 포함된 민원대응팀이 사안을 검토합니다. 행정실장·관련 담당자가 함께 역할을 나눌 수 있습니다.</span><em>책임 주장·조치 요구</em></div></div>
+            <div class="levelItem"><div class="levelDot dot4">4</div><div class="levelText"><b>Level 4 · 학교장 총괄 대응</b><span>반복·부당 요구, 기관 차원의 답변, 민원 제한·종결 검토가 필요한 단계입니다.</span><em>반복·부당 요구</em></div></div>
+            <div class="levelItem"><div class="levelDot dot5">5</div><div class="levelText"><b>Level 5 · 교육지원청 지원 요청</b><span>특이민원, 교육활동 침해 가능성, 학교 단독 해결이 어려운 사안입니다.</span><em>특이민원·침해 가능</em></div></div>
+          </div>
+        </div>
+        <div class="teamPanel">
+          <div class="panelHead"><h3>학교 내 처리 흐름</h3><span class="hint">교감은 민원대응팀의 핵심 구성원</span></div>
+          <div class="processDiagram">
+            <div class="processStep"><div class="processIcon">👩‍🏫</div><b>담임 상담</b><span>학생 지원·1차 상담</span></div>
+            <div class="processStep"><div class="processIcon">🧑‍🏫</div><b>부장 공유</b><span>기록 확인·초기 조율</span></div>
+            <div class="processStep current"><div class="processIcon">🏢</div><b>민원대응팀 검토</b><span>교감·행정실장·관련 담당자</span></div>
+            <div class="processStep"><div class="processIcon">🏫</div><b>학교장 총괄</b><span>기관 대응·종결 검토</span></div>
+            <div class="processStep"><div class="processIcon">🤝</div><b>교육지원청 지원</b><span>학교 단독 해결 곤란</span></div>
+          </div>
+        </div>
+        <div class="workbenchGrid">
+          <div class="teamPanel">
+            <div class="panelHead"><h3>민원 신호 분석</h3><span class="hint">체크 신호가 많을수록 상향</span></div>
+            <div class="signalChecklist">
+              <div class="signalItem on"><b>특정 조치·변경 요구</b><span>주의</span></div>
+              <div class="signalItem on"><b>학교 또는 교사 책임 주장</b><span>주의</span></div>
+              <div class="signalItem"><b>동일 내용 반복 요구</b><span>관찰</span></div>
+              <div class="signalItem"><b>폭언·협박·모욕·압박</b><span>없음</span></div>
+              <div class="signalItem"><b>교육활동 침해 가능성</b><span>낮음</span></div>
+            </div>
+          </div>
+          <div class="teamPanel">
+            <div class="panelHead"><h3>다음 행동 결정</h3><span class="hint">분류보다 행동 중심</span></div>
+            <div class="decisionList">
+              <div class="decisionItem warn"><strong>① 민원대응팀 공유·검토</strong><p>담임 개인이 계속 응대하기보다 학교 체계 안에서 사실관계와 답변 방향을 정합니다.</p></div>
+              <div class="decisionItem good"><strong>② 공식 창구 안내</strong><p>개인 연락처·SNS가 아니라 학교가 정한 접수 창구로 안내합니다.</p></div>
+              <div class="decisionItem"><strong>③ 종결 가능성은 근거 기반 검토</strong><p>충분한 답변 후에도 동일 내용이 반복되는지, 부당 요구인지 확인합니다.</p></div>
+              <div class="decisionItem danger"><strong>④ 특이민원 신호 발생 시 상향</strong><p>반복·폭언·협박·업무방해가 있으면 학교장 총괄 또는 교육지원청 지원 요청을 검토합니다.</p></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div></div></section>
-<section id="quiz"><div class="card"><h2>의사결정 연습 퀴즈</h2><p class="sub">단순히 상담/민원을 맞히는 문제에서 끝내지 않고, <b>판정 → 근거 → 교사 행동 → 민원대응팀 개입</b>까지 한 사례를 4단계로 연습합니다.</p><div id="quizBox"></div><div class="quizBtns"><button class="btn" onclick="startQuiz()">퀴즈 시작</button><button class="btn light" onclick="showQuizIntro()">방식 보기</button><button class="btn secondary" onclick="resetProgress()">점수 초기화</button></div></div><div class="scoreBox"><div class="score"><strong id="bestScore">0</strong><br>최고점</div><div class="score"><strong id="tryCount">0</strong><br>도전 횟수</div><div class="score"><strong id="badge">-</strong><br>현재 배지</div><div class="score"><strong>0원</strong><br>운영비</div></div></section>
-</main><div class="footer">학교 민원 처리 매뉴얼 기반 예시 · HTML/CSS/JavaScript 단일 파일 · 서버/로그인/API 없음</div>
+</section>
+
+<!-- ⑥ 퀴즈 -->
+<section id="quiz">
+  <div class="card">
+    <h2>의사결정 연습 퀴즈</h2>
+    <p class="sub">단순히 상담/민원을 맞히는 문제에서 끝내지 않고, <b>판정 → 근거 → 교사 행동 → 민원대응팀 개입</b>까지 한 사례를 4단계로 연습합니다. 선택 후 해설을 읽고 직접 다음 단계로 넘어갑니다.</p>
+    <div id="quizBox"></div>
+    <div class="quizBtns">
+      <button class="btn" onclick="startQuiz()">퀴즈 시작</button>
+      <button class="btn light" onclick="showQuizIntro()">방식 보기</button>
+      <button class="btn secondary" onclick="resetProgress()">점수 초기화</button>
+    </div>
+  </div>
+  <div class="scoreBox">
+    <div class="score"><strong id="bestScore">0</strong><span>최고점</span></div>
+    <div class="score"><strong id="tryCount">0</strong><span>도전 횟수</span></div>
+    <div class="score"><strong id="badge">-</strong><span>현재 배지</span></div>
+    <div class="score"><strong>무설치</strong><span>단일 파일</span></div>
+  </div>
+</section>
+</main>
+
+<div class="footer">
+  교원의 학생생활지도에 관한 고시(교육부고시 제2023-1호) · 학교민원처리매뉴얼 기반 예시<br>
+  HTML/CSS/JavaScript 단일 파일 · 서버/로그인/API/설치 없음
+</div>
+
 <script>
 const cases=[
-{t:'수행평가 기준 문의',text:'“우리 아이가 수행평가 점수 때문에 많이 속상해합니다. 평가 기준을 설명해 주실 수 있을까요?”',ans:'경계',temp:48,difficulty:'상',why:['학생 정서 지원이 섞여 있음','평가 기준 설명 요구','아직 점수 변경 요구는 없음'],teacher:'평가 기준을 설명하고 상담 내용을 기록합니다. 점수 변경 요구로 이어지는지 살핍니다.',team:'즉시 개입보다는 모니터링입니다. 결과 변경 요구가 나오면 공식 절차 안내가 필요합니다.',next:'“설명을 들어도 납득이 안 됩니다. 점수를 다시 봐 주세요.”가 추가되면 민원으로 전환됩니다.',intervention:'공유 권장'},
-{t:'공개 지도 불만',text:'“저희 아이 말만 들어보면 공개적으로 지적받아 억울한 부분이 있는 것 같습니다. 선생님 말씀도 들어보고 싶습니다.”',ans:'경계',temp:52,difficulty:'상',why:['상담 요청 형식','불만·억울함 표현','사실 확인 필요'],teacher:'방어적으로 답하지 말고 상담 일정을 잡습니다. 사실관계 확인 후 기록을 남깁니다.',team:'현재 즉시 개입까지는 아니나, 사과·조치 요구가 나오면 공유받아야 합니다.',next:'“그 지도 방식은 문제가 있으니 공식적으로 사과해 주세요.”가 추가되면 민원입니다.',intervention:'공유 권장'},
-{t:'친구 관계 지원 요청',text:'“우리 아이가 친구들과 잘 어울리지 못하는 것 같습니다. 학교생활을 어떻게 도와주면 좋을까요?”',ans:'상담',temp:18,difficulty:'하',why:['학생 지원 목적','조치·시정 요구 없음','협력적 대화'],teacher:'상담을 진행하고 학생 관찰 및 지원 방안을 함께 세웁니다.',team:'개입 불필요입니다. 책임 추궁이나 특정 조치 요구가 추가되는지만 살핍니다.',next:'“상대 학생을 반드시 처벌해 주세요.”가 나오면 민원으로 바뀝니다.',intervention:'개입 불필요'},
-{t:'생활기록부 표현 문의',text:'“생활기록부 문구가 아이에게 불리하게 보일까 걱정됩니다. 어떤 기준으로 작성되는지 알고 싶습니다.”',ans:'경계',temp:50,difficulty:'상',why:['기록 관련 민감 사안','기준 설명 요구','아직 정정 요구는 아님'],teacher:'작성 기준과 절차를 안내하고, 정정 요구가 아닌 설명 요청인지 확인합니다.',team:'정정 요구나 이의 제기가 나오면 공식 절차 안내가 필요합니다.',next:'“그 문구를 삭제하거나 바꿔 주세요.”가 추가되면 민원입니다.',intervention:'공유 검토'},
-{t:'체험학습 절차 문의',text:'“가족 일정 때문에 체험학습을 신청하려고 합니다. 신청 절차가 어떻게 되나요?”',ans:'상담',temp:22,difficulty:'하',why:['절차 안내 요청','갈등·불만 없음','단순 설명 가능'],teacher:'학교 안내자료 또는 신청 절차를 안내합니다.',team:'민원대응팀 개입은 필요하지 않습니다. 단순 질의로 처리 가능합니다.',next:'“규정과 상관없이 반드시 승인해 주세요.”가 나오면 민원입니다.',intervention:'개입 불필요'},
-{t:'급식 불편 제기',text:'“아이가 급식이 입에 맞지 않아 거의 먹지 못한다고 합니다. 개선이 가능한지 궁금합니다.”',ans:'경계',temp:46,difficulty:'중',why:['불편 사항 제기','개선 가능성 문의','아직 강한 시정 요구는 아님'],teacher:'학생 상태를 확인하고 급식 관련 공식 안내 또는 담당 부서 연결을 안내합니다.',team:'반복 불만이나 개선 요구가 공식화되면 기타민원으로 접수·처리합니다.',next:'“급식 운영을 개선해 달라고 공식 요청합니다.”가 나오면 민원입니다.',intervention:'공유 검토'},
-{t:'점수 수정 요구',text:'“수행평가 채점이 부당합니다. 점수를 수정해 주세요.”',ans:'민원',temp:76,difficulty:'중',why:['결과 변경 요구','학교의 특정 행위 요구','공식 절차 필요'],teacher:'평가 기준 설명은 가능하지만, 변경 요구는 학교 절차로 공유합니다.',team:'평가 관련 사실 확인, 담당자 협조, 공식 답변 경로를 정합니다.',next:'“수정할 때까지 계속 전화하겠습니다.”가 나오면 특이민원 위험입니다.',intervention:'공유 필요'},
-{t:'담임 교체 요구',text:'“담임 선생님을 바꿔 주세요. 그대로 두면 교육청에 민원 넣겠습니다.”',ans:'민원',temp:86,difficulty:'중',why:['특정 교사 대상 요구','학교 조치 요구','압박성 표현 포함'],teacher:'교사 개인이 단독 대응하지 말고 민원대응팀에 공유합니다.',team:'학교장 총괄로 검토하고, 부당요구·교육활동 침해 가능성을 확인합니다.',next:'“교체 안 하면 가만두지 않겠습니다.”는 특이민원 위험입니다.',intervention:'즉시 공유'},
-{t:'반복 전화 예고',text:'“답이 마음에 들 때까지 매일 전화하겠습니다.”',ans:'특이민원 가능',temp:95,difficulty:'하',why:['반복 연락 예고','시간지연형 위험','개인 대응 한계'],teacher:'즉시 민원대응팀 또는 학교장에 알리고 개인 대응을 중단합니다.',team:'반복·시간지연형 특이민원 가능성. 종결 안내와 기록, 필요시 제한 조치를 검토합니다.',next:'폭언·협박이 동반되면 즉시 보호 조치와 학교장 총괄이 필요합니다.',intervention:'즉시 개입'},
-{t:'사과 요구 직전 상황',text:'“아이에게 상처가 된 것 같습니다. 선생님이 어떤 의도로 말씀하셨는지 듣고 싶습니다.”',ans:'경계',temp:44,difficulty:'상',why:['상담 형식','감정적 손상 호소','사과 요구로 전환 가능'],teacher:'공감하되 사실관계를 확인하고, 대화 내용을 기록합니다.',team:'현재 개입보다는 공유 검토 단계입니다. 공식 사과 요구가 나오면 민원으로 전환됩니다.',next:'“공식적으로 사과해 주세요.”가 나오면 민원입니다.',intervention:'공유 검토'},
-{t:'학교폭력 결과 이의',text:'“학교폭력 사안 처리 결과에 동의할 수 없습니다. 다시 처리해 주세요.”',ans:'민원',temp:82,difficulty:'중',why:['처리 결과 이의','재처리 요구','공식 절차 필요'],teacher:'담임 단독 상담으로 해결하려 하지 말고 공식 절차를 안내합니다.',team:'관련 절차, 담당 부서, 기록, 답변 방식을 확인합니다.',next:'반복·위협 표현이 추가되면 특이민원 위험으로 전환됩니다.',intervention:'즉시 공유'},
-{t:'개인 연락 요구',text:'“학교 전화 말고 선생님 개인 휴대폰 번호로 바로 연락하면 안 될까요?”',ans:'경계',temp:58,difficulty:'중',why:['개인 연락 경로 요구','공식 창구 이탈 가능성','아직 민원 내용은 불명확'],teacher:'학교에서 정한 소통 창구를 안내하고 개인 연락처 사용은 피합니다.',team:'공식 창구 안내가 필요합니다. 반복되면 민원대응팀 공유가 적절합니다.',next:'개인 SNS·휴대전화로 반복 연락하면 거부 또는 종결 검토 대상입니다.',intervention:'공유 검토'}
+{t:'수행평가 기준 문의',text:'"우리 아이가 수행평가 점수 때문에 많이 속상해합니다. 평가 기준을 설명해 주실 수 있을까요?"',ans:'경계',temp:48,difficulty:'상',why:['학생 정서 지원이 섞여 있음','평가 기준 설명 요구','아직 점수 변경 요구는 없음'],teacher:'평가 기준을 설명하고 상담 내용을 기록합니다. 점수 변경 요구로 이어지는지 살핍니다.',team:'즉시 개입보다는 모니터링입니다. 결과 변경 요구가 나오면 공식 절차 안내가 필요합니다.',next:'"설명을 들어도 납득이 안 됩니다. 점수를 다시 봐 주세요."가 추가되면 민원으로 전환됩니다.',intervention:'공유 권장'},
+{t:'공개 지도 불만',text:'"저희 아이 말만 들어보면 공개적으로 지적받아 억울한 부분이 있는 것 같습니다. 선생님 말씀도 들어보고 싶습니다."',ans:'경계',temp:52,difficulty:'상',why:['상담 요청 형식','불만·억울함 표현','사실 확인 필요'],teacher:'방어적으로 답하지 말고 상담 일정을 잡습니다. 사실관계 확인 후 기록을 남깁니다.',team:'현재 즉시 개입까지는 아니나, 사과·조치 요구가 나오면 공유받아야 합니다.',next:'"그 지도 방식은 문제가 있으니 공식적으로 사과해 주세요."가 추가되면 민원입니다.',intervention:'공유 권장'},
+{t:'친구 관계 지원 요청',text:'"우리 아이가 친구들과 잘 어울리지 못하는 것 같습니다. 학교생활을 어떻게 도와주면 좋을까요?"',ans:'상담',temp:18,difficulty:'하',why:['학생 지원 목적','조치·시정 요구 없음','협력적 대화'],teacher:'상담을 진행하고 학생 관찰 및 지원 방안을 함께 세웁니다.',team:'개입 불필요입니다. 책임 추궁이나 특정 조치 요구가 추가되는지만 살핍니다.',next:'"상대 학생을 반드시 처벌해 주세요."가 나오면 민원으로 바뀝니다.',intervention:'개입 불필요'},
+{t:'생활기록부 표현 문의',text:'"생활기록부 문구가 아이에게 불리하게 보일까 걱정됩니다. 어떤 기준으로 작성되는지 알고 싶습니다."',ans:'경계',temp:50,difficulty:'상',why:['기록 관련 민감 사안','기준 설명 요구','아직 정정 요구는 아님'],teacher:'작성 기준과 절차를 안내하고, 정정 요구가 아닌 설명 요청인지 확인합니다.',team:'정정 요구나 이의 제기가 나오면 공식 절차 안내가 필요합니다.',next:'"그 문구를 삭제하거나 바꿔 주세요."가 추가되면 민원입니다.',intervention:'공유 검토'},
+{t:'체험학습 절차 문의',text:'"가족 일정 때문에 체험학습을 신청하려고 합니다. 신청 절차가 어떻게 되나요?"',ans:'상담',temp:22,difficulty:'하',why:['절차 안내 요청','갈등·불만 없음','단순 설명 가능'],teacher:'학교 안내자료 또는 신청 절차를 안내합니다.',team:'민원대응팀 개입은 필요하지 않습니다. 단순 질의로 처리 가능합니다.',next:'"규정과 상관없이 반드시 승인해 주세요."가 나오면 민원입니다.',intervention:'개입 불필요'},
+{t:'급식 불편 제기',text:'"아이가 급식이 입에 맞지 않아 거의 먹지 못한다고 합니다. 개선이 가능한지 궁금합니다."',ans:'경계',temp:46,difficulty:'중',why:['불편 사항 제기','개선 가능성 문의','아직 강한 시정 요구는 아님'],teacher:'학생 상태를 확인하고 급식 관련 공식 안내 또는 담당 부서 연결을 안내합니다.',team:'반복 불만이나 개선 요구가 공식화되면 기타민원으로 접수·처리합니다.',next:'"급식 운영을 개선해 달라고 공식 요청합니다."가 나오면 민원입니다.',intervention:'공유 검토'},
+{t:'점수 수정 요구',text:'"수행평가 채점이 부당합니다. 점수를 수정해 주세요."',ans:'민원',temp:76,difficulty:'중',why:['결과 변경 요구','학교의 특정 행위 요구','공식 절차 필요'],teacher:'평가 기준 설명은 가능하지만, 변경 요구는 학교 절차로 공유합니다.',team:'평가 관련 사실 확인, 담당자 협조, 공식 답변 경로를 정합니다.',next:'"수정할 때까지 계속 전화하겠습니다."가 나오면 특이민원 위험입니다.',intervention:'공유 필요'},
+{t:'담임 교체 요구',text:'"담임 선생님을 바꿔 주세요. 그대로 두면 교육청에 민원 넣겠습니다."',ans:'민원',temp:86,difficulty:'중',why:['특정 교사 대상 요구','학교 조치 요구','압박성 표현 포함'],teacher:'교사 개인이 단독 대응하지 말고 민원대응팀에 공유합니다.',team:'학교장 총괄로 검토하고, 부당요구·교육활동 침해 가능성을 확인합니다.',next:'"교체 안 하면 가만두지 않겠습니다."는 특이민원 위험입니다.',intervention:'즉시 공유'},
+{t:'반복 전화 예고',text:'"답이 마음에 들 때까지 매일 전화하겠습니다."',ans:'특이민원 가능',temp:95,difficulty:'하',why:['반복 연락 예고','시간지연형 위험','개인 대응 한계'],teacher:'즉시 민원대응팀 또는 학교장에 알리고 개인 대응을 중단합니다.',team:'반복·시간지연형 특이민원 가능성. 종결 안내와 기록, 필요시 제한 조치를 검토합니다.',next:'폭언·협박이 동반되면 즉시 보호 조치와 학교장 총괄이 필요합니다.',intervention:'즉시 개입'},
+{t:'사과 요구 직전 상황',text:'"아이에게 상처가 된 것 같습니다. 선생님이 어떤 의도로 말씀하셨는지 듣고 싶습니다."',ans:'경계',temp:44,difficulty:'상',why:['상담 형식','감정적 손상 호소','사과 요구로 전환 가능'],teacher:'공감하되 사실관계를 확인하고, 대화 내용을 기록합니다.',team:'현재 개입보다는 공유 검토 단계입니다. 공식 사과 요구가 나오면 민원으로 전환됩니다.',next:'"공식적으로 사과해 주세요."가 나오면 민원입니다.',intervention:'공유 검토'},
+{t:'학교폭력 결과 이의',text:'"학교폭력 사안 처리 결과에 동의할 수 없습니다. 다시 처리해 주세요."',ans:'민원',temp:82,difficulty:'중',why:['처리 결과 이의','재처리 요구','공식 절차 필요'],teacher:'담임 단독 상담으로 해결하려 하지 말고 공식 절차를 안내합니다.',team:'관련 절차, 담당 부서, 기록, 답변 방식을 확인합니다.',next:'반복·위협 표현이 추가되면 특이민원 위험으로 전환됩니다.',intervention:'즉시 공유'},
+{t:'개인 연락 요구',text:'"학교 전화 말고 선생님 개인 휴대폰 번호로 바로 연락하면 안 될까요?"',ans:'경계',temp:58,difficulty:'중',why:['개인 연락 경로 요구','공식 창구 이탈 가능성','아직 민원 내용은 불명확'],teacher:'학교에서 정한 소통 창구를 안내하고 개인 연락처 사용은 피합니다.',team:'공식 창구 안내가 필요합니다. 반복되면 민원대응팀 공유가 적절합니다.',next:'개인 SNS·휴대전화로 반복 연락하면 거부 또는 종결 검토 대상입니다.',intervention:'공유 검토'}
 ];
 function enrichCases(){
   const map={
@@ -196,14 +1318,66 @@ function enrichCases(){
   cases.forEach(c=>Object.assign(c,map[c.t]||{level:'Level 2',type:'검토 필요',owner:'민원대응팀 검토',official:'상황별 판단',close:'상황별 판단',infringe:'상황별 판단',support:'상황별 판단'}));
 }
 enrichCases();
+
 let current=0;let quiz=[];let qi=0;let score=0;
-function setMode(m){document.body.classList.toggle('team-mode',m==='team');teacherMode.classList.toggle('active',m==='teacher');teamMode.classList.toggle('active',m==='team')}
-function answerMain(a){const ok=a==='상담';mainResult.className='result show';mainResult.innerHTML= ok?'<b>정답: 상담</b><br>학생의 교우관계 지원을 위한 요청입니다.<div class="teacher"><b>교사 행동</b><br>상담 예약, 학생 상황 확인, 상담 기록</div><div class="team teamOnly"><b>민원대응팀 참고</b><br>조치 요구·책임 추궁·반복 요구가 추가되면 민원으로 전환될 수 있습니다.</div>':'<b>다시 생각해 보세요.</b><br>아직 특정 조치나 시정 요구가 없으므로 상담에 가깝습니다.'}
+
+// ── 모드 전환
+function setMode(m){
+  document.body.classList.toggle('team-mode',m==='team');
+  teacherMode.classList.toggle('active',m==='teacher');
+  teamMode.classList.toggle('active',m==='team');
+}
+
+// ── 히어로 카드 응답 (강화)
+const heroScenarios=[
+  {text:'"우리 아이가 친구와 갈등이 있어 상담을 받고 싶습니다."',ans:'상담'},
+  {text:'"수행평가 점수가 부당합니다. 점수를 수정해 주세요."',ans:'민원'},
+  {text:'"아이가 공개적으로 지적받아 억울하다고 합니다. 자세히 설명해 주세요."',ans:'경계'},
+  {text:'"담임 선생님을 바꿔 주세요."',ans:'민원'},
+  {text:'"체험학습 신청 절차가 어떻게 되나요?"',ans:'상담'},
+];
+let heroIdx=0;
+function setHeaderState(ans){
+  document.body.classList.remove('state-상담','state-경계','state-민원','state-특이');
+  if(ans==='상담') document.body.classList.add('state-상담');
+  else if(ans==='경계') document.body.classList.add('state-경계');
+  else if(ans==='민원'||ans==='특이민원 가능') document.body.classList.add(ans==='특이민원 가능'?'state-특이':'state-민원');
+}
+function answerMain(a){
+  const s=heroScenarios[heroIdx];
+  const correct=a===s.ans;
+  const resultEl=document.getElementById('mainResult');
+  resultEl.className='result show '+(correct?'correct':'wrong');
+  setHeaderState(s.ans);
+  const icons={상담:'🟢',경계:'🟡',민원:'🟠','특이민원 가능':'🔴'};
+  if(correct){
+    resultEl.innerHTML=`<b>${icons[s.ans]||'✅'} 정답: ${s.ans}</b><br>${
+      s.ans==='상담'?'학생 지원 목적의 상담입니다. 상담을 진행하고 간단히 기록합니다.':
+      s.ans==='경계'?'사실 확인·불만이 포함된 경계 상황입니다. 상담은 하되 기록을 남깁니다.':
+      '특정 조치·시정 요구가 있는 민원입니다. 민원대응팀에 공유하고 공식 창구를 안내합니다.'
+    }<div class="heroNext"><button class="btn" onclick="nextHero()">다른 사례 →</button><span class="hintTxt">아래 섹션에서 더 자세히 연습하세요</span></div>`;
+  }else{
+    resultEl.innerHTML=`<b>다시 생각해 보세요.</b><br>정답은 <b>${icons[s.ans]||''} ${s.ans}</b>입니다.<br>${
+      s.ans==='상담'?'학생 지원이 목적이고 특정 조치 요구가 없으면 상담으로 봅니다.':
+      s.ans==='경계'?'사실 확인 요구가 있지만 아직 특정 조치까지는 요구하지 않으면 경계입니다.':
+      '학교에 특정 행위를 요구하는 표현이 있으면 민원으로 봅니다.'
+    }<div class="heroNext"><button class="btn light" onclick="nextHero()">다른 사례 →</button></div>`;
+  }
+}
+function nextHero(){
+  heroIdx=(heroIdx+1)%heroScenarios.length;
+  const s=heroScenarios[heroIdx];
+  document.getElementById('mainScenario').textContent=s.text;
+  document.getElementById('mainResult').className='result';
+  document.getElementById('mainResult').innerHTML='';
+}
+
+// ── 자가진단
 function diagnose(){
   let s=0; const checked=[...document.querySelectorAll('.check:checked')];
   checked.forEach(c=>s+=Number(c.value));
   const has=(type)=>checked.some(c=>c.dataset.type===type);
-  let level, label, temp, teacherAction, teamAction, reason=[];
+  let level,label,temp,teacherAction,teamAction,reason=[];
   if(has('support')) reason.push('학생 지원 목적');
   if(has('fact')) reason.push('사실 확인·설명 요구');
   if(has('action')) reason.push('학교에 특정 행위 요구');
@@ -212,141 +1386,182 @@ function diagnose(){
   if(has('teacher')) reason.push('특정 교사 대상 요구');
   if(has('repeat')) reason.push('반복·장시간 요구');
   if(has('abuse')) reason.push('폭언·협박·압박 표현');
-  if(has('abuse') || has('repeat') || s>=8){
-    level='🚨 5단계 특이민원 위험'; temp=95;
+  if(has('abuse')||has('repeat')||s>=8){
+    level='🚨 5단계 특이민원 위험';temp=95;
     teacherAction='교사 개인 대응을 중단하고 관리자·민원대응팀에 즉시 공유하세요. 상담을 계속 이어가지 않습니다.';
     teamAction='특이민원 요소를 기록하고, 공식 창구 이용 안내·종결 가능성·학교장 총괄·필요 시 보호 조치를 검토합니다.';
-  }else if(has('action') || has('change') || s>=5){
-    level='🟠 4단계 민원'; temp=75;
+  }else if(has('action')||has('change')||s>=5){
+    level='🟠 4단계 민원';temp=75;
     teacherAction='혼자 해결하려 하지 말고 학교 체계에 공유하세요. 사실관계 확인 후 공식 절차와 답변 경로를 안내합니다.';
     teamAction='민원 유형을 검토하고 담당자 협조, 처리 기한, 답변 방식, 종결 기준을 정합니다.';
-  }else if(has('blame') || has('teacher') || s>=3){
-    level='🟡 3단계 경계'; temp=55;
+  }else if(has('blame')||has('teacher')||s>=3){
+    level='🟡 3단계 경계';temp=55;
     teacherAction='상담은 가능하지만 기록을 남기고, 불만이 조치 요구로 바뀌는지 살핍니다. 필요하면 부장·관리자와 공유합니다.';
     teamAction='현재 즉시 개입보다는 모니터링이 적절합니다. 책임 추궁·결과 변경 요구가 추가되면 민원 전환으로 봅니다.';
-  }else if(has('fact') || s>=1){
-    level='🔵 2단계 상담 + 기록'; temp=35;
+  }else if(has('fact')||s>=1){
+    level='🔵 2단계 상담 + 기록';temp=35;
     teacherAction='상담을 진행하되 사실 확인 내용과 안내 내용을 간단히 기록하세요.';
     teamAction='민원대응팀 개입은 보통 필요하지 않습니다. 반복 문의로 바뀌는지만 확인합니다.';
   }else{
-    level='🟢 1단계 상담'; temp=15;
+    level='🟢 1단계 상담';temp=15;
     teacherAction='교사가 상담을 진행합니다. 학생 지원 방안을 중심으로 대화하세요.';
     teamAction='개입 불필요. 상담이 조치 요구로 전환되는 경우에만 공유받습니다.';
   }
-  diagnosisResult.className='result show';
-  diagnosisResult.innerHTML=`<b>${level}</b><br><span class="note">판단 근거: ${reason.length?reason.join(' · '):'체크된 위험 신호 없음'}</span><div class="temp"><div class="needle" style="left:${temp}%"></div></div><div class="tempLabels"><span>상담</span><span>상담+기록</span><span>경계</span><span>민원</span><span>특이</span></div><div class="teacher"><b>교사 행동</b><br>${teacherAction}</div><div class="team teamOnly"><b>민원대응팀 참고</b><br>${teamAction}</div>`
+  let resultCls='result show';
+  if(has('abuse')||has('repeat')||s>=8) resultCls+=' wrong';
+  else if(has('action')||has('change')||s>=5) resultCls+=' wrong';
+  else resultCls+=' correct';
+  diagnosisResult.className=resultCls;
+  diagnosisResult.innerHTML=`<b>${level}</b><br><span class="note">판단 근거: ${reason.length?reason.join(' · '):'체크된 위험 신호 없음'}</span><div class="temp"><div class="needle" style="left:${temp}%"></div></div><div class="tempLabels"><span>상담</span><span>상담+기록</span><span>경계</span><span>민원</span><span>특이</span></div><div class="teacher"><b>교사 행동</b><br>${teacherAction}</div><div class="team teamOnly"><b>민원대응팀 참고</b><br>${teamAction}</div>`;
 }
 function resetDiagnosis(){document.querySelectorAll('.check').forEach(c=>c.checked=false);diagnosisResult.className='result';diagnosisResult.innerHTML=''}
 
+// ── 발전 지도 데이터
 const boundaryScenarios=[
-{title:'친구 관계',start:'“아이가 친구들과 잘 어울리지 못하는 것 같습니다.”',startWhy:'학생의 학교생활 적응과 관계 지원이 목적이므로 상담으로 시작합니다.',supportEnd:'“상담해 보니 가정에서도 함께 도와보겠습니다.”',supportWhy:'학생 지원 방안에 합의했고 학교에 특정 조치 요구가 없습니다.',edge:'“왜 이런 일이 생겼는지 자세히 설명해 주세요.”',edgeWhy:'아직 민원은 아니지만 사실 확인 요구와 불만이 포함되어 기록이 필요합니다.',returnText:'“상황을 이해했습니다. 아이를 같이 지켜보겠습니다.”',returnWhy:'책임 추궁이나 조치 요구 없이 상담 목표로 돌아왔습니다.',complaint:'“학교가 제대로 지도하지 않은 책임이 있는 것 아닙니까?”',complaintWhy:'학교 책임을 주장하기 시작해 민원으로 전환될 수 있습니다.',demand:'“상대 학생을 반드시 처벌해 주세요.”',demandWhy:'학교에 특정 조치와 결과를 요구하므로 민원으로 보아야 합니다.',special:'“답이 마음에 들 때까지 계속 전화하겠습니다.”',specialWhy:'반복 연락 예고는 특이민원 위험 신호입니다.'},
-{title:'평가 불만',start:'“우리 아이 수행평가 기준이 궁금합니다.”',startWhy:'평가 기준에 대한 설명 요청으로 상담 또는 단순 질의에 가깝습니다.',supportEnd:'“기준을 들으니 이해했습니다. 아이에게도 설명하겠습니다.”',supportWhy:'설명 후 납득했고 추가 조치 요구가 없습니다.',edge:'“왜 우리 아이 점수가 낮은지 구체적으로 알고 싶습니다.”',edgeWhy:'사실 확인 요구가 포함되어 기록을 남기며 응대하는 것이 안전합니다.',returnText:'“채점 기준을 확인했습니다. 다음 과제 준비를 도와보겠습니다.”',returnWhy:'학생 지원 방향으로 돌아와 상담으로 종결 가능합니다.',complaint:'“채점이 부당합니다. 학교가 잘못한 것 아닙니까?”',complaintWhy:'평가 결과에 대한 책임 주장과 불복 성격이 나타납니다.',demand:'“수행평가 점수를 수정해 주세요.”',demandWhy:'결과 변경이라는 특정 행위를 요구하므로 민원입니다.',special:'“점수 바꿀 때까지 매일 전화하겠습니다.”',specialWhy:'반복 요구와 압박이 결합되어 개인 대응을 멈춰야 합니다.'},
-{title:'생활지도 불만',start:'“우리 아이가 수업 중 지적을 받아 속상해합니다.”',startWhy:'학생의 정서와 생활지도 상황을 이해하려는 상담으로 시작할 수 있습니다.',supportEnd:'“아이에게도 수업 태도를 이야기해 보겠습니다.”',supportWhy:'학생 지원과 가정 협력으로 마무리되어 상담 종결입니다.',edge:'“왜 공개적으로 지적했는지 설명해 주세요.”',edgeWhy:'불만과 사실 확인 요구가 있어 상담+기록 단계입니다.',returnText:'“상황을 알겠습니다. 앞으로 아이가 위축되지 않게 살펴봐 주세요.”',returnWhy:'조치 요구가 아니라 학생 지원 요청으로 정리되었습니다.',complaint:'“그 지도 방식은 문제가 있습니다. 학교가 책임져야 합니다.”',complaintWhy:'학교 책임 주장과 지도 방식 문제 제기가 시작되었습니다.',demand:'“담임 선생님을 교체해 주세요.”',demandWhy:'특정 교사에 대한 인사·배치성 조치 요구로 교사 개인 대응 범위를 넘습니다.',special:'“교체 안 하면 가만두지 않겠습니다.”',specialWhy:'협박성 표현이 있으므로 특이민원 위험입니다.'}
+{title:'친구 관계',start:'"아이가 친구들과 잘 어울리지 못하는 것 같습니다."',startWhy:'학생의 학교생활 적응과 관계 지원이 목적이므로 상담으로 시작합니다.',supportEnd:'"상담해 보니 가정에서도 함께 도와보겠습니다."',supportWhy:'학생 지원 방안에 합의했고 학교에 특정 조치 요구가 없습니다.',edge:'"왜 이런 일이 생겼는지 자세히 설명해 주세요."',edgeWhy:'아직 민원은 아니지만 사실 확인 요구와 불만이 포함되어 기록이 필요합니다.',returnText:'"상황을 이해했습니다. 아이를 같이 지켜보겠습니다."',returnWhy:'책임 추궁이나 조치 요구 없이 상담 목표로 돌아왔습니다.',complaint:'"학교가 제대로 지도하지 않은 책임이 있는 것 아닙니까?"',complaintWhy:'학교 책임을 주장하기 시작해 민원으로 전환될 수 있습니다.',demand:'"상대 학생을 반드시 처벌해 주세요."',demandWhy:'학교에 특정 조치와 결과를 요구하므로 민원으로 보아야 합니다.',special:'"답이 마음에 들 때까지 계속 전화하겠습니다."',specialWhy:'반복 연락 예고는 특이민원 위험 신호입니다.'},
+{title:'평가 불만',start:'"우리 아이 수행평가 기준이 궁금합니다."',startWhy:'평가 기준에 대한 설명 요청으로 상담 또는 단순 질의에 가깝습니다.',supportEnd:'"기준을 들으니 이해했습니다. 아이에게도 설명하겠습니다."',supportWhy:'설명 후 납득했고 추가 조치 요구가 없습니다.',edge:'"왜 우리 아이 점수가 낮은지 구체적으로 알고 싶습니다."',edgeWhy:'사실 확인 요구가 포함되어 기록을 남기며 응대하는 것이 안전합니다.',returnText:'"채점 기준을 확인했습니다. 다음 과제 준비를 도와보겠습니다."',returnWhy:'학생 지원 방향으로 돌아와 상담으로 종결 가능합니다.',complaint:'"채점이 부당합니다. 학교가 잘못한 것 아닙니까?"',complaintWhy:'평가 결과에 대한 책임 주장과 불복 성격이 나타납니다.',demand:'"수행평가 점수를 수정해 주세요."',demandWhy:'결과 변경이라는 특정 행위를 요구하므로 민원입니다.',special:'"점수 바꿀 때까지 매일 전화하겠습니다."',specialWhy:'반복 요구와 압박이 결합되어 개인 대응을 멈춰야 합니다.'},
+{title:'생활지도 불만',start:'"우리 아이가 수업 중 지적을 받아 속상해합니다."',startWhy:'학생의 정서와 생활지도 상황을 이해하려는 상담으로 시작할 수 있습니다.',supportEnd:'"아이에게도 수업 태도를 이야기해 보겠습니다."',supportWhy:'학생 지원과 가정 협력으로 마무리되어 상담 종결입니다.',edge:'"왜 공개적으로 지적했는지 설명해 주세요."',edgeWhy:'불만과 사실 확인 요구가 있어 상담+기록 단계입니다.',returnText:'"상황을 알겠습니다. 앞으로 아이가 위축되지 않게 살펴봐 주세요."',returnWhy:'조치 요구가 아니라 학생 지원 요청으로 정리되었습니다.',complaint:'"그 지도 방식은 문제가 있습니다. 학교가 책임져야 합니다."',complaintWhy:'학교 책임 주장과 지도 방식 문제 제기가 시작되었습니다.',demand:'"담임 선생님을 교체해 주세요."',demandWhy:'특정 교사에 대한 인사·배치성 조치 요구로 교사 개인 대응 범위를 넘습니다.',special:'"교체 안 하면 가만두지 않겠습니다."',specialWhy:'협박성 표현이 있으므로 특이민원 위험입니다.'}
 ];
+
+// ── 사건 파일 데이터
 const incidentFiles=[
 {title:'사건 파일 #017 · 수행평가',turning:2,days:[
- {day:'1일차',label:'상담',quote:'“아이가 수행평가 때문에 많이 속상해합니다. 평가 기준을 설명해 주실 수 있을까요?”',why:'학생 정서 지원과 기준 설명 요청입니다. 아직 결과 변경 요구는 없습니다.',teacher:'평가 기준 설명, 학생 정서 확인, 상담 기록',team:'개입 불필요. 평가 관련 민감 사안으로만 모니터링',signal:'green'},
- {day:'3일차',label:'경계',quote:'“설명은 들었습니다. 그런데 점수가 공정했는지 확인하고 싶습니다.”',why:'사실 확인과 불만이 섞입니다. 민원으로 전환될 수 있어 기록이 필요합니다.',teacher:'채점 기준 재안내, 사실관계 확인, 부장 공유 검토',team:'Level 2. 공식 이의 제기 가능성 관찰',signal:'yellow'},
- {day:'5일차',label:'민원',quote:'“점수가 잘못된 것 같습니다. 공식 답변을 요청합니다.”',why:'공식 답변과 결과 검토를 요구하므로 학교의 특정 행위를 요구하는 민원입니다.',teacher:'개인 답변으로 끝내지 말고 공식 창구와 민원대응팀 공유',team:'Level 3. 담당자 협조, 처리 기록, 답변 방식 결정',signal:'orange'},
- {day:'7일차',label:'특이민원 위험',quote:'“수정될 때까지 계속 연락하겠습니다.”',why:'반복 연락 예고가 있어 특이민원 위험으로 봅니다.',teacher:'개인 대응 중단, 민원대응팀·학교장에게 즉시 공유',team:'Level 5. 교육지원청 지원 요청 및 반복민원·종결·제한 조치 검토',signal:'red'}]},
+ {day:'1일차',label:'상담',quote:'"아이가 수행평가 때문에 많이 속상해합니다. 평가 기준을 설명해 주실 수 있을까요?"',why:'학생 정서 지원과 기준 설명 요청입니다. 아직 결과 변경 요구는 없습니다.',teacher:'평가 기준 설명, 학생 정서 확인, 상담 기록',team:'개입 불필요. 평가 관련 민감 사안으로만 모니터링',signal:'green'},
+ {day:'3일차',label:'경계',quote:'"설명은 들었습니다. 그런데 점수가 공정했는지 확인하고 싶습니다."',why:'사실 확인과 불만이 섞입니다. 민원으로 전환될 수 있어 기록이 필요합니다.',teacher:'채점 기준 재안내, 사실관계 확인, 부장 공유 검토',team:'Level 2. 공식 이의 제기 가능성 관찰',signal:'yellow'},
+ {day:'5일차',label:'민원',quote:'"점수가 잘못된 것 같습니다. 공식 답변을 요청합니다."',why:'공식 답변과 결과 검토를 요구하므로 학교의 특정 행위를 요구하는 민원입니다.',teacher:'개인 답변으로 끝내지 말고 공식 창구와 민원대응팀 공유',team:'Level 3. 담당자 협조, 처리 기록, 답변 방식 결정',signal:'orange'},
+ {day:'7일차',label:'특이민원 위험',quote:'"수정될 때까지 계속 연락하겠습니다."',why:'반복 연락 예고가 있어 특이민원 위험으로 봅니다.',teacher:'개인 대응 중단, 민원대응팀·학교장에게 즉시 공유',team:'Level 5. 교육지원청 지원 요청 및 반복민원·종결·제한 조치 검토',signal:'red'}]},
 {title:'사건 파일 #021 · 생활지도',turning:2,days:[
- {day:'1일차',label:'상담',quote:'“아이가 수업 중 지적을 받아 많이 위축됐습니다.”',why:'학생 정서 상태를 공유하고 지원을 요청하는 상담입니다.',teacher:'학생 상태 확인, 생활지도 취지 설명, 지원 방안 논의',team:'개입 불필요',signal:'green'},
- {day:'2일차',label:'경계',quote:'“왜 공개적으로 지적했는지 구체적으로 설명해 주세요.”',why:'사실 확인과 불만이 포함됩니다. 기록이 필요합니다.',teacher:'사실관계 확인 후 상담 예약, 감정적 해명 금지',team:'Level 2. 불만 지속 여부 관찰',signal:'yellow'},
- {day:'4일차',label:'민원',quote:'“지도 방식이 부적절했습니다. 학교 차원의 답변을 주세요.”',why:'학교 책임과 공식 답변 요구가 포함되어 민원 단계입니다.',teacher:'민원대응팀 공유, 공식 창구 안내',team:'Level 3. 민원대응팀 검토와 답변 경로 결정',signal:'orange'},
- {day:'6일차',label:'민원',quote:'“담임교체를 요구합니다.”',why:'특정 교사에 대한 조치 요구로 교사 개인 대응 범위를 넘습니다.',teacher:'교사 단독 대응 금지, 민원대응팀 검토 후 학교장 총괄로 전환',team:'Level 4. 학교장 총괄 대응 검토',signal:'orange'}]},
+ {day:'1일차',label:'상담',quote:'"아이가 수업 중 지적을 받아 많이 위축됐습니다."',why:'학생 정서 상태를 공유하고 지원을 요청하는 상담입니다.',teacher:'학생 상태 확인, 생활지도 취지 설명, 지원 방안 논의',team:'개입 불필요',signal:'green'},
+ {day:'2일차',label:'경계',quote:'"왜 공개적으로 지적했는지 구체적으로 설명해 주세요."',why:'사실 확인과 불만이 포함됩니다. 기록이 필요합니다.',teacher:'사실관계 확인 후 상담 예약, 감정적 해명 금지',team:'Level 2. 불만 지속 여부 관찰',signal:'yellow'},
+ {day:'4일차',label:'민원',quote:'"지도 방식이 부적절했습니다. 학교 차원의 답변을 주세요."',why:'학교 책임과 공식 답변 요구가 포함되어 민원 단계입니다.',teacher:'민원대응팀 공유, 공식 창구 안내',team:'Level 3. 민원대응팀 검토와 답변 경로 결정',signal:'orange'},
+ {day:'6일차',label:'민원',quote:'"담임교체를 요구합니다."',why:'특정 교사에 대한 조치 요구로 교사 개인 대응 범위를 넘습니다.',teacher:'교사 단독 대응 금지, 민원대응팀 검토 후 학교장 총괄로 전환',team:'Level 4. 학교장 총괄 대응 검토',signal:'orange'}]},
 {title:'사건 파일 #032 · 친구 관계',turning:3,days:[
- {day:'1일차',label:'상담',quote:'“아이가 친구들과 잘 어울리지 못하는 것 같습니다.”',why:'학생의 교우관계 지원을 위한 상담입니다.',teacher:'상담 진행, 학생 관찰, 지원 계획 수립',team:'개입 불필요',signal:'green'},
- {day:'3일차',label:'상담+기록',quote:'“상대 아이와 무슨 일이 있었는지 자세히 알고 싶습니다.”',why:'사실 확인 요구가 있어 상담 기록이 필요합니다.',teacher:'확인 가능한 범위를 안내하고 상담 기록',team:'Level 1~2. 개인정보·학생지도 범위 유의',signal:'yellow'},
- {day:'5일차',label:'경계',quote:'“학교가 좀 더 적극적으로 지도했어야 하는 것 아닌가요?”',why:'학교 책임 주장으로 넘어가기 직전입니다.',teacher:'부장 공유 검토, 사실과 감정을 분리해 응대',team:'Level 2. 민원 전환 가능성 모니터링',signal:'yellow'},
- {day:'7일차',label:'민원',quote:'“상대 학생을 반드시 조치해 주세요.”',why:'학교에 특정 조치를 요구하므로 민원입니다.',teacher:'공식 절차 안내, 민원대응팀 공유',team:'Level 3. 사안 절차와 처리 주체 확인',signal:'orange'}]}
+ {day:'1일차',label:'상담',quote:'"아이가 친구들과 잘 어울리지 못하는 것 같습니다."',why:'학생의 교우관계 지원을 위한 상담입니다.',teacher:'상담 진행, 학생 관찰, 지원 계획 수립',team:'개입 불필요',signal:'green'},
+ {day:'3일차',label:'상담+기록',quote:'"상대 아이와 무슨 일이 있었는지 자세히 알고 싶습니다."',why:'사실 확인 요구가 있어 상담 기록이 필요합니다.',teacher:'확인 가능한 범위를 안내하고 상담 기록',team:'Level 1~2. 개인정보·학생지도 범위 유의',signal:'yellow'},
+ {day:'5일차',label:'경계',quote:'"학교가 좀 더 적극적으로 지도했어야 하는 것 아닌가요?"',why:'학교 책임 주장으로 넘어가기 직전입니다.',teacher:'부장 공유 검토, 사실과 감정을 분리해 응대',team:'Level 2. 민원 전환 가능성 모니터링',signal:'yellow'},
+ {day:'7일차',label:'민원',quote:'"상대 학생을 반드시 조치해 주세요."',why:'학교에 특정 조치를 요구하므로 민원입니다.',teacher:'공식 절차 안내, 민원대응팀 공유',team:'Level 3. 사안 절차와 처리 주체 확인',signal:'orange'}]}
 ];
+
 let currentIncident=0;let currentIncidentDay=0;
-function signalClass(label){if(label.includes('상담')&&!label.includes('기록'))return 'green'; if(label.includes('경계')||label.includes('기록'))return 'yellow'; if(label.includes('민원')&&!label.includes('특이'))return 'orange'; return 'red'}
-function renderIncident(){const file=incidentFiles[currentIncident];const d=file.days[currentIncidentDay];incidentSignal.innerHTML=['상담','경계','민원','특이민원'].map(x=>{let active=(x==='상담'&&d.label==='상담')||(x==='경계'&&(d.label.includes('경계')||d.label.includes('기록')))||(x==='민원'&&d.label==='민원')||(x==='특이민원'&&d.label.includes('특이'));let cls=x==='상담'?'green':x==='경계'?'yellow':x==='민원'?'orange':'red';return `<div class="signalStep ${cls} ${active?'active':''}">${x}</div>`}).join('');incidentList.innerHTML=`<h3>${file.title}</h3>`+file.days.map((x,i)=>`<div class="incidentDay ${i===currentIncidentDay?'active':''}" onclick="selectIncidentDay(${i})"><b>${x.day} · ${x.label}</b><span>${x.quote}</span></div>`).join('');incidentPanel.innerHTML=`<span class="tag ${tagClass(d.label.includes('특이')?'특이민원 가능':d.label.includes('민원')?'민원':d.label.includes('경계')||d.label.includes('기록')?'경계':'상담',50)}">${d.label}</span><div class="incidentQuote">${d.quote}</div><div class="why"><b>왜?</b><br>${d.why}</div><div class="actionGrid"><div class="actionBox teacherBox"><b>교사 행동</b><br>${d.teacher}</div><div class="actionBox teamBox teamOnly"><b>민원대응팀</b><br>${d.team}</div></div><div class="modeHint">질문: 이 사건 파일에서 <b>어느 시점부터 민원</b>으로 보아야 할까요?</div><div class="whenBtns">${file.days.map((x,i)=>`<button onclick="judgeIncident(${i},this)">${x.day}</button>`).join('')}</div><div id="incidentFeedback" class="incidentFeedback result"></div>`}
-function selectIncidentDay(i){currentIncidentDay=i;renderIncident()}
+
+function renderIncident(){
+  const file=incidentFiles[currentIncident];
+  const d=file.days[currentIncidentDay];
+  incidentSignal.innerHTML=['상담','경계','민원','특이민원'].map(x=>{
+    let active=(x==='상담'&&d.label==='상담')||(x==='경계'&&(d.label.includes('경계')||d.label.includes('기록')))||(x==='민원'&&d.label==='민원')||(x==='특이민원'&&d.label.includes('특이'));
+    let cls=x==='상담'?'green':x==='경계'?'yellow':x==='민원'?'orange':'red';
+    return `<div class="signalStep ${cls} ${active?'active':''}">${x}</div>`;
+  }).join('');
+  incidentList.innerHTML=`<h3>${file.title}</h3>`+file.days.map((x,i)=>`<div class="incidentDay ${i===currentIncidentDay?'active':''}" onclick="selectIncidentDay(${i})"><b>${x.day} · ${x.label}</b><span>${x.quote}</span></div>`).join('');
+  incidentPanel.innerHTML=`<span class="tag ${tagClass(d.label.includes('특이')?'특이민원 가능':d.label.includes('민원')?'민원':d.label.includes('경계')||d.label.includes('기록')?'경계':'상담',50)}">${d.label}</span><div class="incidentQuote">${d.quote}</div><div class="why"><b>왜?</b><br>${d.why}</div><div class="actionGrid"><div class="actionBox teacherBox"><b>교사 행동</b><br>${d.teacher}</div><div class="actionBox teamBox teamOnly"><b>민원대응팀</b><br>${d.team}</div></div><div class="modeHint">질문: 이 사건 파일에서 <b>어느 시점부터 민원</b>으로 보아야 할까요?</div><div class="whenBtns">${file.days.map((x,i)=>`<button onclick="judgeIncident(${i},this)">${x.day}</button>`).join('')}</div><div id="incidentFeedback" class="incidentFeedback result"></div>`;
+}
+
+function selectIncidentDay(i){
+  currentIncidentDay=i;
+  renderIncident();
+  // 모바일: 패널로 자동 스크롤
+  if(window.innerWidth<=860){
+    setTimeout(()=>{
+      const panel=document.getElementById('incidentPanel');
+      if(panel) panel.scrollIntoView({behavior:'smooth',block:'start'});
+    },50);
+  }
+}
 function nextIncident(){currentIncident=(currentIncident+1)%incidentFiles.length;currentIncidentDay=0;renderIncident()}
-function judgeIncident(i,btn){document.querySelectorAll('.whenBtns button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');const f=incidentFiles[currentIncident];const ok=i===f.turning;const fb=document.getElementById('incidentFeedback');fb.className='incidentFeedback result show';fb.innerHTML=`<b>${ok?'좋은 판단입니다.':'조금 조정이 필요합니다.'}</b><br>권장 답: <b>${f.days[f.turning].day}</b>부터 민원으로 봅니다.<br><span class="note">핵심은 단순 불만이 아니라 공식 답변·조치·결과 변경 등 학교의 특정 행위를 요구하는 순간입니다.</span>`}
+function judgeIncident(i,btn){
+  document.querySelectorAll('.whenBtns button').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const f=incidentFiles[currentIncident];
+  const ok=i===f.turning;
+  const fb=document.getElementById('incidentFeedback');
+  fb.className='incidentFeedback result show';
+  fb.innerHTML=`<b>${ok?'좋은 판단입니다.':'조금 조정이 필요합니다.'}</b><br>권장 답: <b>${f.days[f.turning].day}</b>부터 민원으로 봅니다.<br><span class="note">핵심은 단순 불만이 아니라 공식 답변·조치·결과 변경 등 학교의 특정 행위를 요구하는 순간입니다.</span>`;
+}
 
+// ── 발전 지도 렌더링
 let currentBoundary=0;
-function nodeHTML(tagClass,tag,title,quote,why,teacher,team,extra=''){
-return `<div class="branchNode ${extra}"><div class="branchTop"><span class="tag ${tagClass}">${tag}</span><b>${title}</b></div><div class="branchQuote">${quote}</div><div class="why"><b>왜?</b><br>${why}</div><div class="actionGrid"><div class="actionBox teacherBox"><b>교사 행동</b><br>${teacher}</div><div class="actionBox teamBox teamOnly"><b>민원대응팀</b><br>${team}</div></div></div>`
+function nodeHTML(tagCls,tag,title,quote,why,teacher,team,extra=''){
+  return `<div class="branchNode ${extra}"><div class="branchTop"><span class="tag ${tagCls}">${tag}</span><b>${title}</b></div><div class="branchQuote">${quote}</div><div class="why"><b>왜?</b><br>${why}</div><div class="actionGrid"><div class="actionBox teacherBox"><b>교사 행동</b><br>${teacher}</div><div class="actionBox teamBox teamOnly"><b>민원대응팀</b><br>${team}</div></div></div>`;
 }
-function setBoundaryScenario(idx,btn){currentBoundary=idx;document.querySelectorAll('.scenarioNav button').forEach(b=>b.classList.remove('active')); if(btn)btn.classList.add('active'); renderBoundary('start')}
+function setBoundaryScenario(idx,btn){currentBoundary=idx;document.querySelectorAll('.scenarioNav button').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderBoundary('start')}
 function renderBoundary(path='start'){
-const b=boundaryScenarios[currentBoundary];
-let html=nodeHTML('t-green','상담 출발','출발점',b.start,b.startWhy,'상담을 진행하고 학생 지원 방안을 확인합니다.','개입 불필요. 조치 요구가 추가되는지 지켜봅니다.','main');
-html += '<div class="branchChoice"><button class="pathBtn '+(path==='end'?'active':'')+'" onclick="renderBoundary(\'end\')">① 상담으로 종결되는 경우 보기</button><button class="pathBtn '+(path!=='end'?'active':'')+'" onclick="renderBoundary(\'edge\')">② 경계 단계로 가는 경우 보기</button></div>';
-if(path==='end'){
-html += nodeHTML('t-green','상담 종결','좋은 종결',b.supportEnd,b.supportWhy,'상담 기록을 간단히 남기고 학생 지원을 이어갑니다.','개입 불필요. 반복 문의가 생길 때만 공유받습니다.');
-}else{
-html += nodeHTML('t-blue','상담+기록','불만이 섞인 상담',b.edge,b.edgeWhy,'감정적 반응을 피하고 사실 확인 내용, 안내 내용을 기록합니다. 필요 시 부장에게 공유합니다.','즉시 개입보다는 모니터링. 같은 내용 반복 또는 조치 요구가 생기면 전환합니다.');
-html += '<div class="branchChoice"><button class="pathBtn '+(path==='return'?'active':'')+'" onclick="renderBoundary(\'return\')">③ 상담으로 다시 돌아가는 경우</button><button class="pathBtn '+(path==='complaint'||path==='demand'||path==='special'?'active':'')+'" onclick="renderBoundary(\'complaint\')">④ 민원으로 전환되는 경우</button></div>';
-if(path==='return'){
-html += nodeHTML('t-green','상담 복귀','상담으로 회복',b.returnText,b.returnWhy,'상담을 마무리하고 학생 지원 계획을 공유합니다.','개입 불필요. 단, 상담 기록은 남기는 편이 안전합니다.');
-}else{
-html += nodeHTML('t-yellow','경계→민원','책임 주장 시작',b.complaint,b.complaintWhy,'혼자 판단하지 말고 부장·관리자와 공유를 검토합니다.','공식 창구 안내 필요성을 검토합니다. 사실관계와 요구 내용을 분리합니다.');
-html += '<div class="branchChoice"><button class="pathBtn '+(path==='demand'?'active':'')+'" onclick="renderBoundary(\'demand\')">⑤ 특정 조치 요구까지 진행</button><button class="pathBtn '+(path==='special'?'active':'')+'" onclick="renderBoundary(\'special\')">⑥ 반복·협박 등 위험 신호</button></div>';
-if(path==='demand'){
-html += nodeHTML('t-orange','민원','특정 행위 요구',b.demand,b.demandWhy,'공식 절차를 안내하고 개인 답변으로 종결하려 하지 않습니다. 민원대응팀에 공유합니다.','민원 유형, 담당자 협조, 답변 방식, 처리 기록을 정합니다.');
-}else if(path==='special'){
-html += nodeHTML('t-red','특이민원 위험','개인 대응 중단',b.special,b.specialWhy,'즉시 관리자·민원대응팀에 알리고 통화를 계속 이어가지 않습니다.','기록 확보, 종결 안내, 제한 조치, 필요 시 보호 조치를 검토합니다.');
-}
-}
-}
-boundaryMap.innerHTML=html;
+  const b=boundaryScenarios[currentBoundary];
+  let html=nodeHTML('t-green','상담 출발','출발점',b.start,b.startWhy,'상담을 진행하고 학생 지원 방안을 확인합니다.','개입 불필요. 조치 요구가 추가되는지 지켜봅니다.','main');
+  html+='<div class="branchChoice"><button class="pathBtn '+(path==='end'?'active':'')+'" onclick="renderBoundary(\'end\')">① 상담으로 종결되는 경우 보기</button><button class="pathBtn '+(path!=='end'?'active':'')+'" onclick="renderBoundary(\'edge\')">② 경계 단계로 가는 경우 보기</button></div>';
+  if(path==='end'){
+    html+=nodeHTML('t-green','상담 종결','좋은 종결',b.supportEnd,b.supportWhy,'상담 기록을 간단히 남기고 학생 지원을 이어갑니다.','개입 불필요. 반복 문의가 생길 때만 공유받습니다.');
+  }else{
+    html+=nodeHTML('t-blue','상담+기록','불만이 섞인 상담',b.edge,b.edgeWhy,'감정적 반응을 피하고 사실 확인 내용, 안내 내용을 기록합니다. 필요 시 부장에게 공유합니다.','즉시 개입보다는 모니터링. 같은 내용 반복 또는 조치 요구가 생기면 전환합니다.');
+    html+='<div class="branchChoice"><button class="pathBtn '+(path==='return'?'active':'')+'" onclick="renderBoundary(\'return\')">③ 상담으로 다시 돌아가는 경우</button><button class="pathBtn '+(path==='complaint'||path==='demand'||path==='special'?'active':'')+'" onclick="renderBoundary(\'complaint\')">④ 민원으로 전환되는 경우</button></div>';
+    if(path==='return'){
+      html+=nodeHTML('t-green','상담 복귀','상담으로 회복',b.returnText,b.returnWhy,'상담을 마무리하고 학생 지원 계획을 공유합니다.','개입 불필요. 단, 상담 기록은 남기는 편이 안전합니다.');
+    }else{
+      html+=nodeHTML('t-yellow','경계→민원','책임 주장 시작',b.complaint,b.complaintWhy,'혼자 판단하지 말고 부장·관리자와 공유를 검토합니다.','공식 창구 안내 필요성을 검토합니다. 사실관계와 요구 내용을 분리합니다.');
+      html+='<div class="branchChoice"><button class="pathBtn '+(path==='demand'?'active':'')+'" onclick="renderBoundary(\'demand\')">⑤ 특정 조치 요구까지 진행</button><button class="pathBtn '+(path==='special'?'active':'')+'" onclick="renderBoundary(\'special\')">⑥ 반복·협박 등 위험 신호</button></div>';
+      if(path==='demand'){
+        html+=nodeHTML('t-orange','민원','특정 행위 요구',b.demand,b.demandWhy,'공식 절차를 안내하고 개인 답변으로 종결하려 하지 않습니다. 민원대응팀에 공유합니다.','민원 유형, 담당자 협조, 답변 방식, 처리 기록을 정합니다.');
+      }else if(path==='special'){
+        html+=nodeHTML('t-red','특이민원 위험','개인 대응 중단',b.special,b.specialWhy,'즉시 관리자·민원대응팀에 알리고 통화를 계속 이어가지 않습니다.','기록 확보, 종결 안내, 제한 조치, 필요 시 보호 조치를 검토합니다.');
+      }
+    }
+  }
+  boundaryMap.innerHTML=html;
 }
 
-
+// ── 사례 카드
 function radarValues(c){
- const text=(c.text+' '+c.why.join(' ')+' '+c.next);
- return {
-  '조치 요구':/(요구|수정|교체|처벌|공식|변경|다시 처리)/.test(text)?80:c.ans==='민원'?65:20,
-  '책임 주장':/(책임|부당|잘못|문제|억울)/.test(text)?70:c.ans==='경계'?35:10,
-  '반복 요구':/(계속|매일|반복|장시간|전화)/.test(text)?85:c.intervention.includes('즉시')?45:15,
-  '폭언·압박':/(가만두지|협박|폭언|압박|신고)/.test(text)?75:c.temp>90?65:10,
-  '교육활동 침해':/(교체|반복|계속|개인|협박|폭언)/.test(text)?70:c.infringe==='가능'?45:10
- }
+  const text=(c.text+' '+c.why.join(' ')+' '+c.next);
+  return {
+    '조치 요구':/(요구|수정|교체|처벌|공식|변경|다시 처리)/.test(text)?80:c.ans==='민원'?65:20,
+    '책임 주장':/(책임|부당|잘못|문제|억울)/.test(text)?70:c.ans==='경계'?35:10,
+    '반복 요구':/(계속|매일|반복|장시간|전화)/.test(text)?85:c.intervention.includes('즉시')?45:15,
+    '폭언·압박':/(가만두지|협박|폭언|압박|신고)/.test(text)?75:c.temp>90?65:10,
+    '교육활동 침해':/(교체|반복|계속|개인|협박|폭언)/.test(text)?70:c.infringe==='가능'?45:10
+  };
 }
 function situationRoom(c){
- const vals=radarValues(c);
- const timing=c.level==='Level 1'?'개입 불필요':c.level==='Level 2'?'부장 공유 권장':c.level==='Level 3'?'민원대응팀 검토':c.level==='Level 4'?'학교장 총괄 대응': '교육지원청 지원 요청 검토';
- const currentOrg=c.level==='Level 1'?'담임':c.level==='Level 2'?'부장교사':c.level==='Level 3'?'민원대응팀':c.level==='Level 4'?'학교장': '교육지원청';
- const orgFlow=['담임','부장교사','민원대응팀','학교장','교육지원청'];
- const action=c.level==='Level 1'?'상담 진행, 간단 기록':c.level==='Level 2'?'부장 공유, 기록 보강':c.level==='Level 3'?'교감 포함 민원대응팀 검토, 공식 창구·답변 경로 결정':c.level==='Level 4'?'학교장 총괄, 반복·부당 요구 대응 방침 결정':'교육지원청 지원 요청, 법률·분쟁 조정 검토';
- const path=c.ans==='상담'?['상담','지원 후 종결 가능']:c.ans==='경계'?['상담','경계','민원 전환 관찰']:c.ans==='민원'?['민원','민원대응팀 검토','종결 또는 반복 관찰']:['특이민원 위험','학교장 총괄','교육지원청 지원 검토'];
- return `<div class="situationRoom teamOnly"><h4>🏢 민원대응팀 상황실</h4><div class="radarGrid">${Object.entries(vals).map(([k,v])=>`<div class="radarRow"><span>${k}</span><div class="barTrack"><div class="barFill" style="width:${v}%"></div></div><b>${v}</b></div>`).join('')}</div><div class="orgFlow">${orgFlow.map(o=>`<span class="${o===currentOrg?'active':''}">${o}</span>`).join('')}</div><div class="teamMiniGrid"><div class="teamMiniCard"><small>개입 타이밍</small>${timing}</div><div class="teamMiniCard"><small>필요 행동</small>${action}</div><div class="teamMiniCard"><small>종결 가능성</small>${c.close}</div><div class="teamMiniCard"><small>교육활동 침해</small>${c.infringe}</div></div><div class="pathPreview"><b>예상 경로</b>${path.map(p=>`<span>${p}</span>`).join('→')}</div></div>`
+  const vals=radarValues(c);
+  const timing=c.level==='Level 1'?'개입 불필요':c.level==='Level 2'?'부장 공유 권장':c.level==='Level 3'?'민원대응팀 검토':c.level==='Level 4'?'학교장 총괄 대응':'교육지원청 지원 요청 검토';
+  const currentOrg=c.level==='Level 1'?'담임':c.level==='Level 2'?'부장교사':c.level==='Level 3'?'민원대응팀':c.level==='Level 4'?'학교장':'교육지원청';
+  const orgFlow=['담임','부장교사','민원대응팀','학교장','교육지원청'];
+  const action=c.level==='Level 1'?'상담 진행, 간단 기록':c.level==='Level 2'?'부장 공유, 기록 보강':c.level==='Level 3'?'교감 포함 민원대응팀 검토, 공식 창구·답변 경로 결정':c.level==='Level 4'?'학교장 총괄, 반복·부당 요구 대응 방침 결정':'교육지원청 지원 요청, 법률·분쟁 조정 검토';
+  const path=c.ans==='상담'?['상담','지원 후 종결 가능']:c.ans==='경계'?['상담','경계','민원 전환 관찰']:c.ans==='민원'?['민원','민원대응팀 검토','종결 또는 반복 관찰']:['특이민원 위험','학교장 총괄','교육지원청 지원 검토'];
+  return `<div class="situationRoom teamOnly"><h4>🏢 민원대응팀 상황실</h4><div class="radarGrid">${Object.entries(vals).map(([k,v])=>`<div class="radarRow"><span>${k}</span><div class="barTrack"><div class="barFill" style="width:${v}%"></div></div><b>${v}</b></div>`).join('')}</div><div class="orgFlow">${orgFlow.map(o=>`<span class="${o===currentOrg?'active':''}">${o}</span>`).join('')}</div><div class="teamMiniGrid"><div class="teamMiniCard"><small>개입 타이밍</small>${timing}</div><div class="teamMiniCard"><small>필요 행동</small>${action}</div><div class="teamMiniCard"><small>종결 가능성</small>${c.close}</div><div class="teamMiniCard"><small>교육활동 침해</small>${c.infringe}</div></div><div class="pathPreview"><b>예상 경로</b>${path.map(p=>`<span>${p}</span>`).join('→')}</div></div>`;
 }
 
 let caseFilter='전체';
-function tagClass(ans,temp){return ans==='상담'?'t-green':ans==='경계'?'t-yellow':ans==='민원'?'t-orange':'t-red'}
-function filterCases(type,btn){caseFilter=type;document.querySelectorAll('.filterBtn').forEach(b=>b.classList.remove('active')); if(btn)btn.classList.add('active'); renderCases()}
+function tagClass(ans){return ans==='상담'?'t-green':ans==='경계'?'t-yellow':ans==='민원'?'t-orange':'t-red'}
+function filterCases(type,btn){caseFilter=type;document.querySelectorAll('.filterBtn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderCases()}
 function renderCases(){
   caseList.innerHTML='';
   const list=cases.filter(c=>caseFilter==='전체'||c.ans===caseFilter);
   list.forEach((c)=>{
     const i=cases.indexOf(c);
     let div=document.createElement('div');div.className='caseCard';div.onclick=()=>openCase(i);
-    div.innerHTML=`<span class="tag ${tagClass(c.ans,c.temp)}">${c.ans}</span><span class="difficulty"> 난이도 <b>${c.difficulty}</b></span><span class="levelBadge">${c.level}</span><h3>${c.t}</h3><p>${c.text}</p><div class="caseMeta"><span class="miniTag">온도 ${c.temp}도</span><span class="miniTag">${c.level}</span><span class="miniTag">${c.owner}</span></div>`;
-    caseList.appendChild(div)
+    div.innerHTML=`<span class="tag ${tagClass(c.ans)}">${c.ans}</span><span class="difficulty"> 난이도 <b>${c.difficulty}</b></span><h3>${c.t}</h3><p>${c.text}</p><div class="caseMeta"><span class="miniTag">온도 ${c.temp}도</span><span class="miniTag">${c.level}</span><span class="miniTag">${c.owner}</span></div>`;
+    caseList.appendChild(div);
   });
-  if(!list.length) caseList.innerHTML='<div class="mini">해당 사례가 없습니다.</div>'
+  if(!list.length) caseList.innerHTML='<div class="mini">해당 사례가 없습니다.</div>';
 }
 function openCase(i){
- const c=cases[i];
- caseList.innerHTML=`<div class="caseCard" style="grid-column:1/-1;cursor:auto"><div class="caseDetailGrid"><div><span class="tag ${tagClass(c.ans,c.temp)}">${c.ans}</span><span class="difficulty"> 난이도 <b>${c.difficulty}</b></span><span class="levelBadge">${c.level}</span><h3>${c.t}</h3><div class="scenario">${c.text}</div><b>상담·민원 온도: ${c.temp}도</b><div class="temp"><div class="needle" style="left:${c.temp}%"></div></div><div class="tempLabels"><span>상담</span><span>경계</span><span>민원</span><span>특이 가능</span></div></div><div class="judgePanel"><h3>1단계: 먼저 판단해 보세요</h3><p class="sub">정답을 바로 보지 말고, 일반 교사 입장에서 먼저 고르세요.</p><div class="judgeBtns"><button onclick="judgeCase(${i},'상담',this)">🟢 상담</button><button onclick="judgeCase(${i},'경계',this)">🟡 경계</button><button onclick="judgeCase(${i},'민원',this)">🔴 민원</button></div><div id="caseFeedback" class="caseFeedback"></div></div></div><div class="caseFooterBtns"><button class="btn light" onclick="renderCases()">목록으로</button><button class="btn light" onclick="newCase()">다른 사례</button></div></div>`
+  const c=cases[i];
+  caseList.innerHTML=`<div class="caseCard" style="grid-column:1/-1;cursor:auto"><div class="caseDetailGrid"><div><span class="tag ${tagClass(c.ans)}">${c.ans}</span><span class="difficulty"> 난이도 <b>${c.difficulty}</b></span><h3>${c.t}</h3><div class="scenario">${c.text}</div><b>상담·민원 온도: ${c.temp}도</b><div class="temp"><div class="needle" style="left:${c.temp}%"></div></div><div class="tempLabels"><span>상담</span><span>경계</span><span>민원</span><span>특이 가능</span></div></div><div class="judgePanel"><h3>먼저 판단해 보세요</h3><p class="sub">정답을 바로 보지 말고, 일반 교사 입장에서 먼저 고르세요.</p><div class="judgeBtns"><button onclick="judgeCase(${i},'상담',this)">🟢 상담</button><button onclick="judgeCase(${i},'경계',this)">🟡 경계</button><button onclick="judgeCase(${i},'민원',this)">🔴 민원</button></div><div id="caseFeedback" class="caseFeedback"></div></div></div><div class="caseFooterBtns"><button class="btn light" onclick="renderCases()">목록으로</button><button class="btn light" onclick="newCase()">다른 사례</button></div></div>`;
 }
 function judgeCase(i,choice,btn){
- const c=cases[i];
- document.querySelectorAll('.judgeBtns button').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected');
- const correct=(choice===c.ans)||(choice==='민원'&&c.ans==='특이민원 가능');
- const fb=document.getElementById('caseFeedback'); fb.className='caseFeedback show';
- fb.innerHTML=`<div class="result show" style="margin-top:0"><b>${correct?'판단 좋습니다.':'조금 더 살펴보세요.'}</b><br>권장 판정: <b>${c.ans}</b><div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div><div class="teacher"><b>2단계: 교사 1차 행동</b><br>${c.teacher}</div><div class="team teamOnly"><b>3단계: 민원대응팀 판단</b><br>${c.team}<div class="teamDecision"><div class="decisionItem"><small>개입 수준</small>${c.level}</div><div class="decisionItem"><small>민원 유형</small>${c.type}</div><div class="decisionItem"><small>처리 주체</small>${c.owner}</div><div class="decisionItem"><small>공식 창구</small>${c.official}</div><div class="decisionItem"><small>종결 가능성</small>${c.close}</div><div class="decisionItem"><small>교육활동 침해</small>${c.infringe}</div></div><div class="teamQuestion"><b>지원 요청 판단</b><br>${c.support}</div></div>${situationRoom(c)}<div class="nextQuestion"><b>민원으로 바뀌는 다음 신호</b><br>${c.next}</div></div>`
+  const c=cases[i];
+  document.querySelectorAll('.judgeBtns button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');
+  const correct=(choice===c.ans)||(choice==='민원'&&c.ans==='특이민원 가능');
+  setHeaderState(c.ans);
+  const fb=document.getElementById('caseFeedback');fb.className='caseFeedback show';
+  fb.innerHTML=`<div class="result show ${correct?'correct':'wrong'}" style="margin-top:0"><b>${correct?'✅ 판단 좋습니다.':'다시 살펴보세요.'}</b><br>권장 판정: <b>${c.ans}</b><div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div><div class="teacher"><b>교사 1차 행동</b><br>${c.teacher}</div><div class="team teamOnly"><b>민원대응팀 판단</b><br>${c.team}<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px"><div style="background:#f8fafc;border-radius:12px;padding:10px;font-size:13px"><small style="color:#667085;display:block">개입 수준</small>${c.level}</div><div style="background:#f8fafc;border-radius:12px;padding:10px;font-size:13px"><small style="color:#667085;display:block">처리 주체</small>${c.owner}</div><div style="background:#f8fafc;border-radius:12px;padding:10px;font-size:13px"><small style="color:#667085;display:block">종결 가능성</small>${c.close}</div></div></div>${situationRoom(c)}<div class="nextQuestion"><b>민원으로 바뀌는 다음 신호</b><br>${c.next}</div></div>`;
 }
 function newCase(){
- const list=cases.filter(c=>caseFilter==='전체'||c.ans===caseFilter);
- const c=list[Math.floor(Math.random()*list.length)]||cases[0];
- openCase(cases.indexOf(c))
+  const list=cases.filter(c=>caseFilter==='전체'||c.ans===caseFilter);
+  const c=list[Math.floor(Math.random()*list.length)]||cases[0];
+  openCase(cases.indexOf(c));
 }
+
+// ── 퀴즈 (수동 전환으로 개선)
 let quizStep=0;let quizAnswers={};
 const quizSteps=[
   {key:'judge',title:'1단계: 현재 상태 판정',desc:'이 상황을 교사 입장에서 먼저 분류하세요.',options:['상담','경계','민원','특이민원 가능']},
@@ -375,19 +1590,14 @@ function expectedQuiz(c,key){
     return '즉시 개입';
   }
 }
-
 function optionDesc(key,o){
   const map={
-    classify:{'상담':'학생 지원 중심의 대화','경계':'민원 전환 가능성이 있는 상황','민원':'조치·시정·공식 답변 요구','특이민원':'반복·폭언·부당요구 등 위험 신호'},
-    reason:{'학생 지원 목적':'아이의 성장·생활 지원이 중심','특정 조치 요구':'학교에 행동·변경을 요구','학교 책임 주장':'책임 소재를 따지는 표현','반복·압박 신호':'동일 요구 반복 또는 압박'},
+    judge:{'상담':'학생 지원 중심의 대화','경계':'민원 전환 가능성이 있는 상황','민원':'조치·시정·공식 답변 요구','특이민원 가능':'반복·폭언·부당요구 등 위험 신호'},
+    signal:{'학생 지원 목적':'아이의 성장·생활 지원이 중심','사실 확인·설명 요구':'내용을 확인하려는 요구','특정 조치·결과 변경 요구':'학교에 행동·변경을 요구','반복·폭언·압박 신호':'동일 요구 반복 또는 압박'},
     teacherAction:{'상담 진행':'교사가 상담을 계속 진행','상담 진행 + 기록':'경계 상황이므로 기록 병행','공식 창구 안내 + 민원대응팀 공유':'민원 전환 가능성에 대비','개인 대응 중단 + 즉시 보고':'특이민원 위험 시 즉시 중단'},
-    teamAction:{'Level1 담임 자율':'담임이 자율 상담·안내','Level2 부장 공유':'사실 확인 및 내용 공유','Level3 민원대응팀 검토':'팀 단위 검토와 대응 방향 결정','Level4 학교장 총괄':'반복·부당 요구 등 기관 대응'}
+    teamAction:{'개입 불필요':'담임이 자율 상담·안내','공유 검토':'사실 확인 및 내용 공유','즉시 공유':'팀 단위 검토와 대응 방향 결정','즉시 개입':'반복·부당 요구 등 기관 대응'}
   };
   return (map[key]&&map[key][o])?map[key][o]:'선택 후 해설을 확인합니다';
-}
-
-function showQuizIntro(){
-  quizBox.innerHTML=`<div class="quizFeedbackPanel"><div class="quizBadgeBig">🎯</div><b>퀴즈 방식</b><br>한 사례마다 4개 질문을 풉니다. ① 상담/경계/민원 판정 ② 판단 신호 ③ 교사 행동 ④ 민원대응팀 개입 수준을 차례로 고릅니다.<div class="quizExplain"><div class="teacher"><b>교사 연습</b><br>혼자 상담을 계속할지, 기록할지, 공유할지 판단합니다.</div><div class="team teamOnly"><b>민원대응팀 연습</b><br>개입 수준·처리 주체·종결 가능성까지 함께 확인합니다.</div></div></div>`
 }
 function startQuiz(){quiz=[...cases].sort(()=>Math.random()-.5).slice(0,5);qi=0;score=0;quizStep=0;quizAnswers={};showQuiz()}
 function showQuiz(){
@@ -396,29 +1606,55 @@ function showQuiz(){
     const max=quiz.length*quizSteps.length;
     const title=score>=18?'민원 대응 전문가':score>=14?'경계 판단 우수':score>=10?'분류 연습생':'다시 연습 필요';
     quizBox.innerHTML=`<div class="result show"><div class="quizBadgeBig">🏁</div><b>퀴즈 완료: ${title}</b><br>${score}/${max}점입니다.<br><span class="note">정답보다 중요한 것은 판정 근거와 다음 행동까지 연결하는 것입니다.</span></div>`;
-    return
+    return;
   }
-  let c=quiz[qi], st=quizSteps[quizStep];
+  let c=quiz[qi],st=quizSteps[quizStep];
   let progress=((qi*quizSteps.length+quizStep)/(quiz.length*quizSteps.length))*100;
-  quizBox.innerHTML=`<div class="quizStepHeader"><b>${qi+1}/${quiz.length}번 사례 · ${quizStep+1}/4</b><span class="tag ${tagClass(c.ans,c.temp)}">${c.ans}</span></div><div class="quizProgress"><span style="width:${progress}%"></span></div><div class="scenario">${c.text}</div><div class="quizQuestion"><h3>${st.title}</h3><p class="sub">${st.desc}</p><div class="multiChoices">${st.options.map(o=>`<button class="quiz-option" onclick="quizAns('${o.replace(/'/g,"\'")}',this)"><span>${o}</span><small>${optionDesc(st.key,o)}</small></button>`).join('')}</div></div>`
+  quizBox.innerHTML=`<div class="quizStepHeader"><b>${qi+1}/${quiz.length}번 사례 · ${quizStep+1}/4단계</b><span class="tag ${tagClass(c.ans)}">${c.ans}</span></div><div class="quizProgress"><span style="width:${progress}%"></span></div><div class="scenario">${c.text}</div><div class="quizQuestion"><h3>${st.title}</h3><p class="sub">${st.desc}</p><div class="multiChoices">${st.options.map(o=>`<button class="quiz-option" onclick="quizAns('${o.replace(/'/g,"\\'")}',this)"><span>${o}</span><small>${optionDesc(st.key,o)}</small></button>`).join('')}</div></div>`;
 }
 function quizAns(a,btn){
-  let c=quiz[qi], st=quizSteps[quizStep], expected=expectedQuiz(c,st.key);
-  document.querySelectorAll('.multiChoices button').forEach(b=>b.classList.remove('selected')); if(btn)btn.classList.add('selected');
-  const correct=a===expected || (st.key==='judge'&&a==='민원'&&c.ans==='특이민원 가능');
+  // 이미 선택된 경우 무시
+  if(quizBox.querySelector('.quizNextBtn')) return;
+  let c=quiz[qi],st=quizSteps[quizStep],expected=expectedQuiz(c,st.key);
+  document.querySelectorAll('.multiChoices button').forEach(b=>{b.disabled=true;b.style.cursor='default'});
+  if(btn) btn.classList.add('selected');
+  const correct=a===expected||(st.key==='judge'&&a==='민원'&&c.ans==='특이민원 가능');
+  // 오답일 때 정답 표시
+  if(!correct){
+    document.querySelectorAll('.multiChoices button').forEach(b=>{
+      if(b.querySelector('span')&&b.querySelector('span').textContent===expected) b.classList.add('selected');
+      else if(b===btn) b.classList.add('wrong-answer');
+    });
+  }
   if(correct) score++;
   quizAnswers[st.key]=a;
   const fb=document.createElement('div');fb.className='quizFeedbackPanel';
-  fb.innerHTML=`<b>${correct?'좋은 판단입니다.':'다시 생각해 볼 지점이 있습니다.'}</b><br>권장 답: <b>${expected}</b><div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div>`;
+  fb.innerHTML=`<b>${correct?'✅ 좋은 판단입니다.':'❌ 다시 생각해 볼 지점이 있습니다.'}</b><br>권장 답: <b>${expected}</b><div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div>`;
   quizBox.appendChild(fb);
-  setTimeout(()=>{quizStep++; if(quizStep>=quizSteps.length){showQuizSummary(c)}else{showQuiz()}},850)
+  // 수동 전환 버튼
+  const nextBtn=document.createElement('button');
+  nextBtn.className='quizNextBtn';
+  const isLastStep=quizStep>=quizSteps.length-1;
+  const isLastCase=qi>=quiz.length-1;
+  nextBtn.textContent=isLastStep?(isLastCase?'퀴즈 결과 보기 →':'다음 사례로 →'):'다음 질문으로 →';
+  nextBtn.onclick=()=>{
+    quizStep++;
+    if(quizStep>=quizSteps.length){showQuizSummary(c);}
+    else{showQuiz();}
+  };
+  quizBox.appendChild(nextBtn);
 }
 function showQuizSummary(c){
-  quizBox.innerHTML=`<div class="scenario">${c.text}</div><div class="quizFeedbackPanel"><b>사례 정리</b><br>권장 판정: <b>${c.ans}</b><div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div><div class="quizExplain"><div class="teacher"><b>교사 행동</b><br>${c.teacher}</div><div class="team"><b>민원대응팀 판단</b><br>${c.team}<div class="teamDecision"><div class="decisionItem"><small>개입 수준</small>${c.level}</div><div class="decisionItem"><small>처리 주체</small>${c.owner}</div><div class="decisionItem"><small>종결 가능성</small>${c.close}</div><div class="decisionItem"><small>교육활동 침해</small>${c.infringe}</div></div></div></div>${situationRoom(c)}<div class="nextQuestion"><b>다음 위험 신호</b><br>${c.next}</div></div><div class="quizBtns"><button class="btn" onclick="nextQuizCase()">다음 사례</button></div>`
+  quizBox.innerHTML=`<div class="scenario">${c.text}</div><div class="quizFeedbackPanel"><b>사례 정리</b><br>권장 판정: <b>${c.ans}</b><div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div><div class="quizExplain"><div class="teacher"><b>교사 행동</b><br>${c.teacher}</div><div class="team"><b>민원대응팀 판단</b><br>${c.team}</div></div>${situationRoom(c)}<div class="nextQuestion"><b>다음 위험 신호</b><br>${c.next}</div></div><button class="quizNextBtn" onclick="nextQuizCase()">다음 사례로 →</button>`;
 }
 function nextQuizCase(){qi++;quizStep=0;quizAnswers={};showQuiz()}
-function loadProgress(){bestScore.textContent=localStorage.bestScore||0;tryCount.textContent=localStorage.tryCount||0;let b=Number(localStorage.bestScore||0);badge.textContent=b>=18?'전문가':b>=14?'경계 판단 우수':b>=10?'분류 연습생':'-' }
+function loadProgress(){bestScore.textContent=localStorage.bestScore||0;tryCount.textContent=localStorage.tryCount||0;let b=Number(localStorage.bestScore||0);badge.textContent=b>=18?'전문가':b>=14?'경계 판단 우수':b>=10?'분류 연습생':'-'}
 function resetProgress(){localStorage.removeItem('bestScore');localStorage.removeItem('tryCount');loadProgress()}
+
+function showQuizIntro(){
+  quizBox.innerHTML=`<div class="quizFeedbackPanel"><div class="quizBadgeBig">🎯</div><b>퀴즈 방식</b><br>한 사례마다 4개 질문을 풉니다. ① 상담/경계/민원 판정 ② 판단 신호 ③ 교사 행동 ④ 민원대응팀 개입 수준을 차례로 고릅니다.<br><br><b>선택 후 해설을 읽고 직접 다음 단계로 넘어갑니다.</b> 오답일 경우 정답이 강조 표시됩니다.<div class="quizExplain"><div class="teacher"><b>교사 연습</b><br>혼자 상담을 계속할지, 기록할지, 공유할지 판단합니다.</div><div class="team teamOnly"><b>민원대응팀 연습</b><br>개입 수준·처리 주체·종결 가능성까지 함께 확인합니다.</div></div></div>`;
+}
+
 renderBoundary();renderIncident();renderCases();loadProgress();showQuizIntro();
 </script>
 </body>
