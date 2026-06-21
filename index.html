@@ -192,6 +192,7 @@
     padding:28px;
     box-shadow:var(--shadow-md);
     position:relative;
+    color:var(--ink);
   }
   .heroCard::before {
     content:"오늘의 연습";
@@ -226,7 +227,7 @@
     align-items:center;
     flex-wrap:wrap;
   }
-  .heroNext .hintTxt { font-size:var(--fs-xs); color:var(--ink3); font-weight:600; }
+  .heroNext .hintTxt { font-size:var(--fs-xs); color:var(--ink2); font-weight:600; }
 
   /* ── 네비게이션 ── */
   nav {
@@ -375,10 +376,10 @@
   .choice small { display:block; font-weight:600; color:var(--ink2); margin-top:6px; font-size:var(--fs-xs); }
 
   /* ── 결과 박스 ── */
-  .result { display:none; margin-top:18px; border-radius:var(--r-card); padding:20px; line-height:1.65; font-size:var(--fs-sm); }
+  .result { display:none; margin-top:18px; border-radius:var(--r-card); padding:20px; line-height:1.65; font-size:var(--fs-sm); color:var(--ink); }
   .result.show { display:block; }
-  .result.correct { background:var(--sg-bg); border:1px solid var(--sg-bd); }
-  .result.wrong   { background:var(--so-bg); border:1px solid var(--so-bd); }
+  .result.correct { background:var(--sg-bg); border:1px solid var(--sg-bd); color:var(--sg-tx); }
+  .result.wrong   { background:var(--so-bg); border:1px solid var(--so-bd); color:var(--so-tx); }
   /* 기본(진단 결과 등) */
   .result:not(.correct):not(.wrong).show { background:var(--sg-bg); border:1px solid var(--sg-bd); }
 
@@ -1206,7 +1207,7 @@
   </div>
   <div class="card">
     <h2>자가진단 체크</h2>
-    <p class="sub">해당되는 항목을 체크하세요. AI 없이 브라우저 안에서만 판정합니다.</p>
+    <p class="sub">해당되는 항목을 체크하세요.</p>
     <div class="grid">
       <label class="mini"><input type="checkbox" class="check" data-type="support" value="-3"> 학생의 성장·지원이 중심이다</label>
       <label class="mini"><input type="checkbox" class="check" data-type="fact" value="1"> 사실 확인이나 설명을 요구한다</label>
