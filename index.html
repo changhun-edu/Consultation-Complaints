@@ -1432,7 +1432,7 @@
 <section id="quiz">
   <div class="card">
     <h2>의사결정 연습 퀴즈</h2>
-    <p class="sub">단순히 상담/민원을 맞히는 문제에서 끝내지 않고, <b>판정 → 근거 → 교사 행동 → 민원대응팀 개입</b>까지 한 사례를 4단계로 연습합니다. 선택 후 해설을 읽고 직접 다음 단계로 넘어갑니다.</p>
+    <p class="sub"><b>교사 모드</b>: 전체 사례 중 5개 무작위 · 4단계 · 만점 20점. <b>민원대응팀 모드</b>: 민원·특이민원 위주 5개 · 5단계(개입 레벨·종결·침해 판단 추가) · 만점 25점. 모드를 바꾸면 문제와 점수판이 함께 바뀝니다.</p>
     <div id="quizBox"></div>
     <div class="quizBtns">
       <button class="btn" onclick="startQuiz()">퀴즈 시작</button>
@@ -1518,6 +1518,9 @@ function setMode(m){
   document.body.classList.toggle('team-mode',m==='team');
   teacherMode.classList.toggle('active',m==='teacher');
   teamMode.classList.toggle('active',m==='team');
+  // 모드 바뀌면 퀴즈 인트로·점수판 갱신
+  showQuizIntro();
+  loadProgress();
 }
 
 // ── 히어로 카드 응답 (강화)
@@ -1882,34 +1885,60 @@ function openCase(i){ openRef(i); }
 function newCase(){ randomRef(); }
 
 // ════════════════════════════════════════════════
-//  퀴즈 — A안 전면 재설계
-//  • 전역 quizStep 제거 → qState 객체로 완전 캡슐화
-//  • 사례 텍스트는 상단 고정, 질문 영역만 교체
-//  • 정답 태그 스포일러 제거 (사례 정리 화면에서만 공개)
-//  • DOM 교체 타이밍 버그 제거 (클로저 캡처 기반)
+//  퀴즈 — 모드별 완전 분리
+//  교사 모드:      4단계 (판정 → 신호 → 교사행동 → 개입수준)
+//  민원대응팀 모드: 5단계 (판정 → 신호 → 교사행동 → 개입수준 → 종결·침해판단)
+//  사례 풀:        교사 모드 = 전체 20개 / 대응팀 모드 = 민원+특이민원 위주 7개 (더 어려운 사례)
 // ════════════════════════════════════════════════
 
-const quizSteps=[
-  {key:'judge',        title:'1 / 4  —  현재 상태 판정',  desc:'이 상황을 교사 입장에서 분류하세요.',        options:['상담','경계','민원','특이민원 가능']},
-  {key:'signal',       title:'2 / 4  —  핵심 신호 찾기',  desc:'이 사례를 가장 잘 설명하는 핵심 신호를 고르세요.', options:['학생 지원 목적','사실 확인·설명 요구','감정적 손상 호소','학교 책임 주장 시작','공식 창구 이탈 시도','특정 조치·결과 변경 요구','반복·폭언·압박 신호']},
-  {key:'teacherAction',title:'3 / 4  —  교사 1차 행동',  desc:'교사가 바로 취해야 할 행동을 고르세요.',     options:['상담 진행','상담 진행 + 기록','부장·관리자 공유 후 기록','공식 창구 안내 + 민원대응팀 공유','개인 대응 중단 + 즉시 보고']},
-  {key:'teamAction',   title:'4 / 4  —  민원대응팀 판단', desc:'민원대응팀의 개입 수준을 고르세요.',        options:['개입 불필요','공유 검토','즉시 공유','즉시 개입']}
+// ── 교사 모드 4단계
+const teacherSteps=[
+  {key:'judge',        title:'1 / 4  —  현재 상태 판정',
+    desc:'이 상황을 교사 입장에서 분류하세요.',
+    options:['상담','경계','민원','특이민원 가능']},
+  {key:'signal',       title:'2 / 4  —  핵심 신호 찾기',
+    desc:'이 사례를 가장 잘 설명하는 핵심 신호를 고르세요.',
+    options:['학생 지원 목적','사실 확인·설명 요구','감정적 손상 호소','학교 책임 주장 시작','공식 창구 이탈 시도','특정 조치·결과 변경 요구','반복·폭언·압박 신호']},
+  {key:'teacherAction',title:'3 / 4  —  교사 1차 행동',
+    desc:'교사가 바로 취해야 할 행동을 고르세요.',
+    options:['상담 진행','상담 진행 + 기록','부장·관리자 공유 후 기록','공식 창구 안내 + 민원대응팀 공유','개인 대응 중단 + 즉시 보고']},
+  {key:'teamAction',   title:'4 / 4  —  민원대응팀 개입 수준',
+    desc:'민원대응팀의 개입 수준을 고르세요.',
+    options:['개입 불필요','공유 검토','즉시 공유','즉시 개입']}
 ];
 
-// 퀴즈 전체 상태를 하나의 객체로 관리
-let qState={list:[],ci:0,score:0};
+// ── 민원대응팀 모드 5단계 (3단계부터 완전히 다른 질문)
+const teamSteps=[
+  {key:'judge',        title:'1 / 5  —  사안 유형 판정',
+    desc:'대응팀 관점에서 이 사안의 유형을 분류하세요.',
+    options:['상담','경계','민원','특이민원 가능']},
+  {key:'signal',       title:'2 / 5  —  핵심 신호 판별',
+    desc:'이 사안에서 대응팀이 주목해야 할 핵심 신호를 고르세요.',
+    options:['학생 지원 목적','사실 확인·설명 요구','감정적 손상 호소','학교 책임 주장 시작','공식 창구 이탈 시도','특정 조치·결과 변경 요구','반복·폭언·압박 신호']},
+  {key:'teamLevel',    title:'3 / 5  —  개입 레벨 결정',
+    desc:'이 사안에서 민원대응팀의 개입 레벨을 고르세요.',
+    options:['Level 1 · 담임 자율 대응','Level 2 · 부장 공유','Level 3 · 민원대응팀 검토','Level 4 · 학교장 총괄','Level 5 · 교육지원청 지원']},
+  {key:'closeOption',  title:'4 / 5  —  종결 가능성 판단',
+    desc:'현재 상태에서 이 사안의 종결 가능성을 판단하세요.',
+    options:['즉시 종결 가능','답변 후 종결 검토','부당요구 해당 시 종결 검토','종결 어려움 — 반복·압박 지속']},
+  {key:'infringe',     title:'5 / 5  —  교육활동 침해 가능성',
+    desc:'교육활동 침해 가능성과 보호 조치 필요 여부를 판단하세요.',
+    options:['침해 가능성 없음','낮음 — 모니터링 필요','중간 — 사전 대비 필요','높음 — 보호 조치 즉시 검토']}
+];
 
-function expectedQuiz(c,key){
+// 퀴즈 전체 상태
+let qState={list:[],ci:0,score:0,mode:'teacher'};
+
+// ── 현재 모드에 맞는 단계 배열 반환
+function getSteps(){ return document.body.classList.contains('team-mode') ? teamSteps : teacherSteps; }
+
+// ── 정답 계산
+function expectedQuiz(c, key){
   if(key==='judge') return c.ans;
-  // signal: 각 사례에 직접 지정된 signal 필드 사용 — ans 기반 추론 제거
   if(key==='signal') return c.signal;
   if(key==='teacherAction'){
     if(c.ans==='상담') return '상담 진행';
-    if(c.ans==='경계'){
-      // 책임 주장·체벌 의혹처럼 즉시 관리자 공유가 필요한 경우
-      if(c.signal==='학교 책임 주장 시작') return '부장·관리자 공유 후 기록';
-      return '상담 진행 + 기록';
-    }
+    if(c.ans==='경계') return c.signal==='학교 책임 주장 시작'?'부장·관리자 공유 후 기록':'상담 진행 + 기록';
     if(c.ans==='민원') return '공식 창구 안내 + 민원대응팀 공유';
     return '개인 대응 중단 + 즉시 보고';
   }
@@ -1919,9 +1948,30 @@ function expectedQuiz(c,key){
     if(c.intervention==='공유 필요'||c.intervention==='즉시 공유') return '즉시 공유';
     return '즉시 개입';
   }
+  if(key==='teamLevel'){
+    // c.level 필드("Level 3" 등)를 선택지 형식으로 변환
+    const lmap={'Level 1':'Level 1 · 담임 자율 대응','Level 2':'Level 2 · 부장 공유','Level 3':'Level 3 · 민원대응팀 검토','Level 4':'Level 4 · 학교장 총괄','Level 5':'Level 5 · 교육지원청 지원'};
+    return lmap[c.level]||'Level 3 · 민원대응팀 검토';
+  }
+  if(key==='closeOption'){
+    const cl=c.close||'';
+    if(cl.includes('즉시')||cl==='상담 종결 가능'||cl==='즉시 처리 가능'||cl==='지원 후 종결 가능'||cl==='지원 연계 후 종결 가능') return '즉시 종결 가능';
+    if(cl.includes('부당')) return '부당요구 해당 시 종결 검토';
+    if(cl.includes('종결·제한')||cl.includes('법적')||cl.includes('제한')) return '종결 어려움 — 반복·압박 지속';
+    return '답변 후 종결 검토';
+  }
+  if(key==='infringe'){
+    const inf=c.infringe||'없음';
+    if(inf==='없음') return '침해 가능성 없음';
+    if(inf==='낮음') return '낮음 — 모니터링 필요';
+    if(inf==='가능'||inf.includes('반복')||inf.includes('스토킹')) return '중간 — 사전 대비 필요';
+    if(inf==='높음') return '높음 — 보호 조치 즉시 검토';
+    return '낮음 — 모니터링 필요';
+  }
 }
 
-function optionDesc(key,o){
+// ── 선택지 설명
+function optionDesc(key, o){
   const map={
     judge:{
       '상담':'학생 지원 중심, 특정 조치 요구 없음',
@@ -1950,6 +2000,25 @@ function optionDesc(key,o){
       '공유 검토':'내용을 파악하고 공유 여부를 검토',
       '즉시 공유':'팀 단위로 검토하고 대응 방향을 결정',
       '즉시 개입':'기관 차원의 즉각 대응이 필요'
+    },
+    teamLevel:{
+      'Level 1 · 담임 자율 대응':'담임이 자율 상담으로 처리',
+      'Level 2 · 부장 공유':'부장교사와 공유·조율',
+      'Level 3 · 민원대응팀 검토':'교감 포함 민원대응팀이 검토',
+      'Level 4 · 학교장 총괄':'학교장이 총괄 대응',
+      'Level 5 · 교육지원청 지원':'학교 단독 해결 어려운 단계'
+    },
+    closeOption:{
+      '즉시 종결 가능':'충분한 안내 후 종결 가능',
+      '답변 후 종결 검토':'공식 답변 후 반복 여부 확인',
+      '부당요구 해당 시 종결 검토':'민원처리법상 부당요구 종결 검토',
+      '종결 어려움 — 반복·압박 지속':'제한 조치·상위 기관 검토 필요'
+    },
+    infringe:{
+      '침해 가능성 없음':'현재 교육활동 침해 위험 없음',
+      '낮음 — 모니터링 필요':'직접 침해는 아니나 지속 관찰 필요',
+      '중간 — 사전 대비 필요':'침해 전환 가능성, 사전 준비 필요',
+      '높음 — 보호 조치 즉시 검토':'교원보호위원회 개최 등 즉시 검토'
     }
   };
   return (map[key]&&map[key][o])||'선택 후 해설을 확인합니다';
@@ -1957,39 +2026,53 @@ function optionDesc(key,o){
 
 // ── 퀴즈 시작
 function startQuiz(){
-  qState={list:[...cases].sort(()=>Math.random()-.5).slice(0,5), ci:0, score:0};
+  const isTeam=document.body.classList.contains('team-mode');
+  // 민원대응팀 모드: 민원·특이민원 사례 위주 7개 + 경계 3개 풀에서 5개 추출
+  // 교사 모드: 전체 20개에서 5개 무작위
+  let pool;
+  if(isTeam){
+    const hard=cases.filter(c=>c.ans==='민원'||c.ans==='특이민원 가능');
+    const med=cases.filter(c=>c.ans==='경계');
+    // 민원/특이 최소 3개 + 경계 최소 1개 보장
+    const hardPick=[...hard].sort(()=>Math.random()-.5).slice(0,4);
+    const medPick=[...med].sort(()=>Math.random()-.5).slice(0,1);
+    pool=[...hardPick,...medPick].sort(()=>Math.random()-.5);
+  } else {
+    pool=[...cases].sort(()=>Math.random()-.5).slice(0,5);
+  }
+  qState={list:pool, ci:0, score:0, mode:isTeam?'team':'teacher'};
   renderQuizCase(qState.list[0], 0);
 }
 
-// ── 사례 렌더 — 사례 텍스트 고정 + 첫 질문 삽입
+// ── 사례 렌더
 function renderQuizCase(c, caseIdx){
+  const steps=getSteps();
   const total=qState.list.length;
-  const totalSteps=quizSteps.length;
-  // 전체 진행률 (사례 단위)
   const pct=Math.round((caseIdx/total)*100);
+  const isTeam=qState.mode==='team';
 
   quizBox.innerHTML=`
     <div class="quizCaseWrap">
-      <!-- 상단 고정: 진행 상태 + 사례 텍스트 -->
       <div class="quizCaseHeader">
         <div class="quizStepHeader">
           <b>사례 ${caseIdx+1} / ${total}</b>
-          <span class="note" style="font-size:var(--fs-xs)">4개 질문을 모두 풀면 정답이 공개됩니다</span>
+          <span class="miniTag" style="background:${isTeam?'var(--so-bg)':'#eff6ff'};color:${isTeam?'var(--so-tx)':'#1d4ed8'};border:1px solid ${isTeam?'var(--so-bd)':'#bfdbfe'}">
+            ${isTeam?'🏢 민원대응팀 모드 · 5단계':'👩‍🏫 교사 모드 · 4단계'}
+          </span>
         </div>
         <div class="quizProgress"><span id="qProgressBar" style="width:${pct}%"></span></div>
         <div class="scenario" id="qScenario">${c.text}</div>
       </div>
-      <!-- 질문 영역 — 단계마다 이 부분만 교체 -->
       <div id="qStepArea"></div>
     </div>`;
 
-  // 첫 번째 질문 렌더
-  renderQuizStep(c, caseIdx, 0, totalSteps, 0);
+  renderQuizStep(c, caseIdx, 0, steps.length, 0);
 }
 
-// ── 단계 렌더 — #qStepArea 만 교체, 사례 텍스트는 건드리지 않음
+// ── 단계 렌더
 function renderQuizStep(c, caseIdx, stepIdx, totalSteps, stepScore){
-  const st=quizSteps[stepIdx];
+  const steps=getSteps();
+  const st=steps[stepIdx];
   const stepArea=document.getElementById('qStepArea');
   if(!stepArea) return;
 
@@ -2011,30 +2094,27 @@ function renderQuizStep(c, caseIdx, stepIdx, totalSteps, stepScore){
     </div>`;
 }
 
-// ── 답 선택 처리 — 클로저로 caseIdx·stepIdx·stepScore 캡처, 전역 변수 불필요
+// ── 답 선택 처리
 function answerQuizStep(event, answer, caseIdx, stepIdx, stepScore){
-  // 이미 답한 경우 무시 (피드백 박스가 있으면)
   const feedbackEl=document.getElementById('qFeedback');
   if(!feedbackEl||feedbackEl.innerHTML.trim()) return;
 
+  const steps=getSteps();
   const c=qState.list[caseIdx];
-  const st=quizSteps[stepIdx];
+  const st=steps[stepIdx];
   const expected=expectedQuiz(c, st.key);
   const correct=answer===expected||(st.key==='judge'&&answer==='민원'&&c.ans==='특이민원 가능');
   const newStepScore=stepScore+(correct?1:0);
   if(correct) qState.score++;
 
-  // 선택지 전체 비활성화 + 정오 표시
   document.querySelectorAll('#qChoices button').forEach(b=>{
-    b.disabled=true;
-    b.style.cursor='default';
+    b.disabled=true; b.style.cursor='default';
     const txt=b.querySelector('span')?.textContent;
-    if(txt===expected)       b.classList.add('selected');
+    if(txt===expected)         b.classList.add('selected');
     if(txt===answer&&!correct) b.classList.add('wrong-answer');
   });
 
-  // 피드백 삽입
-  const isLastStep=(stepIdx>=quizSteps.length-1);
+  const isLastStep=(stepIdx>=steps.length-1);
   const isLastCase=(caseIdx>=qState.list.length-1);
   const nextLabel=isLastStep?(isLastCase?'퀴즈 결과 보기 →':'사례 정리 보기 →'):'다음 질문으로 →';
 
@@ -2046,41 +2126,52 @@ function answerQuizStep(event, answer, caseIdx, stepIdx, stepScore){
     </div>
     <button class="quizNextBtn" id="qNextBtn">${nextLabel}</button>`;
 
-  // 다음 단계 이동 — 새로운 클로저로 캡처
   document.getElementById('qNextBtn').onclick=()=>{
-    if(isLastStep){
-      renderQuizSummary(c, caseIdx, newStepScore);
-    } else {
-      renderQuizStep(c, caseIdx, stepIdx+1, quizSteps.length, newStepScore);
-    }
+    if(isLastStep) renderQuizSummary(c, caseIdx, newStepScore);
+    else renderQuizStep(c, caseIdx, stepIdx+1, steps.length, newStepScore);
   };
 }
 
-// ── 사례 정리 화면 — 4단계 완료 후 정답 공개
+// ── 사례 정리
 function renderQuizSummary(c, caseIdx, stepScore){
+  const steps=getSteps();
   const isLastCase=(caseIdx>=qState.list.length-1);
   const pct=Math.round(((caseIdx+1)/qState.list.length)*100);
-
-  // 진행 바 업데이트
   const pb=document.getElementById('qProgressBar');
   if(pb) pb.style.width=pct+'%';
 
   const stepArea=document.getElementById('qStepArea');
   if(!stepArea) return;
 
+  const isTeam=qState.mode==='team';
+
   stepArea.innerHTML=`
     <div class="quizFeedbackPanel" style="margin-top:16px">
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px">
         <span class="tag ${tagClass(c.ans)}">${c.ans}</span>
         <b style="font-size:var(--fs-md)">사례 정리</b>
-        <span class="miniTag">이 사례 ${stepScore}/${quizSteps.length}점</span>
+        <span class="miniTag">이 사례 ${stepScore}/${steps.length}점</span>
       </div>
       <div class="whyChips">${c.why.map(w=>`<span>${w}</span>`).join('')}</div>
       <div class="quizExplain" style="margin-top:14px">
         <div class="teacher"><b>교사 행동</b><br>${c.teacher}</div>
-        <div class="team"><b>민원대응팀 판단</b><br>${c.team}</div>
+        <div style="background:var(--so-bg);border:1px solid var(--so-bd);border-radius:var(--r-btn);padding:14px 16px;font-size:var(--fs-xs)">
+          <b style="display:block;margin-bottom:6px">민원대응팀 판단</b>
+          ${c.team}
+          ${isTeam?`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px">
+            <div style="background:var(--card);border-radius:var(--r-btn);padding:10px">
+              <small style="color:var(--ink2);display:block;margin-bottom:2px">개입 레벨</small><b>${c.level}</b>
+            </div>
+            <div style="background:var(--card);border-radius:var(--r-btn);padding:10px">
+              <small style="color:var(--ink2);display:block;margin-bottom:2px">종결 가능성</small><b>${c.close}</b>
+            </div>
+            <div style="background:var(--card);border-radius:var(--r-btn);padding:10px">
+              <small style="color:var(--ink2);display:block;margin-bottom:2px">침해 가능성</small><b>${c.infringe}</b>
+            </div>
+          </div>`:''}
+        </div>
       </div>
-      ${situationRoom(c)}
+      ${isTeam?situationRoom(c):''}
       <div class="nextQuestion" style="margin-top:12px"><b>다음 위험 신호</b><br>${c.next}</div>
     </div>
     <button class="quizNextBtn" id="qNextBtn">
@@ -2093,28 +2184,45 @@ function renderQuizSummary(c, caseIdx, stepScore){
     } else {
       const next=caseIdx+1;
       renderQuizCase(qState.list[next], next);
-      // 스크롤을 퀴즈 섹션 상단으로
       document.getElementById('quiz').scrollIntoView({behavior:'smooth',block:'start'});
     }
   };
 }
 
-// ── 최종 결과 화면
+// ── 최종 결과
 function renderQuizResult(){
-  const total=qState.list.length*quizSteps.length;
+  const steps=getSteps();
+  const total=qState.list.length*steps.length;
   const s=qState.score;
-  const title=s>=18?'민원 대응 전문가':s>=14?'경계 판단 우수':s>=10?'분류 연습생':'다시 연습 필요';
-  let best=Math.max(Number(localStorage.bestScore||0),s);
-  localStorage.bestScore=best;
-  localStorage.tryCount=Number(localStorage.tryCount||0)+1;
+  const isTeam=qState.mode==='team';
+
+  // 모드별 배지 기준
+  const maxPct=s/total;
+  let title;
+  if(isTeam){
+    title=maxPct>=0.9?'민원대응팀 전문가':maxPct>=0.75?'대응 판단 우수':maxPct>=0.6?'팀 대응 연습생':'다시 연습 필요';
+  } else {
+    title=maxPct>=0.9?'민원 대응 전문가':maxPct>=0.75?'경계 판단 우수':maxPct>=0.6?'분류 연습생':'다시 연습 필요';
+  }
+
+  const scoreKey=isTeam?'bestScoreTeam':'bestScore';
+  const tryKey=isTeam?'tryCountTeam':'tryCount';
+  let best=Math.max(Number(localStorage[scoreKey]||0),s);
+  localStorage[scoreKey]=best;
+  localStorage[tryKey]=Number(localStorage[tryKey]||0)+1;
   loadProgress();
 
   quizBox.innerHTML=`
     <div class="quizFeedbackPanel" style="text-align:center;padding:32px 24px">
-      <div class="quizBadgeBig">🏁</div>
+      <div class="quizBadgeBig">${isTeam?'🏢':'🏁'}</div>
+      <div style="margin-bottom:8px">
+        <span class="miniTag" style="background:${isTeam?'var(--so-bg)':'#eff6ff'};color:${isTeam?'var(--so-tx)':'#1d4ed8'};border:1px solid ${isTeam?'var(--so-bd)':'#bfdbfe'}">
+          ${isTeam?'민원대응팀 모드':'교사 모드'}
+        </span>
+      </div>
       <b style="font-size:var(--fs-xl)">${title}</b>
       <p style="font-size:var(--fs-lg);margin:12px 0 6px;color:var(--ink)">${s} / ${total}점</p>
-      <p class="note">정답보다 중요한 것은 판정 근거와 다음 행동까지 연결하는 것입니다.</p>
+      <p class="note">${isTeam?'개입 레벨·종결·침해 판단까지 연결하는 것이 핵심입니다.':'정답보다 중요한 것은 판정 근거와 다음 행동까지 연결하는 것입니다.'}</p>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px;text-align:left">
         <div style="background:var(--bg);border-radius:var(--r-btn);padding:14px">
           <small style="color:var(--ink2);display:block;margin-bottom:4px">이번 점수</small>
@@ -2126,32 +2234,52 @@ function renderQuizResult(){
         </div>
         <div style="background:var(--bg);border-radius:var(--r-btn);padding:14px">
           <small style="color:var(--ink2);display:block;margin-bottom:4px">누적 도전</small>
-          <b style="font-size:var(--fs-lg)">${localStorage.tryCount}회</b>
+          <b style="font-size:var(--fs-lg)">${localStorage[tryKey]}회</b>
         </div>
       </div>
     </div>`;
 }
 
-function loadProgress(){bestScore.textContent=localStorage.bestScore||0;tryCount.textContent=localStorage.tryCount||0;let b=Number(localStorage.bestScore||0);badge.textContent=b>=18?'전문가':b>=14?'경계 판단 우수':b>=10?'분류 연습생':'-'}
-function resetProgress(){localStorage.removeItem('bestScore');localStorage.removeItem('tryCount');loadProgress()}
+function loadProgress(){
+  const isTeam=document.body.classList.contains('team-mode');
+  const scoreKey=isTeam?'bestScoreTeam':'bestScore';
+  const tryKey=isTeam?'tryCountTeam':'tryCount';
+  const b=Number(localStorage[scoreKey]||0);
+  const steps=isTeam?teamSteps:teacherSteps;
+  const max=5*steps.length;
+  bestScore.textContent=b;
+  tryCount.textContent=localStorage[tryKey]||0;
+  badge.textContent=b/max>=0.9?'전문가':b/max>=0.75?'판단 우수':b/max>=0.6?'연습생':'-';
+}
+function resetProgress(){
+  ['bestScore','tryCount','bestScoreTeam','tryCountTeam'].forEach(k=>localStorage.removeItem(k));
+  loadProgress();
+}
 
 function showQuizIntro(){
+  const isTeam=document.body.classList.contains('team-mode');
   quizBox.innerHTML=`
     <div class="quizFeedbackPanel">
-      <div class="quizBadgeBig">🎯</div>
-      <b style="font-size:var(--fs-lg)">퀴즈 방식</b>
-      <p style="margin:10px 0 0">한 사례마다 4개 질문을 순서대로 풉니다.</p>
-      <div style="display:grid;gap:8px;margin-top:14px">
+      <div class="quizBadgeBig">${isTeam?'🏢':'🎯'}</div>
+      <b style="font-size:var(--fs-lg)">${isTeam?'민원대응팀 모드 퀴즈 방식':'교사 모드 퀴즈 방식'}</b>
+      ${isTeam?`
+      <p style="margin:10px 0 4px;color:var(--ink2);font-size:var(--fs-xs)">민원·특이민원 사례 위주 5사례 · 사례당 5단계 · 만점 25점</p>
+      <div style="display:grid;gap:8px;margin-top:12px">
+        <div style="background:var(--bg);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">① 사안 유형 <b>판정</b></div>
+        <div style="background:var(--bg);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">② 대응팀이 주목할 <b>핵심 신호</b> 찾기</div>
+        <div style="background:var(--so-bg);border:1px solid var(--so-bd);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">③ <b>개입 레벨</b> 결정 (Level 1~5)</div>
+        <div style="background:var(--so-bg);border:1px solid var(--so-bd);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">④ <b>종결 가능성</b> 판단</div>
+        <div style="background:var(--so-bg);border:1px solid var(--so-bd);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">⑤ <b>교육활동 침해</b> 가능성 판단</div>
+      </div>
+      <p style="margin:12px 0 0;font-size:var(--fs-xs);color:var(--so-tx)">3~5단계가 교사 모드와 다른 대응팀 전용 질문입니다.</p>`:`
+      <p style="margin:10px 0 4px;color:var(--ink2);font-size:var(--fs-xs)">전체 사례 중 5사례 무작위 · 사례당 4단계 · 만점 20점</p>
+      <div style="display:grid;gap:8px;margin-top:12px">
         <div style="background:var(--bg);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">① 상담 / 경계 / 민원 / 특이민원 <b>판정</b></div>
-        <div style="background:var(--bg);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">② 7가지 신호 중 이 사례의 <b>핵심 신호</b> 찾기<br><span style="color:var(--ink2);line-height:1.6">학생 지원 목적 · 사실 확인·설명 요구 · 감정적 손상 호소 · 학교 책임 주장 시작 · 공식 창구 이탈 시도 · 특정 조치·결과 변경 요구 · 반복·폭언·압박 신호</span></div>
-        <div style="background:var(--bg);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">③ 교사가 취해야 할 <b>1차 행동</b> 고르기</div>
-        <div style="background:var(--bg);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">④ 민원대응팀 <b>개입 수준</b> 판단</div>
-      </div>
-      <p style="margin:14px 0 0;font-size:var(--fs-xs);color:var(--ink2)">4단계를 모두 마치면 정답 태그와 사례 정리가 공개됩니다. 사례 텍스트는 단계가 바뀌어도 화면 위에 고정됩니다.</p>
-      <div class="quizExplain" style="margin-top:14px">
-        <div class="teacher"><b>교사 모드</b><br>상담 계속 / 기록 / 공유 여부를 판단합니다.</div>
-        <div class="team teamOnly"><b>민원대응팀 모드</b><br>개입 수준·처리 주체·종결 가능성까지 함께 확인합니다.</div>
-      </div>
+        <div style="background:var(--bg);border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">② 7가지 신호 중 <b>핵심 신호</b> 찾기</div>
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">③ 교사 <b>1차 행동</b> 고르기</div>
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r-btn);padding:12px 14px;font-size:var(--fs-xs)">④ 민원대응팀 <b>개입 수준</b> 판단</div>
+      </div>`}
+      <p style="margin:14px 0 0;font-size:var(--fs-xs);color:var(--ink2)">4~5단계를 모두 마치면 정답과 사례 정리가 공개됩니다.</p>
     </div>`;
 }
 
